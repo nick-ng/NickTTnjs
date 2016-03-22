@@ -1,2 +1,2 @@
 # NickTTnjs
-Tournament tool written in node.js. An exercise in learning to use various services and deliberately over engineered as a result.
+Tournament tool written in node.js. A deliberately over engineered learning exercise.
