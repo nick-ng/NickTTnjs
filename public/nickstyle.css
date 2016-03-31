@@ -1,0 +1,28 @@
+body {
+  font-family: Arial, Helvetica;
+  background-color: #fff;
+}
+h1, h2, h3, h4, p {
+  color: #011;
+}
+table {
+  border: 1px solid black;
+  border-collapse: collapse;
+  float: center
+}
+th, td {
+  border: 1px solid black;
+  padding: 5px;
+}
+tr:nth-child(odd) {
+  color: black;
+  background-color: #ccc;
+}
+tr:nth-child(even) {
+  color: black;
+  background-color: #eee;
+}
+th {
+  color: white;
+  background-color: #444;
+}
