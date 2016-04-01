@@ -22,11 +22,24 @@
     <!--
     <p id="outstream">Hello</p></center>
     -->
+    <footer class="footer">&copy; Nick Ng - 2016</footer>
+    </center>
     
+    <!-- use "local" libraries -->
+    <script src="socket.io-1.4.5.js"></script>
     <script src="jquery-2.2.2.min.js"></script>
+    <!-- -->
+    <!-- use online CDN for libraries.
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+    <!-- -->
     <script type="text/javascript">
+      // ==================
+      // Script starts here
+      // ==================
       var bgLight = '#eee';
       var bgDark = '#ccc';
+      var socket = io();
       
       $( document ).ready(function() {
         addPlayerRow();
@@ -53,8 +66,18 @@
     // club
     // team
     
-    $('#tbl tr:last').after(tableRowContent); // Append a new row.
-    
+    $( '#tbl tr:last' ).after( tableRowContent ); // Append a new row.
+    var realNameInputs = [ 'givenName', 'familyName' ];
+    for ( var i = 0; i < realNameInputs.length; i++ ) {
+      $( '#' + realNameInputs[i] + newID ).focusout( function() {
+        var givenName = $( '#givenName' + newID ).val();
+        var familyName = $( '#familyName' + newID ).val();
+        var shortName = $( '#shortName' + newID ).val();
+        var nameList = [ newID, givenName, familyName, shortName ];
+        socket.emit( 'name change', nameList );
+        return false;
+      });
+    }
     fixRowColours()
     showAllRows()
     // Count rows / players
@@ -122,6 +145,11 @@
       }
     }
   }
+  
+  socket.on( 'short change', function(shortName){
+    //console.log( shortName );
+    $( '#shortName' + shortName[0] ).val( shortName[1] );
+  });
     </script>
   </body>
 </html>
