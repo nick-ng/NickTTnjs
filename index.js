@@ -3,12 +3,14 @@ var app = express();
 var http = require( 'http' ).Server( app );
 var io = require( 'socket.io' )( http );
 var pagedir = __dirname + '/pages';
+//var jsdir = __dirname + '/js';
 
 app.set( 'port', ( process.env.PORT || 3434 ));
 
 app.use( express.static( __dirname + '/public' ) );
+app.use( express.static( __dirname + '/js' ) );
 
-app.get( '/', function( req, res ){
+app.get( '/', function( req, res ) {
   res.sendFile(pagedir + '/playerdetails.html');
   //res.send('<h1>Hello World</h1>');
 });
