@@ -1,5 +1,5 @@
 // Requires
-var express = require( 'express' );
+var express = require( 'express' ); var app = express();
 var fs = require( 'fs' );
 var csv = require( 'csv' );
 var http = require( 'http' ).Server( app );
@@ -8,7 +8,6 @@ var io = require( 'socket.io' )( http );
 //var bfun = require( __dirname + '/common/bfun' );
 
 // "Global" variables
-var app = express();
 var pagedir = __dirname + '/pages';
 var dictdir = __dirname + '/dicts';
 
