@@ -1,14 +1,28 @@
+// Requires
 var express = require( 'express' );
-var app = express();
+var fs = require( 'fs' );
+var csv = require( 'csv' );
 var http = require( 'http' ).Server( app );
 var io = require( 'socket.io' )( http );
+// My requires
+//var bfun = require( __dirname + '/common/bfun' );
+
+// "Global" variables
+var app = express();
 var pagedir = __dirname + '/pages';
-//var jsdir = __dirname + '/js';
+var dictdir = __dirname + '/dicts';
+
+// Load some files
+//var shortnames = bfun.loadCSV( dictdir + '/shortnames' );
+//console.log( 'Short Names:' );
+//console.log( shortnames );
+//dictdir + '/shortnames'
 
 app.set( 'port', ( process.env.PORT || 3434 ));
 
 app.use( express.static( __dirname + '/public' ) );
 app.use( express.static( __dirname + '/js' ) );
+//app.use( express.static( dictdir ) );
 
 app.get( '/', function( req, res ) {
   res.sendFile(pagedir + '/playerdetails.html');
@@ -26,6 +40,7 @@ io.on( 'connection', function( socket ){
     }
     if ( ( nameList[3] == '' ) || ( nameList[3] == nameList[1] ) ) { // If they haven't changed the short name,
       io.emit( 'short change', [ nameList[0], shortName ] );
+      console.log( shortnames );
     }
   });
 });
@@ -33,3 +48,4 @@ io.on( 'connection', function( socket ){
 http.listen( app.get( 'port' ), function(){
   console.log( 'listening on : ' + app.get('port') );
 });
+
