@@ -5,17 +5,17 @@ var csv = require( 'csv' );
 var http = require( 'http' ).Server( app );
 var io = require( 'socket.io' )( http );
 // My requires
-//var bfun = require( __dirname + '/common/bfun' );
+var bfun = require( __dirname + '/common/bfun' );
 
 // "Global" variables
 var pagedir = __dirname + '/pages';
 var dictdir = __dirname + '/dicts';
 
 // Load some files
-//var shortnames = bfun.loadCSV( dictdir + '/shortnames' );
-//console.log( 'Short Names:' );
-//console.log( shortnames );
-//dictdir + '/shortnames'
+var shortnames = bfun.loadCSV( dictdir + '/shortnames' );
+console.log( 'Short Names:' );
+console.log( shortnames );
+dictdir + '/shortnames'
 
 app.set( 'port', ( process.env.PORT || 3434 ));
 
