@@ -7,6 +7,9 @@ require('jquery-csv');
 var fileOptions = 'utf8';
 var csvOptions = {};
 
+// This is an Object of functions which works because you can call
+// object.keyName or object['keyName'] to access object elements.
+// E.g. calling bfun.helloWorld() and bfun['helloWorld']() both work.
 module.exports = {
   
   loadFile: function ( somePath ) {
@@ -19,9 +22,23 @@ module.exports = {
     return outArray;
   },
   
+  loadCSVObjects: function ( someString ) {
+    var outArray = $.csv.toObjects( someString, csvOptions );
+    return outArray;
+  },
+  
   loadCSVFile: function ( somePath ) {
     var outArray = $.csv.toArrays( fs.readFileSync( somePath, fileOptions ), csvOptions );
     return outArray;
+  },
+  
+  loadCSVObjectsFile: function ( somePath ) {
+    var outArray = $.csv.toObjects( fs.readFileSync( somePath, fileOptions ), csvOptions );
+    return outArray;
+  },
+  
+  removeWhiteSpace: function ( someString ) {
+    return someString.replace( /[\s\n\r]+/g, ' ' ).replace(/^\s|\s$/g, "");
   },
   
   helloWorld: function () {
