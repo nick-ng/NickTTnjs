@@ -17,6 +17,9 @@ var dictdir = __dirname + '/dicts';
 var shortnames = bfun.loadCSVFile( dictdir + '/shortnames' );
 console.log( 'Short Names:' );
 console.log( shortnames );
+var nicknames = bfun.loadCSVFile( dictdir + '/nicknames' );
+console.log( 'Nick Names:' );
+console.log( nicknames );
 
 app.set( 'port', ( process.env.PORT || 3434 ));
 
