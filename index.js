@@ -1,9 +1,11 @@
 // Requires
 var express = require( 'express' ); var app = express();
 var fs = require( 'fs' );
-var csv = require( 'csv' );
 var http = require( 'http' ).Server( app );
 var io = require( 'socket.io' )( http );
+// People's requires
+var $ = jQuery = require('jquery');
+require('jquery-csv');
 // My requires
 var bfun = require( __dirname + '/common/bfun' );
 
@@ -12,10 +14,9 @@ var pagedir = __dirname + '/pages';
 var dictdir = __dirname + '/dicts';
 
 // Load some files
-var shortnames = bfun.loadCSV( dictdir + '/shortnames' );
+var shortnames = bfun.loadCSVFile( dictdir + '/shortnames' );
 console.log( 'Short Names:' );
 console.log( shortnames );
-dictdir + '/shortnames'
 
 app.set( 'port', ( process.env.PORT || 3434 ));
 

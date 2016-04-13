@@ -1,29 +1,31 @@
 // Requires
 var fs = require( 'fs' );
-var csv = require( 'csv' );
 // My requires
+var $ = jQuery = require('jquery');
+require('jquery-csv');
 
+var fileOptions = 'utf8';
+var csvOptions = {};
 
 module.exports = {
   
-  loadCSV: function ( somePath ) {
-    var outArray = [];
-    fs.readFile(somePath, 'utf8', function ( err, data ) {
-      if (err) {
-        return console.log(err);
-      }
-      //console.log(data);
-      csv.parse(data, {trim: true, auto_parse: true, comment: '#'}, function ( err, records ) {
-        outArray = records;
-      });
-    });
-    //console.log(outArray);
-    //return outArray;
-    //return outArray
+  loadFile: function ( somePath ) {
+    var outString = fs.readFileSync( somePath, fileOptions );
+    return outString;
   }, // Note this comma
+  
+  loadCSV: function ( someString ) {
+    var outArray = $.csv.toArrays( someString, csvOptions );
+    return outArray;
+  },
+  
+  loadCSVFile: function ( somePath ) {
+    var outArray = $.csv.toArrays( fs.readFileSync( somePath, fileOptions ), csvOptions );
+    return outArray;
+  },
   
   helloWorld: function () {
     console.log('Hello World');
-  }
+  } // Note this doesn't have a comma
 
 };
