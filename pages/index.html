@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Nick's Tournament Tool</title>
+    <link rel="shortcut icon" href="narwhal-32.png" />
+    <link rel="stylesheet" type="text/css" href="nickstyle.css" />
+  </head>
+  <body>
+  <ul class="navbar-ul">
+    <li class="navbar-li"><a class="navbar-a act" href="./">Home</a></li>
+    <li class="navbar-li"><a class="navbar-a" href="./playerdetails">Player Details</a></li>
+    <li class="navbar-li"><a class="navbar-a" href="./rounddraws">Round Draws</a></li>
+    <li class="navbar-li"><a class="navbar-a" href="./scores">Scores</a></li>
+    <li class="navbar-li"><a class="navbar-a" href="./finalstandings">Final Standings</a></li>
+  </ul> 
+<div style="margin-top:50px;">
+  <hr />
+  </div>
+  <div style="margin-top:100px">
+  <p style="vertical-align:top;">
+    <input id="saveTournamentButton" type="button" value="Save Tournament" />
+  </p>
+</div>
+<div style="margin-top:100px">
+  <p>
+    <input id="newTournamentButton" type="button" value="New Tournament" />
+    <input id="loadTournamentButton" type="button" value="Load Tournament" />
+    <input id="demoTournamentButton" type="button" value="Demonstration" />
+  </p>
+</div>
+<p id="outstream">Nick's Tournament Tool</p>
+    <hr />
+    <footer class="footer">&copy; <a href="http://nick-ng.com" target="_blank">Nick Ng</a> - 2016</footer>
+    </center>
+    
+    <script type="text/javascript" src="socket.io-1.4.5.js"></script>
+    <script type="text/javascript" src="jquery-2.2.2.min.js"></script>
+    <script type="text/javascript" src="home.js"></script>
+  </body>
+</html>

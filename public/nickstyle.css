@@ -2,7 +2,7 @@ body {
   font-family: Arial, Helvetica;
   background-color: #fff;
 }
-h1, h2, h3, h4, p .footer {
+h1, h2, h3, h4, p, .footer {
   color: #011;
   text-align:center;
 }
@@ -26,4 +26,42 @@ tr:nth-child(even) {
 th {
   color: white;
   background-color: #444;
+}
+
+.navbar-ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #444;
+    position: fixed;
+    top: 0;
+    width: 100%;
+}
+
+.navbar-li {
+    float: left;
+    border-right: 1px solid #bbb;
+}
+
+.navbar-a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 14px;
+    text-decoration: none;
+    font-family: Arial, Helvetica;
+    font-weight: bold;
+}
+
+/* Active link style */
+.navbar-a.act {
+    color: white;
+    background-color: #077;
+}
+
+/* Change the link color on hover */
+.navbar-a:hover:not(.act){
+    color: black;
+    background-color: #ddd;
 }

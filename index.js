@@ -30,13 +30,32 @@ for ( var i = 0; i < NICKNAMES.length; i++ ) {
 }
 
 app.set( 'port', ( process.env.PORT || 3434 ));
+app.set('views', __dirname + '/public');
+app.set('view engine', 'ejs');
 
 app.use( express.static( __dirname + '/public' ) );
 app.use( express.static( __dirname + '/js' ) );
 //app.use( express.static( DICTDIR ) );
 
+// The pages
 app.get( '/', function( req, res ) {
+  res.sendFile(PAGEDIR + '/index.html');
+  //res.send('<h1>Hello World</h1>');
+});
+app.get( '/playerdetails', function( req, res ) {
   res.sendFile(PAGEDIR + '/playerdetails.html');
+  //res.send('<h1>Hello World</h1>');
+});
+app.get( '/finalstandings', function( req, res ) {
+  res.sendFile(PAGEDIR + '/finalstandings.html');
+  //res.send('<h1>Hello World</h1>');
+});
+app.get( '/rounddraws', function( req, res ) {
+  res.sendFile(PAGEDIR + '/rounddraws.html');
+  //res.send('<h1>Hello World</h1>');
+});
+app.get( '/scores', function( req, res ) {
+  res.sendFile(PAGEDIR + '/scores.html');
   //res.send('<h1>Hello World</h1>');
 });
 
