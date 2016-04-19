@@ -16,15 +16,15 @@ $('#shortenNamesButton').click(function() {
   if ( shortenNameButtonFunction == 'append' ) {
     $( '#shortenNamesButton' ).val( 'Append' );
     //~ $( '#shortenNamesText' ).val( '' );
-    $( '#shortenNamesOutstream' ).text( 'Appended short names:' + tempText );
+    $( '#shortenNamesOutstream' ).html( 'Appended short names:<br>' + tempText );
   } else if (shortenNameButtonFunction == 'replace') {
     $( '#shortenNamesButton' ).val( 'Replace' );
     //~ $( '#shortenNamesText' ).val( '' );
-    $( '#shortenNamesOutstream' ).text( 'Replaced short names:' + tempText );
+    $( '#shortenNamesOutstream' ).html( 'Replaced short names:<br>' + tempText );
   } else if (shortenNameButtonFunction == 'reset') {
     $( '#shortenNamesButton' ).val( 'Reset' );
     //~ $( '#shortenNamesText' ).val( '' );
-    $( '#shortenNamesOutstream' ).text( 'Reset short names:' + tempText );
+    $( '#shortenNamesOutstream' ).text( 'Reset short names.' );
   }
 });
 
