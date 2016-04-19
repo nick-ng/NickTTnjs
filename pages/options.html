@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Options</title>
+    <link rel="shortcut icon" href="narwhal-32.png" />
+    <link rel="stylesheet" type="text/css" href="nickstyle.css" />
+  </head>
+  <body>
+  <ul class="navbar-ul">
+    <li class="navbar-li"><a class="navbar-a" href="./">Home</a></li>
+    <li class="navbar-li"><a class="navbar-a" href="./playerdetails">Player Details</a></li>
+    <li class="navbar-li"><a class="navbar-a" href="./rounddraws">Round Draws</a></li>
+    <li class="navbar-li"><a class="navbar-a" href="./scores">Scores</a></li>
+    <li class="navbar-li"><a class="navbar-a" href="./finalstandings">Final Standings</a></li>
+    <li class="navbar-li" style="float:right"><a class="navbar-a act" href="./options">Options</a></li>
+  </ul> 
+<div style="margin-top:50px;">
+  <hr />
+</div>
+<div class="left-div">
+  <h2 style="text-align: left">Shortened Names</h2>
+  <table class="invis-t" style="text-align: left">
+    <tr>
+      <td class="invis-t" style="text-align: left">
+        <table id="shortenNamesTable">
+          <tr>
+            <th style="text-align: left">Long Name</th>
+            <th style="text-align: left">Shortened Name</th>
+          </tr>
+        </table>
+      </td>
+      <td class="invis-t" style="text-align: left">
+        <div id="shortenNamesOutstream"></div>
+        <textarea id="shortenNamesText" rows="8" cols="50"></textarea><br />
+        <input id="shortenNamesRadioAppend" type="radio" name="shortenNamesRadio" value="append" checked="checked" /> Append 
+        <input id="shortenNamesRadioReplace" type="radio" name="shortenNamesRadio" value="replace" /> Replace 
+        <input id="shortenNamesRadioReset" type="radio" name="shortenNamesRadio" value="reset" /> Reset<br />
+        <input id="shortenNamesButton" type="button" value="Submit" />
+      </td>
+    </tr>
+  </table>
+ </div>
+  <hr />
+<div class="left-div">
+  <h2 style="text-align: left">Nick Names</h2>
+  <table class="invis-t" style="text-align: left">
+    <tr>
+      <td class="invis-t" style="text-align: left">Test1</td>
+      <td class="invis-t" style="text-align: left">Test2</td>
+    </tr>
+  </table>
+</div>
+<hr />
+<p id="outstream">Options</p>
+    <footer class="footer">&copy; <a href="http://nick-ng.com" target="_blank">Nick Ng</a> - 2016</footer>
+    </center>
+    
+    <script type="text/javascript" src="socket.io-1.4.5.js"></script>
+    <script type="text/javascript" src="jquery-2.2.2.min.js"></script>
+    <script type="text/javascript" src="options.js"></script>
+  </body>
+</html>

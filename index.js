@@ -40,23 +40,21 @@ app.use( express.static( __dirname + '/js' ) );
 // The pages
 app.get( '/', function( req, res ) {
   res.sendFile(PAGEDIR + '/index.html');
-  //res.send('<h1>Hello World</h1>');
 });
 app.get( '/playerdetails', function( req, res ) {
   res.sendFile(PAGEDIR + '/playerdetails.html');
-  //res.send('<h1>Hello World</h1>');
 });
 app.get( '/finalstandings', function( req, res ) {
   res.sendFile(PAGEDIR + '/finalstandings.html');
-  //res.send('<h1>Hello World</h1>');
 });
 app.get( '/rounddraws', function( req, res ) {
   res.sendFile(PAGEDIR + '/rounddraws.html');
-  //res.send('<h1>Hello World</h1>');
 });
 app.get( '/scores', function( req, res ) {
   res.sendFile(PAGEDIR + '/scores.html');
-  //res.send('<h1>Hello World</h1>');
+});
+app.get( '/options', function( req, res ) {
+  res.sendFile(PAGEDIR + '/options.html');
 });
 
 io.on( 'connection', function( socket ) {

@@ -19,7 +19,15 @@ function addPlayerRow() {
   var rowCount = rowProperties.length; // Can be combined into one line but having it like this so I know later.
   var newID = rowCount; // There will be one more row than there are players because of the header row.
   // The row's contents
-  var tableRowContent = '<tr id="playerRow' + newID + '"><td style="text-align: right;">' + newID + '</td><td><input type="text" id="givenName' + newID + '" /></td><td><input type="text" id="familyName' + newID + '" /></td><td><input type="text" id="shortName' + newID + '" /></td><td style="text-align: center;"><input type="checkbox" unchecked id="stillPlaying' + newID + '" /></td><td style="text-align: center;"><input type="checkbox" unchecked id="paid' + newID + '" /></td><td><input type="text" id="club' + newID + '" /></td><td><input type="text" id="team' + newID + '" /></td></tr>'
+  var tableRowContent = '<tr id="playerRow' + newID + '">' +
+    '<td style="text-align: right;">' + newID + '</td>' +
+    '<td><input type="text" id="givenName' + newID + '" /></td>' +
+    '<td><input type="text" id="familyName' + newID + '" /></td>' +
+    '<td><input type="text" id="shortName' + newID + '" /></td>' +
+    '<td style="text-align: center;"><input type="checkbox" unchecked id="stillPlaying' + newID + '" /></td>' +
+    '<td style="text-align: center;"><input type="checkbox" unchecked id="paid' + newID + '" /></td>' +
+    '<td><input type="text" id="club' + newID + '" /></td>' +
+    '<td><input type="text" id="team' + newID + '" /></td></tr>'
   // id's of inputs: ['playerRow', 'stillPlaying', 'givenName', 'familyName', 'shortName', 'club', 'team'];
   // playerRow
   // stillPlaying

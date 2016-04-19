@@ -1,8 +1,13 @@
-body {
+body, .invis-t {
   font-family: Arial, Helvetica;
   background-color: #fff;
 }
-h1, h2, h3, h4, p, .footer {
+
+.left-div {
+  margin-left: 2%;
+}
+
+h1, h2, h3, h4, p, .footer, .invis-t{
   color: #011;
   text-align:center;
 }
@@ -28,6 +33,12 @@ th {
   background-color: #444;
 }
 
+.invis-t {
+  border: none;
+  border-collapse: collapse;
+  vertical-align: top;
+}
+
 .navbar-ul {
     list-style-type: none;
     margin: 0;
@@ -42,6 +53,11 @@ th {
 .navbar-li {
     float: left;
     border-right: 1px solid #bbb;
+}
+
+.navbar-li:last-child {
+    border-right: none;
+    border-left: 1px solid #bbb;
 }
 
 .navbar-a {
