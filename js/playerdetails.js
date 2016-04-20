@@ -21,35 +21,45 @@ function addPlayerRow() {
   // The row's contents
   var tableRowContent = '<tr id="playerRow' + newID + '">' +
     '<td style="text-align: right;">' + newID + '</td>' +
-    '<td><input type="text" id="givenName' + newID + '" /></td>' +
-    '<td><input type="text" id="familyName' + newID + '" /></td>' +
+    '<td><input type="text" id="fullName' + newID + '" /></td>' +
+    '<td><input type="text" id="playerEmail' + newID + '" /></td>' +
     '<td><input type="text" id="shortName' + newID + '" /></td>' +
     '<td style="text-align: center;"><input type="checkbox" unchecked id="stillPlaying' + newID + '" /></td>' +
     '<td style="text-align: center;"><input type="checkbox" unchecked id="paid' + newID + '" /></td>' +
     '<td><input type="text" id="club' + newID + '" /></td>' +
-    '<td><input type="text" id="team' + newID + '" /></td></tr>'
-  // id's of inputs: ['playerRow', 'stillPlaying', 'givenName', 'familyName', 'shortName', 'club', 'team'];
+    '<td><input type="text" id="faction' + newID + '" /></td></tr>'
+  // id's of inputs: ['playerRow', 'stillPlaying', 'fullName', 'playerEmail', 'shortName', 'club', 'team'];
   // playerRow
   // stillPlaying
-  // givenName
-  // familyName
+  // fullName
+  // playerEmail
   // shortName
   // club
   // team
   
   $( '#tbl tr:last' ).after( tableRowContent ); // Append a new row.
-  var realNameInputs = [ 'givenName', 'familyName' ];
-  // Some cells will throw an event on focusout to save data
-  for ( var i = 0; i < realNameInputs.length; i++ ) {
-    $( '#' + realNameInputs[i] + newID ).focusout( function() {
-      var givenName = $( '#givenName' + newID ).val();
-      var familyName = $( '#familyName' + newID ).val();
+  
+  // Set up events for cells.
+  $( '#fullName' + newID ).focusout( function() {
+    var fullName = $( '#fullName' + newID ).val();
+    if ( fullName.length > 0 ) { // If they've entered a full name
       var shortName = $( '#shortName' + newID ).val();
-      var nameList = [ newID, givenName, familyName, shortName ];
-      socket.emit( 'name change', nameList );
-      return false;
-    });
-  }
+      var player = {};
+      player.ID = newID;
+      player.fullName = fullName;
+      //player.email = playerEmail;
+      //player.shortNames = [shortName1,shortName2,etc.];
+      player.shortName = shortName;
+      //player.stillPlaying = true;
+      //player.paid = false;
+      //player.club = club;
+      //player.faction = faction;
+      socket.emit( 'fullName focusout', player );
+    }
+    return false;
+  });
+  
+  
   fixRowColours()
   showAllRows()
   // Count rows / players
@@ -91,7 +101,7 @@ $('#showEmptyButton').click(function() {
 });
 
 function showAllRows() {
-  var rowCount = $('#tbl').prop('rows').length; // I feel like I store the value somewhere rather than invoking this everytime.
+  var rowCount = $('#tbl').prop('rows').length; // I feel like I should store the value somewhere rather than invoking this everytime.
   for (var i = 1; i < rowCount; i++) {
     $('#playerRow' + i).show(); // show row.
   }
@@ -118,8 +128,11 @@ function fixRowColours() {
   }
 }
 
-socket.on( 'short change', function(shortName){
+socket.on( 'shortName change', function(playerList){
   //console.log( shortName );
-  $( '#shortName' + shortName[0] ).val( shortName[1] );
-  $( '#stillPlaying' + shortName[0] ).attr( 'checked', true );
+  for (var i = 0; i < playerList.length; i++ ) {
+    player = playerList[i];
+    $( '#shortName' + player.ID ).val( player.shortName );
+    $( '#stillPlaying' + player.ID ).attr( 'checked', true );
+  };
 });

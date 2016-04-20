@@ -2,7 +2,7 @@ var bgLight = '#eee';
 var bgDark = '#ccc';
 var socket = io();
 
-var shortenNameButtonFunction = 'append';
+var shortenedNameButtonFunction = 'append';
 
 // ==============
 // Document.Ready
@@ -11,53 +11,53 @@ $( document ).ready(function() {
   getShortenNameRadioVal()
 }); // $( document ).ready(function() {
 
-$('#shortenNamesButton').click(function() {
-  var tempText = $( '#shortenNamesText' ).val();
-  if ( shortenNameButtonFunction == 'append' ) {
-    $( '#shortenNamesButton' ).val( 'Append' );
-    //~ $( '#shortenNamesText' ).val( '' );
-    $( '#shortenNamesOutstream' ).html( 'Appended short names:<br>' + tempText );
-  } else if (shortenNameButtonFunction == 'replace') {
-    $( '#shortenNamesButton' ).val( 'Replace' );
-    //~ $( '#shortenNamesText' ).val( '' );
-    $( '#shortenNamesOutstream' ).html( 'Replaced short names:<br>' + tempText );
-  } else if (shortenNameButtonFunction == 'reset') {
-    $( '#shortenNamesButton' ).val( 'Reset' );
-    //~ $( '#shortenNamesText' ).val( '' );
-    $( '#shortenNamesOutstream' ).text( 'Reset short names.' );
+$('#shortenedNamesButton').click(function() {
+  var tempText = $( '#shortenedNamesText' ).val();
+  if ( shortenedNameButtonFunction == 'append' ) {
+    $( '#shortenedNamesButton' ).val( 'Append' );
+    //~ $( '#shortenedNamesText' ).val( '' );
+    $( '#shortenedNamesOutstream' ).html( 'Appended short names:<br>' + tempText );
+  } else if (shortenedNameButtonFunction == 'replace') {
+    $( '#shortenedNamesButton' ).val( 'Replace' );
+    //~ $( '#shortenedNamesText' ).val( '' );
+    $( '#shortenedNamesOutstream' ).html( 'Replaced short names:<br>' + tempText );
+  } else if (shortenedNameButtonFunction == 'reset') {
+    $( '#shortenedNamesButton' ).val( 'Reset' );
+    //~ $( '#shortenedNamesText' ).val( '' );
+    $( '#shortenedNamesOutstream' ).text( 'Reset short names.' );
   }
 });
 
 
-$( "input[name=shortenNamesRadio]:radio" ).change( function() {
+$( "input[name=shortenedNamesRadio]:radio" ).change( function() {
   getShortenNameRadioVal();
 });
 
 function getShortenNameRadioVal() {
-  shortenNameButtonFunction = $( "input[name=shortenNamesRadio]:checked" ).val();
-  $( '#shortenNamesOutstream' ).text( '' );
-  //~ console.log('shortenNameButtonFunction');
-  //~ console.log($( "input[name=shortenNamesRadio]:checked" ).val());
-  //~ console.log(shortenNameButtonFunction);
-  switch ( shortenNameButtonFunction ) {
+  shortenedNameButtonFunction = $( "input[name=shortenedNamesRadio]:checked" ).val();
+  $( '#shortenedNamesOutstream' ).text( '' );
+  //~ console.log('shortenedNameButtonFunction');
+  //~ console.log($( "input[name=shortenedNamesRadio]:checked" ).val());
+  //~ console.log(shortenedNameButtonFunction);
+  switch ( shortenedNameButtonFunction ) {
     case 'append':
-      $( '#shortenNamesButton' ).val( 'Append' );
+      $( '#shortenedNamesButton' ).val( 'Append' );
       break;
     case 'replace':
-      $( '#shortenNamesButton' ).val( 'Replace' );
+      $( '#shortenedNamesButton' ).val( 'Replace' );
       break;
     case 'reset':
-      $( '#shortenNamesButton' ).val( 'Reset' );
+      $( '#shortenedNamesButton' ).val( 'Reset' );
       break;
     default:
-      $( '#shortenNamesButton' ).val( '???' );
-      $( '#shortenNamesOutstream' ).text( 'Something went wrong' );
+      $( '#shortenedNamesButton' ).val( '???' );
+      $( '#shortenedNamesOutstream' ).text( 'Something went wrong' );
   }
-  //~ if ( shortenNameButtonFunction == 'append') {
-    //~ $( '#shortenNamesButton' ).val( 'Append' );
-  //~ } else if ( shortenNameButtonFunction == 'replace') {
-    //~ $( '#shortenNamesButton' ).val( 'Replace' );
-  //~ } else if ( $( "input[name=shortenNamesRadio]:checked" ).val() == 'reset') {
-    //~ $( '#shortenNamesButton' ).val( 'Reset' );
+  //~ if ( shortenedNameButtonFunction == 'append') {
+    //~ $( '#shortenedNamesButton' ).val( 'Append' );
+  //~ } else if ( shortenedNameButtonFunction == 'replace') {
+    //~ $( '#shortenedNamesButton' ).val( 'Replace' );
+  //~ } else if ( $( "input[name=shortenedNamesRadio]:checked" ).val() == 'reset') {
+    //~ $( '#shortenedNamesButton' ).val( 'Reset' );
   //~ };
 };

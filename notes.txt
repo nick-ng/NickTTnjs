@@ -1,0 +1,11 @@
+player Object:
+var player = {};
+player.ID = integer; ID number for that tournament. Does not persist outside of a tournament.
+player.fullName = string; Likely the most unique identifier outside of a tournament.
+player.email = string; Primary contact for player. Should not persist outside of a tournament?
+player.shortNames = [shortName1,shortName2,etc.]; Array of shortened names of a player. Use the first-most name that doesn't collide with another player. If the player has a nickname, this array will only contain that name.
+player.shortName = string; The short name they
+player.stillPlaying = boolean; If the player is still playing (true) or if they've dropped (false) from the tournament.
+player.paid = boolean; If the player has paid their registration for the tourmament.
+player.club = string; What club or region the player is from. Pairer can avoid pairing players from the same region against each other.
+player.faction = string; What in-game faction (guild, race, country etc.) the player is using. Maybe prefer different factions in consecutive rounds?
