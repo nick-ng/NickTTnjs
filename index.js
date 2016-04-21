@@ -6,12 +6,14 @@ var http = require( 'http' ).Server( app );
 var io = require( 'socket.io' )( http );
 var $ = jQuery = require('jquery');
 require('jquery-csv');
+var pg = require('pg');
 // My requires
 var bfun = require( __dirname + '/common/bfun' );
 
 // "Global" variables
 var PAGEDIR = __dirname + '/pages';
 var DICTDIR = __dirname + '/dicts';
+var PG_DATABASE_URL = process.env.DATABASE_URL;
 
 app.set( 'port', ( process.env.PORT || 3434 ));
 app.set('views', __dirname + '/public');
@@ -38,6 +40,18 @@ for ( var i = 0; i < NICKNAMES.length; i++ ) {
   // Nicknames can have spaces around hyphens
   NICKNAMES[i]['nickName'] = bfun.removeWhiteSpace( NICKNAMES[i]['nickName'] );
 }
+
+// PostgreSQL
+pg.defaults.ssl = true;
+var schemasAndTables = {};
+schemasAndTables.schemas = ['names'];
+var pgClient = new pg.Client(PG_DATABASE_URL);
+pgClient.connect();
+initDatabase( pgClient, schemasAndTables );
+var tempQuery = 'SELECT table_schema,table_name FROM information_schema.tables;'
+pgClient.query(tempQuery).on('row', function(row) {
+  //~ console.log(JSON.stringify(row));
+});
 
 // The pages
 app.get( '/', function( req, res ) {
@@ -145,4 +159,90 @@ function nickifyNames( fullName, playerID ) {
     nameList.push( firstName1 + ' ' + lastName + ' (' + playerID + ')');
   }
   return nameList;
+};
+
+function initDatabase( someClient, schemasAndTables ) {
+  // Check if nameschema exists
+  var queryString = 'SELECT exists(SELECT schema_name FROM information_schema.schemata WHERE schema_name = \'nameschema\');';
+  test = someClient.query(queryString);
+  test.on('row', function(row) {
+    console.log('Exists query:');
+    console.log(row.exists);
+    if (!row.exists) { // If it doesn't exist...
+      // Create nameschema
+      var test = someClient.query('CREATE SCHEMA nameschema;');
+      test.on('end', function(result) {
+        console.log('nameschema created');
+        console.log(result);
+        // Then create tables shortenednames and nicknames
+        createNameTables( someClient );
+      });
+    } else { // It exists so...
+      createNameTables( someClient ); // Which also checks if the tables exist
+    };
+  });
+};
+
+function createNameTables( someClient ) {
+  // Check if shortenednames exists
+  console.log('Checking if shortened_names exists');
+  //var sQueryString = 'SELECT table_schema,table_name FROM information_schema.tables WHERE table_schema=\'nameschema\' AND table_name=\'shortened_names\';';
+  var sQueryString = 'SELECT exists(SELECT table_schema,table_name FROM information_schema.tables WHERE table_schema=\'nameschema\' AND table_name=\'shortened_names\');';
+  //var sQueryString = 'SELECT table_schema,table_name FROM information_schema.tables WHERE table_schema=\'nameschema\' AND table_name=\'test_table\';';
+  //var sQueryString = 'SELECT exists(SELECT table_schema,table_name FROM information_schema.tables WHERE table_schema=\'nameschema\' AND table_name=\'test_table\');';
+  var sQuery = someClient.query( sQueryString );
+  var sRows = [];
+  sQuery.on('row', function(row) {
+    console.log('Does shortened_names exist? (row)');
+    console.log(row);
+    sRows.push(row);
+    if (!row.exists) { // If it doesn't exist...
+      // Create shortened_names table
+      sQueryString = 'CREATE TABLE nameschema.shortened_names (' +
+      'long_name varchar(20),' +
+      'shortened_name varchar(10) );';
+      var sQuery = someClient.query( sQueryString );
+      sQuery.on('end', function(result) {
+        console.log('Created shortened_names');
+        console.log(result);
+        // Put shortened names into table.
+        console.log('Making query string');
+        var queryString = 'INSERT INTO nameschema.shortened_names (long_name,shortened_name) VALUES ';
+        for (var i = 0; i < SHORTENEDNAMES.length; i++ ) {
+          queryString = queryString + '(\'' + SHORTENEDNAMES[i]['longName'] + '\',\'' + SHORTENEDNAMES[i]['shortName'] + '\'),';
+        };
+        //queryString[queryString.length-1] = ';';
+        // str.substring( 0, str.length ) returns the whole string!?
+        queryString = queryString.substring( 0, queryString.length-1 ) + ';';
+        console.log(queryString.substring( queryString.length-7,queryString.length ) );
+        var sQuery = someClient.query( queryString );
+        sQuery.on('end', function(result) {
+          console.log('Populated shortened_names');
+          console.log(result);
+        });
+      });
+    } else { //else load names from table.
+      SHORTENEDNAMES = [];
+      var queryString = 'SELECT * FROM nameschema.shortened_names;';
+      console.log('Getting shortened_names from db');
+      var sQuery = someClient.query( queryString );
+      sQuery.on('row', function(row) {
+        console.log(row);
+        var shortenedPair = {};
+        shortenedPair['longName'] = row.long_name;
+        shortenedPair['shortName'] = row.shortened_name;
+        SHORTENEDNAMES.push(shortenedPair);
+      });
+      sQuery.on('end', function(result) {
+        console.log('Finished getting shortened_names');
+        console.log(SHORTENEDNAMES);
+      });
+    }
+  });
+  /*sQuery.on('end', function(result) {
+    console.log('Does shortenednames exist? (end)');
+    console.log(result);
+    console.log('sRows');
+    console.log(sRows);
+  }); */
 };
