@@ -18,7 +18,7 @@ schema: nameschema
   table: nicknames
     column: real name
     column: nickname
-schema: tournament00000000 // 'tournament' plus a unique 8 digit number between 1 and 99999999(8?) - 18 characters total
+schema: tournament00000000 // 'tournament' plus a unique 8 digit number between 1 and 99999999(...998?) - 18 characters total
   table: infotable(?)
     column: tournament name
     column: tournament date

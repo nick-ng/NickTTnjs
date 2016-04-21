@@ -15,8 +15,8 @@ var PAGEDIR = __dirname + '/pages';
 var DICTDIR = __dirname + '/dicts';
 var PG_DATABASE_URL = process.env.DATABASE_URL;
 
-app.set( 'port', ( process.env.PORT || 3434 ));
-app.set('views', __dirname + '/public');
+app.set( 'port', ( process.env.PORT || 3434 ) );
+app.set( 'views', __dirname + '/public' );
 //app.set('view engine', 'ejs');
 
 app.use( express.static( __dirname + '/public' ) );
@@ -38,7 +38,7 @@ for ( var i = 0; i < NICKNAMES.length; i++ ) {
   //~ NICKNAMES[i]['realName'] = bfun.removeWhiteSpace( NICKNAMES[i]['realName'] );
   NICKNAMES[i]['realName'] = bfun.trimAroundHyphen( NICKNAMES[i]['realName'] );
   // Nicknames can have spaces around hyphens
-  NICKNAMES[i]['nickName'] = bfun.removeWhiteSpace( NICKNAMES[i]['nickName'] );
+  NICKNAMES[i]['nickname'] = bfun.removeWhiteSpace( NICKNAMES[i]['nickname'] );
 }
 
 // PostgreSQL
@@ -47,11 +47,8 @@ var schemasAndTables = {};
 schemasAndTables.schemas = ['names'];
 var pgClient = new pg.Client(PG_DATABASE_URL);
 pgClient.connect();
-initDatabase( pgClient, schemasAndTables );
-var tempQuery = 'SELECT table_schema,table_name FROM information_schema.tables;'
-pgClient.query(tempQuery).on('row', function(row) {
-  //~ console.log(JSON.stringify(row));
-});
+initDatabase( pgClient );
+//var tempQuery = 'SELECT table_schema,table_name FROM information_schema.tables;'
 
 // The pages
 app.get( '/', function( req, res ) {
@@ -81,6 +78,14 @@ io.on( 'connection', function( socket ) {
     playerList = [player]
     io.emit( 'shortName change', playerList );
   });
+  
+  // Name List events
+  socket.on( 'pullShortenedNames', function () {
+    io.emit( 'pushShortenedNames', SHORTENEDNAMES );
+  });
+  socket.on( 'pullNicknames', function () {
+    io.emit( 'pushNicknames', NICKNAMES );
+  });
 });
 
 http.listen( app.get( 'port' ), function(){
@@ -105,7 +110,7 @@ function nickifyNames( fullName, playerID ) {
   for ( var i = 0; i < NICKNAMES.length; i++ ) {
     if ( fullName1.toUpperCase() == NICKNAMES[i]['realName'].toUpperCase() ) {
       // If they have a nickname, return an array with one element.
-      return [NICKNAMES[i]['nickName']];
+      return [NICKNAMES[i]['nickname']];
     };
   };
   // Otherwise, shorten their name.
@@ -161,7 +166,7 @@ function nickifyNames( fullName, playerID ) {
   return nameList;
 };
 
-function initDatabase( someClient, schemasAndTables ) {
+function initDatabase( someClient ) {
   // Check if nameschema exists
   var queryString = 'SELECT exists(SELECT schema_name FROM information_schema.schemata WHERE schema_name = \'nameschema\');';
   test = someClient.query(queryString);
@@ -184,18 +189,13 @@ function initDatabase( someClient, schemasAndTables ) {
 };
 
 function createNameTables( someClient ) {
-  // Check if shortenednames exists
+  // Check if shortened_names exists
   console.log('Checking if shortened_names exists');
-  //var sQueryString = 'SELECT table_schema,table_name FROM information_schema.tables WHERE table_schema=\'nameschema\' AND table_name=\'shortened_names\';';
   var sQueryString = 'SELECT exists(SELECT table_schema,table_name FROM information_schema.tables WHERE table_schema=\'nameschema\' AND table_name=\'shortened_names\');';
-  //var sQueryString = 'SELECT table_schema,table_name FROM information_schema.tables WHERE table_schema=\'nameschema\' AND table_name=\'test_table\';';
-  //var sQueryString = 'SELECT exists(SELECT table_schema,table_name FROM information_schema.tables WHERE table_schema=\'nameschema\' AND table_name=\'test_table\');';
   var sQuery = someClient.query( sQueryString );
-  var sRows = [];
   sQuery.on('row', function(row) {
     console.log('Does shortened_names exist? (row)');
     console.log(row);
-    sRows.push(row);
     if (!row.exists) { // If it doesn't exist...
       // Create shortened_names table
       sQueryString = 'CREATE TABLE nameschema.shortened_names (' +
@@ -203,6 +203,7 @@ function createNameTables( someClient ) {
       'shortened_name varchar(10) );';
       var sQuery = someClient.query( sQueryString );
       sQuery.on('end', function(result) {
+        //done();
         console.log('Created shortened_names');
         console.log(result);
         // Put shortened names into table.
@@ -211,19 +212,20 @@ function createNameTables( someClient ) {
         for (var i = 0; i < SHORTENEDNAMES.length; i++ ) {
           queryString = queryString + '(\'' + SHORTENEDNAMES[i]['longName'] + '\',\'' + SHORTENEDNAMES[i]['shortName'] + '\'),';
         };
-        //queryString[queryString.length-1] = ';';
         // str.substring( 0, str.length ) returns the whole string!?
+        // change last entry's comma to semicolon.
         queryString = queryString.substring( 0, queryString.length-1 ) + ';';
         console.log(queryString.substring( queryString.length-7,queryString.length ) );
         var sQuery = someClient.query( queryString );
         sQuery.on('end', function(result) {
+          //done();
           console.log('Populated shortened_names');
           console.log(result);
         });
       });
     } else { //else load names from table.
       SHORTENEDNAMES = [];
-      var queryString = 'SELECT * FROM nameschema.shortened_names;';
+      var queryString = 'SELECT * FROM nameschema.shortened_names ORDER BY long_name;';
       console.log('Getting shortened_names from db');
       var sQuery = someClient.query( queryString );
       sQuery.on('row', function(row) {
@@ -234,15 +236,67 @@ function createNameTables( someClient ) {
         SHORTENEDNAMES.push(shortenedPair);
       });
       sQuery.on('end', function(result) {
+        //done();
         console.log('Finished getting shortened_names');
         console.log(SHORTENEDNAMES);
       });
     }
   });
-  /*sQuery.on('end', function(result) {
-    console.log('Does shortenednames exist? (end)');
-    console.log(result);
-    console.log('sRows');
-    console.log(sRows);
-  }); */
+  sQuery.on('end', function(result) {
+    //done();
+  });
+  // Check if nicknames exists
+  console.log('Checking if nicknames exists');
+  var nQueryString = 'SELECT exists(SELECT table_schema,table_name FROM information_schema.tables WHERE table_schema=\'nameschema\' AND table_name=\'nicknames\');';
+  var nQuery = someClient.query( nQueryString );
+  nQuery.on('row', function(row) {
+    console.log('Does shortened_names exist? (row)');
+    console.log(row);
+    if (!row.exists) { // If it doesn't exist...
+      // Create nicknames table
+      nQueryString = 'CREATE TABLE nameschema.nicknames (' +
+      'real_name varchar(40),' +
+      'nickname varchar(20) );';
+      var nQuery = someClient.query( nQueryString );
+      nQuery.on('end', function(result) {
+        //done();
+        console.log('Created nicknames');
+        console.log(result);
+        // Put nicknames into table.
+        var queryString = 'INSERT INTO nameschema.nicknames (real_name,nickname) VALUES ';
+        for (var i = 0; i < SHORTENEDNAMES.length; i++ ) {
+          queryString = queryString + '(\'' + NICKNAMES[i]['realName'] + '\',\'' + NICKNAMES[i]['nickname'] + '\'),';
+        };
+        // str.substring( 0, str.length ) returns the whole string!?
+        // change last entry's comma to semicolon.
+        queryString = queryString.substring( 0, queryString.length-1 ) + ';';
+        var nQuery = someClient.query( queryString );
+        nQuery.on('end', function(result) {
+          //done();
+          console.log('Populated nicknames');
+          console.log(result);
+        });
+      });
+    } else { // load names from table
+      NICKNAMES = [];
+      var queryString = 'SELECT * FROM nameschema.nicknames ORDER BY real_name;';
+      console.log('Getting nicknames from db');
+      var nQuery = someClient.query( queryString );
+      nQuery.on('row', function(row) {
+        console.log(row);
+        var nickPair = {};
+        nickPair['realName'] = row.real_name;
+        nickPair['nickname'] = row.nickname;
+        NICKNAMES.push(nickPair);
+      });
+      nQuery.on('end', function(result) {
+        //done();
+        console.log('Finished getting nicknames');
+        console.log(NICKNAMES);
+      });
+    }
+  });
+  nQuery.on('end', function(result) {
+    //done();
+  });
 };
