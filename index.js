@@ -196,10 +196,10 @@ function createNameTables( someClient ) {
   var nQueryString = 'SELECT exists(SELECT table_schema,table_name FROM information_schema.tables WHERE table_schema=\'nameschema\' AND table_name=\'nicknames\');';
   var nQuery = someClient.query( nQueryString );
   nQuery.on('row', function(row) {
-    console.log('Does shortened_names exist? (row)');
+    console.log('Does nicknames exist? (row)');
     console.log(row);
     if (!row.exists) { // If it doesn't exist...
-      
+      makeNicknamesOnDB( someClient );
     } else { // load names from table
       getNicknamesFromDB( someClient );
     }
