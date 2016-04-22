@@ -267,7 +267,7 @@ function makeNicknamesOnDB( someClient ) {
     console.log(result);
     // Put nicknames into table.
     var queryString = 'INSERT INTO nameschema.nicknames (real_name,nickname) VALUES ';
-    for (var i = 0; i < SHORTENEDNAMES.length; i++ ) {
+    for (var i = 0; i < NICKNAMES.length; i++ ) {
       queryString = queryString + '(\'' + NICKNAMES[i]['realName'] + '\',\'' + NICKNAMES[i]['nickname'] + '\'),';
     };
     // str.substring( 0, str.length ) returns the whole string!?
