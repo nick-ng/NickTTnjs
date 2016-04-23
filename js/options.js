@@ -17,16 +17,23 @@ $( document ).ready(function() {
 
 // Nickname bulk controls
 $('#nicknamesButton').click(function() {
+  // Disable all buttons so the previous request doesn't get interrupted
+  // Main script also blocks table access if table is being accessed by
+  // another user or if two pages are open.
+  $('#nicknamesButton').prop( 'disabled', true );
+  $('#nicknamesSingleButton').prop( 'disabled', true );
   var tempText = $( '#nicknamesText' ).val();
-  if ( shortenedNameButtonFunction == 'append' ) {
+  if ( nicknameButtonFunction == 'append' ) {
     $( '#nicknamesButton' ).val( 'Append' );
     $( '#nicknamesOutstream' ).html( 'Appended nicknames:<br>' + tempText );
-  } else if (shortenedNameButtonFunction == 'replace') {
+  } else if (nicknameButtonFunction == 'replace') {
     $( '#nicknamesButton' ).val( 'Replace' );
     $( '#nicknamesOutstream' ).html( 'Replaced nicknames:<br>' + tempText );
-  } else if (shortenedNameButtonFunction == 'reset') {
+  } else if (nicknameButtonFunction == 'reset') {
     $( '#nicknamesButton' ).val( 'Reset' );
     $( '#nicknamesOutstream' ).text( 'Reset nicknames.' );
+    $( '#nicknamesTable' ).find('tr:gt(0)').remove();
+    socket.emit( 'resetNicknames' );
   }
 });
 $( "input[name=nicknamesRadio]:radio" ).change( function() {
@@ -87,6 +94,9 @@ function getShortenNameRadioVal() {
 
 // Socket.IO events
 socket.on( 'pushShortenedNames', function( shortenedNames ) {
+  // Any previous requests have been completed so enable the buttons.
+  $('#shortenedNamesButton').prop( 'disabled', false );
+  $('#shortenedNamesSingleButton').prop( 'disabled', false );
   // Remove existing table rows
   $( '#shortenedNamesTable' ).find('tr:gt(0)').remove();
   for ( var i = 0; i < shortenedNames.length; i++ ) {
@@ -95,7 +105,15 @@ socket.on( 'pushShortenedNames', function( shortenedNames ) {
     $( '#shortenedNamesTable tr:last' ).after( tableRowContent ); // Append a new row.
   };
 });
+socket.on( 'ShortenedNamesTableLocked', function() {
+  $('#shortenedNamesButton').prop( 'disabled', false );
+  $('#shortenedNamesSingleButton').prop( 'disabled', false );
+  alert('Shortened names list is currently in use. Try again.');
+});
 socket.on( 'pushNicknames', function( nicknames ) {
+  // Any previous requests have been completed so enable the buttons.
+  $('#nicknamesButton').prop( 'disabled', false );
+  $('#nicknamesSingleButton').prop( 'disabled', false );
   // Remove existing table rows
   $( '#nicknamesTable' ).find('tr:gt(0)').remove();
   for ( var i = 0; i < nicknames.length; i++ ) {
@@ -103,4 +121,9 @@ socket.on( 'pushNicknames', function( nicknames ) {
     '<td>' + nicknames[i]['nickname'] + '</td></tr>';
     $( '#nicknamesTable tr:last' ).after( tableRowContent ); // Append a new row.
   };
+});
+socket.on( 'nicknameTableLocked', function() {
+  $('#nicknamesButton').prop( 'disabled', false );
+  $('#nicknamesSingleButton').prop( 'disabled', false );
+  alert('Nickname list is currently in use. Try again.');
 });

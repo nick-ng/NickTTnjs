@@ -9,7 +9,7 @@ var csvOptions = {};
 // This is an Object of functions which works because you can call
 // object.keyName or object['keyName'] to access object elements.
 // E.g. calling bfun.helloWorld() and bfun['helloWorld']() both work.
-bfun = {};
+var bfun = {};
 
 bfun.loadFile = function ( somePath ) {
   var fileOptions = 'utf8';
@@ -23,7 +23,11 @@ bfun.loadCSV = function ( someString ) {
 };
   
 bfun.loadCSVObjects = function ( someString ) {
-  var outArray = $.csv.toObjects( someString, csvOptions );
+  /* If you call toObjects with no callback and without the option
+   * start: 1, it breaks on subsequent calls, missing the first, then
+   * second, then third, etc. rows.
+   * */
+  var outArray = $.csv.toObjects( someString, {start: 1} );
   return outArray;
 };
   
@@ -33,16 +37,19 @@ bfun.loadCSVFile = function ( somePath ) {
 };
   
 bfun.loadCSVObjectsFile = function ( somePath ) {
-  var outArray = $.csv.toObjects( bfun.loadFile( somePath ), csvOptions );
+  //console.log(bfun.loadFile( somePath ));
+  var outArray = bfun.loadCSVObjects( bfun.loadFile( somePath ) );
+  //console.log(outArray);
   return outArray;
 };
   
 bfun.removeWhiteSpace = function ( someString ) {
-  return someString.replace( /[\s\n\r]+/g, ' ' ).replace(/^\s|\s$/g, "");
+  return someString.replace( /[\s\n\r]+/g, ' ' ).replace( /^\s|\s$/g, '' );
 };
   
 bfun.trimAroundHyphen = function ( someString ) {
-  var trimedOfSpaces = someString.replace( /[\s\n\r]+/g, ' ' ).replace( /^\s|\s$/g, '' );
+  //var trimedOfSpaces = someString.replace( /[\s\n\r]+/g, ' ' ).replace( /^\s|\s$/g, '' );
+  var trimedOfSpaces = bfun.removeWhiteSpace( someString );
   return trimedOfSpaces.replace( /(\s)*-(\s)*/g, '-' );
 };
   
@@ -80,6 +87,32 @@ bfun.helloWorldN = function ( n ) {
   for ( var i = 0; i < n; i++ ) {
     bfun.helloWorld();
   }
+};
+
+bfun.upsertQueryMaker = function( someInput ) {
+  // Make an "UPSERT" query for pre-9.5 PostgreSQL
+  if ( someInput === Object ) {
+    someInput = [someInput];
+  };
+  // start the query
+  for (var i = 0; i < someInput.length; i++ ) {
+    //make the query
+  }
+  // end the query
+  // str.substring( 0, str.length ) returns the whole string!?
+    // change last entry's comma to semicolon.
+    //queryString = queryString.substring( 0, queryString.length-1 ) + ';';
+  
+};
+
+bfun.testCSV = function () {
+  // It actually works properly though...
+  console.log('Testing csvToObjects');
+  var someString = 'longName,shortName\nChristopher,Chris\nDavid,Dave\nNicholas,Nick'
+  var outArray1 = $.csv.toObjects( someString, {} );
+  var outArray2 = $.csv.toObjects( someString, {} );
+  console.log(outArray1);
+  console.log(outArray2);
 };
 
 module.exports = bfun;

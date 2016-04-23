@@ -10,6 +10,10 @@ player.paid = boolean; If the player has paid their registration for the tourmam
 player.club = string; What club or region the player is from. Pairer can avoid pairing players from the same region against each other.
 player.faction = string; What in-game faction (guild, race, country etc.) the player is using. Maybe prefer different factions in consecutive rounds?
 
+// The SQL standard specifies an array column type which PostgreSQL
+// supports but MySQL doesn't (yet?). I'll probably use it anyway since
+// I'm already using PostgreSQL despite my concerns of keeping the app
+// easily portable to MySQL.
 SQL structure (layout?)
 schema: nameschema
   table: shortenednames
@@ -24,17 +28,17 @@ schema: tournament00000000 // 'tournament' plus a unique 8 digit number between 
     column: tournament date - Automatically remove the oldest tournament once we approach the database limit.
     column: completed - Flag set by a control on the Final Standings page?
   table: playertable
-    column: id (Primary?)
+    column: id PRIMARY KEY
     column: fullname
     column: email(!)
-    column: shortnames (csv array?)
+    column: shortnames (csv? array?)
     column: shortname (shortest unique shortname)
     column: stillplaying (boolean)
     column: paid
     column: club
     column: faction
-    column: opponentids (csv array?)
-    column: tablenumbers (csv array?)
+    column: opponentids (csv? array?)
+    column: tablenumbers (csv? array?)
     column: score (int) Primary score of the tournament
     column: tiebreaka
     column: tiebreakb

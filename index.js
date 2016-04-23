@@ -16,6 +16,7 @@ var DICTDIR = __dirname + '/dicts';
 var PG_DATABASE_URL = process.env.DATABASE_URL;
 var SHORTENEDNAMES = [];
 var NICKNAMES = [];
+var NICKNAMES_TABLE_LOCKED = false;
 
 app.set( 'port', ( process.env.PORT || 3434 ) );
 app.set( 'views', __dirname + '/public' );
@@ -71,6 +72,17 @@ io.on( 'connection', function( socket ) {
   socket.on( 'pullNicknames', function () {
     io.emit( 'pushNicknames', NICKNAMES );
   });
+  socket.on( 'resetNicknames', function () {
+    if (!NICKNAMES_TABLE_LOCKED) {
+      NICKNAMES_TABLE_LOCKED = true;
+      var query = pgClient.query( 'DROP TABLE IF EXISTS nameschema.nicknames;' );
+      query.on('end', function () { // No 'result' parameter but it still works?
+        makeNicknamesOnDB( pgClient );
+      });
+    } else {
+      io.emit( 'nicknameTableLocked' );
+    }
+  });
 });
 
 http.listen( app.get( 'port' ), function(){
@@ -79,6 +91,7 @@ http.listen( app.get( 'port' ), function(){
 
 function shortenNames( namePart ) {
   var tempName = namePart;
+  //console.log(SHORTENEDNAMES);
   for ( var i = 0; i < SHORTENEDNAMES.length; i++ ) {
     var tempName2 = tempName.replace( SHORTENEDNAMES[i]['longName'], SHORTENEDNAMES[i]['shortName'] ); 
     //console.log( tempName + ' > ' + tempName2 );
@@ -220,7 +233,7 @@ function makeShortenedNamesOnDB( someClient ) {
   }
   // Create shortened_names table
   sQueryString = 'CREATE TABLE nameschema.shortened_names (' +
-  'long_name varchar(20),' +
+  'long_name varchar(20) PRIMARY KEY,' +
   'shortened_name varchar(10) );';
   var sQuery = someClient.query( sQueryString );
   sQuery.on('end', function(result) {
@@ -247,18 +260,25 @@ function makeShortenedNamesOnDB( someClient ) {
 };
 function makeNicknamesOnDB( someClient ) {
   // Load default table content from .csv file.
-  NICKNAMES = bfun.loadCSVObjectsFile( DICTDIR + '/nicknames.csv' );
+  // .csv file may be unsorted so keep the array in this function
+  // and pull a sorted array from the database after making the table.
+  var NICKNAMES = bfun.loadCSVObjectsFile( DICTDIR + '/nicknames.csv' );
   // Shorten realNames in NICKNAMES array
+  //~ console.log(NICKNAMES);
   for ( var i = 0; i < NICKNAMES.length; i++ ) {
-    NICKNAMES[i]['realName'] = shortenNames( NICKNAMES[i]['realName'] );
+    //~ console.log(i);
+    //~ console.log(NICKNAMES[i]);
+    //~ console.log(NICKNAMES[i]['realName']);
+    //NICKNAMES[i]['realName'] = shortenNames( NICKNAMES[i]['realName'] );
     // Remove excess white space
+    //~ console.log(NICKNAMES[i]['realName']);
     NICKNAMES[i]['realName'] = bfun.trimAroundHyphen( NICKNAMES[i]['realName'] );
     // Nicknames can have spaces around hyphens
     NICKNAMES[i]['nickname'] = bfun.removeWhiteSpace( NICKNAMES[i]['nickname'] );
   }
   // Create nicknames table
   nQueryString = 'CREATE TABLE nameschema.nicknames (' +
-  'real_name varchar(40),' +
+  'real_name varchar(40) PRIMARY KEY,' +
   'nickname varchar(20) );';
   var nQuery = someClient.query( nQueryString );
   nQuery.on('end', function(result) {
@@ -278,6 +298,8 @@ function makeNicknamesOnDB( someClient ) {
       //done();
       console.log('Populated nicknames');
       console.log(result);
+      NICKNAMES_TABLE_LOCKED = false;
+      getNicknamesFromDB( someClient ); // This thing emits a 'pushNicknames' sorted by real name.
     });
   });
 };
@@ -303,21 +325,24 @@ function getShortenedNamesFromDB( someClient ) {
   });
 };
 function getNicknamesFromDB( someClient ) {
-  NICKNAMES = [];
-  var queryString = 'SELECT * FROM nameschema.nicknames ORDER BY real_name;';
-  console.log('Getting nicknames from DB');
-  var nQuery = someClient.query( queryString );
-  nQuery.on('row', function(row) {
-    //console.log(row);
-    var nickPair = {};
-    nickPair['realName'] = row.real_name;
-    nickPair['nickname'] = row.nickname;
-    NICKNAMES.push(nickPair);
-  });
-  nQuery.on('end', function(result) {
-    //done();
-    console.log('Finished getting nicknames');
-    //console.log(NICKNAMES);
-    io.emit( 'pushNicknames', NICKNAMES );
-  });
+  if (!NICKNAMES_TABLE_LOCKED) {
+    NICKNAMES = [];
+    var queryString = 'SELECT * FROM nameschema.nicknames ORDER BY real_name;';
+    console.log('Getting nicknames from DB');
+    var nQuery = someClient.query( queryString );
+    nQuery.on('row', function(row) {
+      //console.log(row);
+      var nickPair = {};
+      nickPair['realName'] = row.real_name;
+      nickPair['nickname'] = row.nickname;
+      NICKNAMES.push(nickPair);
+    });
+    nQuery.on('end', function(result) {
+      //done();
+      console.log('Finished getting nicknames');
+      //console.log(NICKNAMES);
+      io.emit( 'pushNicknames', NICKNAMES );
+    });
+  };
 };
+//bfun.testCSV()
