@@ -15,6 +15,16 @@ $( document ).ready(function() {
   socket.emit( 'pullNicknames' );
 }); // $( document ).ready(function() {
 
+// Nickname controls
+$('#nicknamesSingleButton').click(function () {
+  var newNickname = {};
+  newNickname.real_name = $( '#nickRealName' ).val();
+  newNickname.nickname = $( '#nickNickname' ).val();
+  //var newNickname = {real_name: 'Nick Ng', nickname: 'Lead Dev.'};
+  $('#nicknamesButton').prop( 'disabled', true );
+  $('#nicknamesSingleButton').prop( 'disabled', true );
+  socket.emit( 'addOneNickname', newNickname );
+});
 // Nickname bulk controls
 $('#nicknamesButton').click(function() {
   // Disable all buttons so the previous request doesn't get interrupted
@@ -117,7 +127,7 @@ socket.on( 'pushNicknames', function( nicknames ) {
   // Remove existing table rows
   $( '#nicknamesTable' ).find('tr:gt(0)').remove();
   for ( var i = 0; i < nicknames.length; i++ ) {
-    var tableRowContent = '<tr><td>' + nicknames[i]['realName'] + '</td>' +
+    var tableRowContent = '<tr><td>' + nicknames[i]['real_name'] + '</td>' +
     '<td>' + nicknames[i]['nickname'] + '</td></tr>';
     $( '#nicknamesTable tr:last' ).after( tableRowContent ); // Append a new row.
   };
@@ -126,4 +136,11 @@ socket.on( 'nicknameTableLocked', function() {
   $('#nicknamesButton').prop( 'disabled', false );
   $('#nicknamesSingleButton').prop( 'disabled', false );
   alert('Nickname list is currently in use. Try again.');
+});
+socket.on( 'nicknameTableUnlocked', function() {
+  $('#nicknamesButton').prop( 'disabled', false );
+  $('#nicknamesSingleButton').prop( 'disabled', false );
+});
+socket.on( 'nicknameOutstream', function( displayString ) {
+  $( '#nicknamesOutstream' ).html( 'Received: <br>' + displayString );
 });

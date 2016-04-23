@@ -83,6 +83,15 @@ io.on( 'connection', function( socket ) {
       io.emit( 'nicknameTableLocked' );
     }
   });
+  socket.on( 'addOneNickname', function (newNickname) {
+    var columnNames = [{columnName: "real_name", dataType: "varchar(40)"},{columnName: "nickname", dataType: "varchar(20)"}];
+    var queryString = bfun.upsertQueryMaker( 'nameschema.nicknames', newNickname, columnNames );
+    //io.emit( 'nicknameOutstream', queryString );
+    var query = pgClient.query( queryString );
+    query.on('end', function () {
+      getNicknamesFromDB( pgClient );
+    });
+  });
 });
 
 http.listen( app.get( 'port' ), function(){
@@ -106,7 +115,7 @@ function nickifyNames( fullName, playerID ) {
   var fullName1 = bfun.trimAroundHyphen( shortenNames( fullName ) );
   // Check if they have a nickname then return that.
   for ( var i = 0; i < NICKNAMES.length; i++ ) {
-    if ( fullName1.toUpperCase() == NICKNAMES[i]['realName'].toUpperCase() ) {
+    if ( fullName1.toUpperCase() == NICKNAMES[i]['real_name'].toUpperCase() ) {
       // If they have a nickname, return an array with one element.
       //console.log([NICKNAMES[i]['nickname']]);
       return [NICKNAMES[i]['nickname'], NICKNAMES[i]['nickname']];
@@ -263,16 +272,16 @@ function makeNicknamesOnDB( someClient ) {
   // .csv file may be unsorted so keep the array in this function
   // and pull a sorted array from the database after making the table.
   var NICKNAMES = bfun.loadCSVObjectsFile( DICTDIR + '/nicknames.csv' );
-  // Shorten realNames in NICKNAMES array
+  // Shorten real_names in NICKNAMES array
   //~ console.log(NICKNAMES);
   for ( var i = 0; i < NICKNAMES.length; i++ ) {
     //~ console.log(i);
     //~ console.log(NICKNAMES[i]);
-    //~ console.log(NICKNAMES[i]['realName']);
-    //NICKNAMES[i]['realName'] = shortenNames( NICKNAMES[i]['realName'] );
+    //~ console.log(NICKNAMES[i]['real_name']);
+    //NICKNAMES[i]['real_name'] = shortenNames( NICKNAMES[i]['real_name'] );
     // Remove excess white space
-    //~ console.log(NICKNAMES[i]['realName']);
-    NICKNAMES[i]['realName'] = bfun.trimAroundHyphen( NICKNAMES[i]['realName'] );
+    //~ console.log(NICKNAMES[i]['real_name']);
+    NICKNAMES[i]['real_name'] = bfun.trimAroundHyphen( NICKNAMES[i]['real_name'] );
     // Nicknames can have spaces around hyphens
     NICKNAMES[i]['nickname'] = bfun.removeWhiteSpace( NICKNAMES[i]['nickname'] );
   }
@@ -288,7 +297,7 @@ function makeNicknamesOnDB( someClient ) {
     // Put nicknames into table.
     var queryString = 'INSERT INTO nameschema.nicknames (real_name,nickname) VALUES ';
     for (var i = 0; i < NICKNAMES.length; i++ ) {
-      queryString = queryString + '(\'' + NICKNAMES[i]['realName'] + '\',\'' + NICKNAMES[i]['nickname'] + '\'),';
+      queryString = queryString + '(\'' + NICKNAMES[i]['real_name'] + '\',\'' + NICKNAMES[i]['nickname'] + '\'),';
     };
     // str.substring( 0, str.length ) returns the whole string!?
     // change last entry's comma to semicolon.
@@ -333,7 +342,7 @@ function getNicknamesFromDB( someClient ) {
     nQuery.on('row', function(row) {
       //console.log(row);
       var nickPair = {};
-      nickPair['realName'] = row.real_name;
+      nickPair['real_name'] = row.real_name;
       nickPair['nickname'] = row.nickname;
       NICKNAMES.push(nickPair);
     });
