@@ -9,6 +9,7 @@ require('jquery-csv');
 var pg = require('pg');
 // My requires
 var bfun = require( __dirname + '/common/bfun' );
+var dbfun = require( __dirname + '/common/dbfun' );
 
 // "Global" variables
 var PAGEDIR = __dirname + '/pages';
@@ -85,7 +86,7 @@ io.on( 'connection', function( socket ) {
   });
   socket.on( 'addOneNickname', function (newNickname) {
     var columnNames = [{columnName: "real_name", dataType: "varchar(40)"},{columnName: "nickname", dataType: "varchar(20)"}];
-    var queryString = bfun.upsertQueryMaker( 'nameschema.nicknames', newNickname, columnNames );
+    var queryString = dbfun.upsertQueryMaker( 'nameschema.nicknames', newNickname, columnNames );
     //io.emit( 'nicknameOutstream', queryString );
     var query = pgClient.query( queryString );
     query.on('end', function () {
