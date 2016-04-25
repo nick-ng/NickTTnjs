@@ -85,6 +85,7 @@ io.on( 'connection', function( socket ) {
     }
   });
   socket.on( 'addOneNickname', function (newNickname) {
+    dbfun.testTwo(1000);
     var columnNames = [{columnName: "real_name", dataType: "varchar(40)"},{columnName: "nickname", dataType: "varchar(20)"}];
     var queryString = dbfun.upsertQueryMaker( 'nameschema.nicknames', newNickname, columnNames );
     //io.emit( 'nicknameOutstream', queryString );
@@ -356,3 +357,11 @@ function getNicknamesFromDB( someClient ) {
   };
 };
 //bfun.testCSV()
+
+for ( var i = 0; i < 100; i++ ) {
+  console.log('calling dbfun.testTwo(' + i + ')');
+  //dbfun.testParamFunction(i);
+  dbfun.testThree(i);
+};
+
+
