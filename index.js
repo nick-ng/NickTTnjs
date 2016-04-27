@@ -85,13 +85,8 @@ io.on( 'connection', function( socket ) {
     }
   });
   socket.on( 'addOneNickname', function (newNickname) {
-    dbfun.testTwo(1000);
-    var columnNames = [{columnName: "real_name", dataType: "varchar(40)"},{columnName: "nickname", dataType: "varchar(20)"}];
-    var queryString = dbfun.upsertQueryMaker( 'nameschema.nicknames', newNickname, columnNames );
-    //io.emit( 'nicknameOutstream', queryString );
-    var query = pgClient.query( queryString );
-    query.on('end', function () {
-      getNicknamesFromDB( pgClient );
+    dbfun.upsertNickname( newNickname.real_name, newNickname.nickname, function() {
+      getNicknamesFromDB();
     });
   });
 });
@@ -225,7 +220,7 @@ function createNameTables( someClient ) {
     if (!row.exists) { // If it doesn't exist...
       makeNicknamesOnDB( someClient );
     } else { // load names from table
-      getNicknamesFromDB( someClient );
+      getNicknamesFromDB();
     }
   });
   nQuery.on('end', function(result) {
@@ -288,30 +283,20 @@ function makeNicknamesOnDB( someClient ) {
     NICKNAMES[i]['nickname'] = bfun.removeWhiteSpace( NICKNAMES[i]['nickname'] );
   }
   // Create nicknames table
-  nQueryString = 'CREATE TABLE nameschema.nicknames (' +
+  var nQueryString = 'CREATE TABLE nameschema.nicknames (' +
   'real_name varchar(40) PRIMARY KEY,' +
   'nickname varchar(20) );';
-  var nQuery = someClient.query( nQueryString );
-  nQuery.on('end', function(result) {
-    //done();
-    console.log('Created nicknames');
+  dbfun.ezQuery( nQueryString, function(result) {
+    console.log('Created nicknames table');
+    NICKNAMES_TABLE_LOCKED = false;
     console.log(result);
     // Put nicknames into table.
-    var queryString = 'INSERT INTO nameschema.nicknames (real_name,nickname) VALUES ';
+    //var queryString = 'INSERT INTO nameschema.nicknames (real_name,nickname) VALUES ';
     for (var i = 0; i < NICKNAMES.length; i++ ) {
-      queryString = queryString + '(\'' + NICKNAMES[i]['real_name'] + '\',\'' + NICKNAMES[i]['nickname'] + '\'),';
+      dbfun.upsertNickname(NICKNAMES[i]['real_name'], NICKNAMES[i]['nickname'], function(result) {
+        getNicknamesFromDB(); // This may be sub_optimal.
+      });
     };
-    // str.substring( 0, str.length ) returns the whole string!?
-    // change last entry's comma to semicolon.
-    queryString = queryString.substring( 0, queryString.length-1 ) + ';';
-    var nQuery = someClient.query( queryString );
-    nQuery.on('end', function(result) {
-      //done();
-      console.log('Populated nicknames');
-      console.log(result);
-      NICKNAMES_TABLE_LOCKED = false;
-      getNicknamesFromDB( someClient ); // This thing emits a 'pushNicknames' sorted by real name.
-    });
   });
 };
 
@@ -335,33 +320,15 @@ function getShortenedNamesFromDB( someClient ) {
     io.emit( 'pushShortenedNames', SHORTENEDNAMES );
   });
 };
-function getNicknamesFromDB( someClient ) {
+function getNicknamesFromDB() {
   if (!NICKNAMES_TABLE_LOCKED) {
     NICKNAMES = [];
     var queryString = 'SELECT * FROM nameschema.nicknames ORDER BY real_name;';
     console.log('Getting nicknames from DB');
-    var nQuery = someClient.query( queryString );
-    nQuery.on('row', function(row) {
-      //console.log(row);
-      var nickPair = {};
-      nickPair['real_name'] = row.real_name;
-      nickPair['nickname'] = row.nickname;
-      NICKNAMES.push(nickPair);
-    });
-    nQuery.on('end', function(result) {
-      //done();
+    dbfun.ezQuery( queryString, function(results) {
+      NICKNAMES = results.rows.slice()
       console.log('Finished getting nicknames');
-      //console.log(NICKNAMES);
       io.emit( 'pushNicknames', NICKNAMES );
     });
   };
 };
-//bfun.testCSV()
-
-for ( var i = 0; i < 100; i++ ) {
-  console.log('calling dbfun.testTwo(' + i + ')');
-  //dbfun.testParamFunction(i);
-  dbfun.testThree(i);
-};
-
-
