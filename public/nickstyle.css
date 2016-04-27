@@ -11,6 +11,12 @@ body, .invis-t {
   margin-left: 2%;
 }
 
+.flmra-div {
+  float: left;
+  margin-right:12px;
+  /* border-right: 1px solid #bbb */
+}
+
 h1, h2, h3, h4, p, .footer, .invis-t{
   color: #011;
   text-align:center;
@@ -18,7 +24,8 @@ h1, h2, h3, h4, p, .footer, .invis-t{
 table {
   border: 1px solid black;
   border-collapse: collapse;
-  float: center
+  float: center;
+  table-layout: fixed;
 }
 th, td {
   border: 1px solid black;

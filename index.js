@@ -70,8 +70,9 @@ io.on( 'connection', function( socket ) {
   socket.on( 'pullShortenedNames', function () {
     io.emit( 'pushShortenedNames', SHORTENEDNAMES );
   });
-  socket.on( 'pullNicknames', function () {
-    io.emit( 'pushNicknames', NICKNAMES );
+  socket.on( 'pullNicknames', function ( parent ) {
+    //io.emit( 'pushNicknames', NICKNAMES );
+    getNicknamesFromDB( parent )
   });
   socket.on( 'resetNicknames', function () {
     if (!NICKNAMES_TABLE_LOCKED) {
@@ -86,7 +87,7 @@ io.on( 'connection', function( socket ) {
   });
   socket.on( 'addOneNickname', function (newNickname) {
     dbfun.upsertNickname( newNickname.real_name, newNickname.nickname, function() {
-      getNicknamesFromDB();
+      getNicknamesFromDB( 'single' );
     });
   });
 });
@@ -220,7 +221,7 @@ function createNameTables( someClient ) {
     if (!row.exists) { // If it doesn't exist...
       makeNicknamesOnDB( someClient );
     } else { // load names from table
-      getNicknamesFromDB();
+      getNicknamesFromDB( 'create' );
     }
   });
   nQuery.on('end', function(result) {
@@ -289,12 +290,13 @@ function makeNicknamesOnDB( someClient ) {
   dbfun.ezQuery( nQueryString, function(result) {
     console.log('Created nicknames table');
     NICKNAMES_TABLE_LOCKED = false;
+    io.emit( 'nicknameTableUnlocked' );
     console.log(result);
     // Put nicknames into table.
     //var queryString = 'INSERT INTO nameschema.nicknames (real_name,nickname) VALUES ';
     for (var i = 0; i < NICKNAMES.length; i++ ) {
       dbfun.upsertNickname(NICKNAMES[i]['real_name'], NICKNAMES[i]['nickname'], function(result) {
-        getNicknamesFromDB(); // This may be sub_optimal.
+        getNicknamesFromDB( 'make' ); // This may be sub_optimal.
       });
     };
   });
@@ -320,7 +322,8 @@ function getShortenedNamesFromDB( someClient ) {
     io.emit( 'pushShortenedNames', SHORTENEDNAMES );
   });
 };
-function getNicknamesFromDB() {
+function getNicknamesFromDB( parent ) {
+  // parent is where this function is and tells how the io.emit should be handled
   if (!NICKNAMES_TABLE_LOCKED) {
     NICKNAMES = [];
     var queryString = 'SELECT * FROM nameschema.nicknames ORDER BY real_name;';
@@ -328,7 +331,9 @@ function getNicknamesFromDB() {
     dbfun.ezQuery( queryString, function(results) {
       NICKNAMES = results.rows.slice()
       console.log('Finished getting nicknames');
-      io.emit( 'pushNicknames', NICKNAMES );
+      io.emit( 'pushNicknames', NICKNAMES, parent );
     });
-  };
+  } else {
+    io.emit( 'nicknameTableLocked' );
+  }
 };

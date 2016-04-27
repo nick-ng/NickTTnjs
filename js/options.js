@@ -12,7 +12,7 @@ $( document ).ready(function() {
   getShortenNameRadioVal();
   getNicknameRadioVal();
   socket.emit( 'pullShortenedNames' );
-  socket.emit( 'pullNicknames' );
+  socket.emit( 'pullNicknames', 'options' );
 }); // $( document ).ready(function() {
 
 // Nickname controls
@@ -120,10 +120,18 @@ socket.on( 'ShortenedNamesTableLocked', function() {
   $('#shortenedNamesSingleButton').prop( 'disabled', false );
   alert('Shortened names list is currently in use. Try again.');
 });
-socket.on( 'pushNicknames', function( nicknames ) {
+socket.on( 'pushNicknames', function( nicknames, parent ) {
   // Any previous requests have been completed so enable the buttons.
   $('#nicknamesButton').prop( 'disabled', false );
   $('#nicknamesSingleButton').prop( 'disabled', false );
+  if (parent == 'single') {
+    // clear single name input boxes
+    $( '#nickRealName' ).val('');
+    $( '#nickNickname' ).val('');
+  };
+  if (parent = 'bulk') {
+    // clear bulk box
+  };
   // Remove existing table rows
   $( '#nicknamesTable' ).find('tr:gt(0)').remove();
   for ( var i = 0; i < nicknames.length; i++ ) {

@@ -19,87 +19,86 @@
 </div>
 <div class="left-div">
   <h2 style="text-align: left">Nicknames</h2>
-  <table class="invis-t" style="text-align: left">
-    <tr>
-      <td class="invis-t" style="text-align: left">
-        <table id="nicknamesTable">
-          <tr>
-            <th style="text-align: left">Real Name</th>
-            <th style="text-align: left">Nickname</th>
-          </tr>
-        </table>
-      </td>
-      <td class="invis-t" style="text-align: left">
-      <table class="invis-t" style="text-align: left">
-          <tr><td class="invis-t" style="text-align: left" colspan="0">
-            Add/change nicknames</td></tr>
-          <tr><td width="1" class="invis-t" style="text-align: left">
-            Real Name<br><input id="nickRealName" type="text"></td>
-          <td class="invis-t" style="text-align: left">
-            Nickname<br><input id="nickNickname" type="text"></td>
-        </tr>
-        <tr><td class="invis-t" style="text-align: left" colspan="0">
-          <input id="nicknamesSingleButton" type="button" value="Submit" /></td></tr>
-        <tr><td class="invis-t" style="text-align: left" colspan="0">
-          Bulk:<br/>
-          <input id="nicknamesRadioAppend" type="radio" name="nicknamesRadio" value="append" checked="checked" /> Append 
-          <input id="nicknamesRadioReplace" type="radio" name="nicknamesRadio" value="replace" /> Replace 
-          <input id="nicknamesRadioReset" type="radio" name="nicknamesRadio" value="reset" /> Reset<br />
-          <textarea id="nicknamesText" rows="8" cols="50"></textarea><br />
-          <input id="nicknamesButton" type="button" value="Submit" />
-        </td></tr></table>
-        </td>
-        <td class="invis-t" style="text-align: left">
-        <div class="outstream" id="nicknamesOutstream">Enter names in bulk as follows:<br/>
-        "real name 1","nickname 1"<br/>
-        "real name 2","nickname 2"<br/><br/>
-        with a new pair on each line.</div></td>
-    </tr>
-  </table>
+  <div class="flmra-div"><!-- Left div -->
+    <p style="text-align: left">
+    <table id="nicknamesTable">
+      <tr>
+        <th style="text-align: left">Real Name</th>
+        <th style="text-align: left">Nickname</th>
+      </tr>
+    </table>
+    </p>
+  </div>
+  
+  <div class="flmra-div"> <!-- Center div -->
+    <p style="text-align: left">Add/change nicknames</p>
+    <div class="flmra-div">
+      Real Name<br><input id="nickRealName" type="text">
+    </div>
+    <div style="float: left">
+      Nickname<br><input id="nickNickname" type="text">
+    </div><br/>
+    <input id="nicknamesSingleButton" type="button" value="Submit" />
+    
+    <div>
+      <p style="text-align: left">
+      Bulk:<br/>
+      <input id="nicknamesRadioAppend" type="radio" name="nicknamesRadio" value="append" checked="checked" /> Append 
+      <input id="nicknamesRadioReplace" type="radio" name="nicknamesRadio" value="replace" /> Replace 
+      <input id="nicknamesRadioReset" type="radio" name="nicknamesRadio" value="reset" /> Reset<br />
+      <textarea id="nicknamesText" rows="8" cols="50"></textarea><br/>
+      <input id="nicknamesButton" type="button" value="Submit" />
+      </p>
+    </div>
+  </div>
+  
+  <div class="outstream" id="nicknamesOutstream"> <!-- Right div -->
+    Enter names in bulk as follows:<br/>
+    "real name 1","nickname 1"<br/>
+    "real name 2","nickname 2"<br/><br/>
+    with a new pair on each line.
+  </div>
+  
 </div>
-<hr />
+<div style="clear: both"><hr /></div><!-- Between nicknames and shortened names -->
 <div class="left-div">
   <h2 style="text-align: left">Shortened Names</h2>
-  <table class="invis-t" style="text-align: left">
-    <tr>
-      <td class="invis-t" style="text-align: left">
-        <table id="shortenedNamesTable">
-          <tr>
-            <th style="text-align: left">Long Name</th>
-            <th style="text-align: left">Shortened Name</th>
-          </tr>
-        </table>
-      </td>
-      <td class="invis-t" style="text-align: left">
-        <table class="invis-t" style="text-align: left">
-          <tr><td class="invis-t" style="text-align: left" colspan="0">
-            Add/change shortened names</td></tr>
-          <tr><td width="1" class="invis-t" style="text-align: left">
-            Long Name<br><input id="shortenedLongName" type="text"></td>
-          <td class="invis-t" style="text-align: left">
-            Shortened Name<br><input id="shortenedShortName" type="text"></td>
-        </tr>
-        <tr><td class="invis-t" style="text-align: left" colspan="0">
-          <input id="shortenedNamesSingleButton" type="button" value="Submit" /></td></tr>
-        <tr><td class="invis-t" style="text-align: left" colspan="0">
-          Bulk:<br/>
-          <input id="shortenedNamesRadioAppend" type="radio" name="shortenedNamesRadio" value="append" checked="checked" /> Append 
-          <input id="shortenedNamesRadioReplace" type="radio" name="shortenedNamesRadio" value="replace" /> Replace 
-          <input id="shortenedNamesRadioReset" type="radio" name="shortenedNamesRadio" value="reset" /> Reset<br />
-          <textarea id="shortenedNamesText" rows="8" cols="50"></textarea><br />
-          <input id="shortenedNamesButton" type="button" value="Submit" />
-        </td></tr></table>
-      </td>
-      <td class="invis-t" style="text-align: left">
-        <div class="outstream" id="shortenedNamesOutstream"></div>
-      </td>
-    </tr>
-  </table>
- </div>
-  <hr />
+  <div class="flmra-div">
+    <p style="text-align: left">
+    <table id="shortenedNamesTable">
+      <tr>
+        <th style="text-align: left">Long Name</th>
+        <th style="text-align: left">Shortened Name</th>
+      </tr>
+    </table>
+    </p>
+  </div>
+  <div class="flmra-div">
+    <p style="text-align: left">
+      Add/change shortened names</p>
+    <div class="flmra-div">
+      Long Name<br><input id="shortenedLongName" type="text">
+    </div>
+    <div class="flmra-div">
+      Shortened Name<br><input id="shortenedShortName" type="text">
+    </div><br/>
+    <input id="shortenedNamesSingleButton" type="button" value="Submit" />
+    <div>
+      <p style="text-align: left">
+        Bulk:<br/>
+        <input id="shortenedNamesRadioAppend" type="radio" name="shortenedNamesRadio" value="append" checked="checked" /> Append 
+        <input id="shortenedNamesRadioReplace" type="radio" name="shortenedNamesRadio" value="replace" /> Replace 
+        <input id="shortenedNamesRadioReset" type="radio" name="shortenedNamesRadio" value="reset" /> Reset<br />
+        <textarea id="shortenedNamesText" rows="8" cols="50"></textarea><br />
+        <input id="shortenedNamesButton" type="button" value="Submit" />
+      </p>
+    </div>
+  </div>
+  <div class="outstream" id="shortenedNamesOutstream"></div>
+</div>
+<div style="clear: both"><hr /></div>
 <p id="outstream"></p>
     <footer class="footer">&copy; <a href="http://nick-ng.com" target="_blank">Nick Ng</a> - 2016</footer>
-    </center>
     
     <script type="text/javascript" src="socket.io-1.4.5.js"></script>
     <script type="text/javascript" src="jquery-2.2.2.min.js"></script>
