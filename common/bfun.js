@@ -92,7 +92,7 @@ bfun.helloWorldN = function ( n ) {
 bfun.testCSV = function () {
   // It actually works properly though...
   console.log('Testing csvToObjects');
-  var someString = 'longName,shortName\nChristopher,Chris\nDavid,Dave\nNicholas,Nick'
+  var someString = 'long_name,short_name\nChristopher,Chris\nDavid,Dave\nNicholas,Nick'
   var outArray1 = $.csv.toObjects( someString, {} );
   var outArray2 = $.csv.toObjects( someString, {} );
   console.log(outArray1);

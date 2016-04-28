@@ -11,8 +11,8 @@ var nicknameButtonFunction = 'append';
 $( document ).ready(function() {
   getShortenNameRadioVal();
   getNicknameRadioVal();
-  socket.emit( 'pullShortenedNames' );
-  socket.emit( 'pullNicknames', 'options' );
+  socket.emit( 'pullShortenedNames', 'optionsReady' );
+  socket.emit( 'pullNicknames', 'optionsReady' );
 }); // $( document ).ready(function() {
 
 // Nickname controls
@@ -110,8 +110,8 @@ socket.on( 'pushShortenedNames', function( shortenedNames ) {
   // Remove existing table rows
   $( '#shortenedNamesTable' ).find('tr:gt(0)').remove();
   for ( var i = 0; i < shortenedNames.length; i++ ) {
-    var tableRowContent = '<tr><td>' + shortenedNames[i]['longName'] + '</td>' +
-    '<td>' + shortenedNames[i]['shortName'] + '</td></tr>';
+    var tableRowContent = '<tr><td>' + shortenedNames[i]['long_name'] + '</td>' +
+    '<td>' + shortenedNames[i]['shortened_name'] + '</td></tr>';
     $( '#shortenedNamesTable tr:last' ).after( tableRowContent ); // Append a new row.
   };
 });
@@ -140,12 +140,12 @@ socket.on( 'pushNicknames', function( nicknames, parent ) {
     $( '#nicknamesTable tr:last' ).after( tableRowContent ); // Append a new row.
   };
 });
-socket.on( 'nicknameTableLocked', function() {
+socket.on( 'nicknamesTableLocked', function() {
   $('#nicknamesButton').prop( 'disabled', false );
   $('#nicknamesSingleButton').prop( 'disabled', false );
   alert('Nickname list is currently in use. Try again.');
 });
-socket.on( 'nicknameTableUnlocked', function() {
+socket.on( 'nicknamesTableUnlocked', function() {
   $('#nicknamesButton').prop( 'disabled', false );
   $('#nicknamesSingleButton').prop( 'disabled', false );
 });

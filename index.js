@@ -60,18 +60,17 @@ app.get( '/options', function( req, res ) {
 io.on( 'connection', function( socket ) {
   socket.on( 'fullName focusout', function(player) {
     // This is one of the places where you access the database.
-    player.shortNames = nickifyNames( player.fullName, player.ID );
-    player.shortName = player.shortNames[1]; // Check database if other players' shortNames need to be changed to avoid collisions.
+    player.short_names = nickifyNames( player.fullName, player.ID );
+    player.short_name = player.short_names[1]; // Check database if other players' short_names need to be changed to avoid collisions.
     playerList = [player]
-    io.emit( 'shortName change', playerList );
+    io.emit( 'short_name change', playerList );
   });
   
   // Name List events
-  socket.on( 'pullShortenedNames', function () {
-    io.emit( 'pushShortenedNames', SHORTENEDNAMES );
+  socket.on( 'pullShortenedNames', function ( parent ) {
+    getShortenedNamesFromDB( parent );
   });
   socket.on( 'pullNicknames', function ( parent ) {
-    //io.emit( 'pushNicknames', NICKNAMES );
     getNicknamesFromDB( parent )
   });
   socket.on( 'resetNicknames', function () {
@@ -79,10 +78,10 @@ io.on( 'connection', function( socket ) {
       NICKNAMES_TABLE_LOCKED = true;
       var query = pgClient.query( 'DROP TABLE IF EXISTS nameschema.nicknames;' );
       query.on('end', function () { // No 'result' parameter but it still works?
-        makeNicknamesOnDB( pgClient );
+        makeNicknamesOnDB();
       });
     } else {
-      io.emit( 'nicknameTableLocked' );
+      io.emit( 'nicknamesTableLocked' );
     }
   });
   socket.on( 'addOneNickname', function (newNickname) {
@@ -100,7 +99,7 @@ function shortenNames( namePart ) {
   var tempName = namePart;
   //console.log(SHORTENEDNAMES);
   for ( var i = 0; i < SHORTENEDNAMES.length; i++ ) {
-    var tempName2 = tempName.replace( SHORTENEDNAMES[i]['longName'], SHORTENEDNAMES[i]['shortName'] ); 
+    var tempName2 = tempName.replace( SHORTENEDNAMES[i]['long_name'], SHORTENEDNAMES[i]['shortened_name'] ); 
     //console.log( tempName + ' > ' + tempName2 );
     tempName = tempName2;
   };
@@ -172,117 +171,92 @@ function nickifyNames( fullName, playerID ) {
   return nameList;
 };
 
-function initDatabase( someClient ) {
+function initDatabase() {
   // Check if nameschema exists
   var queryString = 'SELECT exists(SELECT schema_name FROM information_schema.schemata WHERE schema_name = \'nameschema\');';
-  test = someClient.query(queryString);
-  test.on('row', function(row) {
+  dbfun.ezQuery( queryString, function(result) {
     console.log('Checking if nameschema exists:');
-    console.log(row.exists);
-    if (!row.exists) { // If it doesn't exist...
+    console.log(result.rows[0].exists);
+    if (!result.rows[0].exists) { // If it doesn't exist...
       // Create nameschema
-      var test = someClient.query('CREATE SCHEMA nameschema;');
-      test.on('end', function(result) {
+      dbfun.ezQuery( 'CREATE SCHEMA nameschema;', function(result) {
         console.log('nameschema created');
         console.log(result);
         // Then create tables shortenednames and nicknames
-        createNameTables( someClient );
+        createNameTables();
       });
     } else { // It exists so...
-      createNameTables( someClient ); // Which also checks if the tables exist
+      createNameTables(); // Which also checks if the tables exist
     };
   });
 };
 
-function createNameTables( someClient ) {
-  // Check if shortened_names exists
+function createNameTables() {
+  // Check if shortened_names table exists
   console.log('Checking if shortened_names exists');
   var sQueryString = 'SELECT exists(SELECT table_schema,table_name FROM information_schema.tables WHERE table_schema=\'nameschema\' AND table_name=\'shortened_names\');';
-  var sQuery = someClient.query( sQueryString );
-  sQuery.on('row', function(row) {
-    console.log('Does shortened_names exist? (row)');
-    console.log(row);
-    if (!row.exists) { // If it doesn't exist make table.
-      makeShortenedNamesOnDB( someClient );
+  dbfun.ezQuery( sQueryString, function(result) {
+    console.log('Does shortened_names exist? (rows[0])');
+    console.log(result.rows[0]);
+    if (!result.rows[0].exists) { // If it doesn't exist make table.
+      makeShortenedNamesOnDB(); // No argument means load the default.
     } else { //else load names from table.
-      getShortenedNamesFromDB( someClient );
+      getShortenedNamesFromDB( 'create' );
     }
   });
-  sQuery.on('end', function(result) {
-    //done();
-  });
-  // Check if nicknames exists
+  // Check if nicknames table exists
   console.log('Checking if nicknames exists');
   var nQueryString = 'SELECT exists(SELECT table_schema,table_name FROM information_schema.tables WHERE table_schema=\'nameschema\' AND table_name=\'nicknames\');';
-  var nQuery = someClient.query( nQueryString );
-  nQuery.on('row', function(row) {
-    console.log('Does nicknames exist? (row)');
-    console.log(row);
-    if (!row.exists) { // If it doesn't exist...
-      makeNicknamesOnDB( someClient );
+  dbfun.ezQuery( nQueryString, function(result) {
+    console.log('Does nicknames exist? (rows[0])');
+    console.log(result.rows[0]);
+    if (!result.rows[0].exists) { // If it doesn't exist...
+      makeNicknamesOnDB(); // No argument means load the default.
     } else { // load names from table
       getNicknamesFromDB( 'create' );
     }
   });
-  nQuery.on('end', function(result) {
-    //done();
-  });
 };
 
 // Create nametables on database
-function makeShortenedNamesOnDB( someClient ) {
+function makeShortenedNamesOnDB( newShortenedNames ) {
+  if (typeof newShortenedNames === "undefined") {
+    newShortenedNames = bfun.loadCSVObjectsFile( DICTDIR + '/shortenednames.csv' );
+  } else if (newNicknames.constructor !== Array) {
+    console.log('No shortened name list provided; loading default');
+    newShortenedNames = bfun.loadCSVObjectsFile( DICTDIR + '/shortenednames.csv' );
+  };
   // Load default table content from .csv file.
-  SHORTENEDNAMES = bfun.loadCSVObjectsFile( DICTDIR + '/shortenednames.csv' );
+  // SHORTENEDNAMES = bfun.loadCSVObjectsFile( DICTDIR + '/shortenednames.csv' );
   // Remove excess white space from shortenednames
-  for ( var i = 0; i < SHORTENEDNAMES.length; i++ ) {
-    SHORTENEDNAMES[i]['longName'] = bfun.removeWhiteSpace( SHORTENEDNAMES[i]['longName'] );
-    SHORTENEDNAMES[i]['shortName'] = bfun.removeWhiteSpace( SHORTENEDNAMES[i]['shortName'] );
-  }
   // Create shortened_names table
-  sQueryString = 'CREATE TABLE nameschema.shortened_names (' +
+  var sQueryString = 'CREATE TABLE nameschema.shortened_names (' +
   'long_name varchar(20) PRIMARY KEY,' +
   'shortened_name varchar(10) );';
-  var sQuery = someClient.query( sQueryString );
-  sQuery.on('end', function(result) {
-    //done();
+  dbfun.ezQuery( sQueryString, function(result) {
     console.log('Created shortened_names');
+    SHORTENEDNAMES_TABLE_LOCKED =  false;
     console.log(result);
     // Put shortened names into table.
-    console.log('Making query string');
-    var queryString = 'INSERT INTO nameschema.shortened_names (long_name,shortened_name) VALUES ';
-    for (var i = 0; i < SHORTENEDNAMES.length; i++ ) {
-      queryString = queryString + '(\'' + SHORTENEDNAMES[i]['longName'] + '\',\'' + SHORTENEDNAMES[i]['shortName'] + '\'),';
+    for (var i = 0; i < newShortenedNames.length; i++ ) {
+      newShortenedNames[i]['long_name'] = bfun.removeWhiteSpace( newShortenedNames[i]['long_name'] );
+      newShortenedNames[i]['shortened_name'] = bfun.removeWhiteSpace( newShortenedNames[i]['shortened_name'] );
+      dbfun.upsertShortenedName( newShortenedNames[i]['long_name'], newShortenedNames[i]['shortened_name'], function(result) {
+        getShortenedNamesFromDB( 'make' );
+      });
     };
-    // str.substring( 0, str.length ) returns the whole string!?
-    // change last entry's comma to semicolon.
-    queryString = queryString.substring( 0, queryString.length-1 ) + ';';
-    console.log(queryString.substring( queryString.length-7,queryString.length ) );
-    var sQuery = someClient.query( queryString );
-    sQuery.on('end', function(result) {
-      //done();
-      console.log('Populated shortened_names');
-      console.log(result);
-    });
   });
 };
-function makeNicknamesOnDB( someClient ) {
+function makeNicknamesOnDB( newNicknames ) {
   // Load default table content from .csv file.
   // .csv file may be unsorted so keep the array in this function
   // and pull a sorted array from the database after making the table.
-  var NICKNAMES = bfun.loadCSVObjectsFile( DICTDIR + '/nicknames.csv' );
-  // Shorten real_names in NICKNAMES array
-  //~ console.log(NICKNAMES);
-  for ( var i = 0; i < NICKNAMES.length; i++ ) {
-    //~ console.log(i);
-    //~ console.log(NICKNAMES[i]);
-    //~ console.log(NICKNAMES[i]['real_name']);
-    //NICKNAMES[i]['real_name'] = shortenNames( NICKNAMES[i]['real_name'] );
-    // Remove excess white space
-    //~ console.log(NICKNAMES[i]['real_name']);
-    NICKNAMES[i]['real_name'] = bfun.trimAroundHyphen( NICKNAMES[i]['real_name'] );
-    // Nicknames can have spaces around hyphens
-    NICKNAMES[i]['nickname'] = bfun.removeWhiteSpace( NICKNAMES[i]['nickname'] );
-  }
+  // If newNicknames isn't an array of nickNames, load default nicknames.
+  if (typeof newNicknames === "undefined") {
+    newNicknames = bfun.loadCSVObjectsFile( DICTDIR + '/nicknames.csv' );
+  } else if (newNicknames.constructor !== Array) {
+    newNicknames = bfun.loadCSVObjectsFile( DICTDIR + '/nicknames.csv' );
+  };
   // Create nicknames table
   var nQueryString = 'CREATE TABLE nameschema.nicknames (' +
   'real_name varchar(40) PRIMARY KEY,' +
@@ -290,12 +264,17 @@ function makeNicknamesOnDB( someClient ) {
   dbfun.ezQuery( nQueryString, function(result) {
     console.log('Created nicknames table');
     NICKNAMES_TABLE_LOCKED = false;
-    io.emit( 'nicknameTableUnlocked' );
+    io.emit( 'nicknamesTableUnlocked' );
     console.log(result);
     // Put nicknames into table.
     //var queryString = 'INSERT INTO nameschema.nicknames (real_name,nickname) VALUES ';
-    for (var i = 0; i < NICKNAMES.length; i++ ) {
-      dbfun.upsertNickname(NICKNAMES[i]['real_name'], NICKNAMES[i]['nickname'], function(result) {
+    for (var i = 0; i < newNicknames.length; i++ ) {
+      // Remove excess white space
+      //~ console.log(NICKNAMES[i]['real_name']);
+      newNicknames[i]['real_name'] = bfun.trimAroundHyphen( newNicknames[i]['real_name'] );
+      // Nicknames can have spaces around hyphens
+      newNicknames[i]['nickname'] = bfun.removeWhiteSpace( newNicknames[i]['nickname'] );
+      dbfun.upsertNickname(newNicknames[i]['real_name'], newNicknames[i]['nickname'], function(result) {
         getNicknamesFromDB( 'make' ); // This may be sub_optimal.
       });
     };
@@ -303,24 +282,20 @@ function makeNicknamesOnDB( someClient ) {
 };
 
 // Get namelists from database
-function getShortenedNamesFromDB( someClient ) {
-  SHORTENEDNAMES = [];
-  var queryString = 'SELECT * FROM nameschema.shortened_names ORDER BY long_name;';
-  console.log('Getting shortened_names from DB');
-  var sQuery = someClient.query( queryString );
-  sQuery.on('row', function(row) {
-    //console.log(row);
-    var shortenedPair = {};
-    shortenedPair['longName'] = row.long_name;
-    shortenedPair['shortName'] = row.shortened_name;
-    SHORTENEDNAMES.push(shortenedPair);
-  });
-  sQuery.on('end', function(result) {
-    //done();
-    console.log('Finished getting shortened_names');
-    //console.log(SHORTENEDNAMES);
-    io.emit( 'pushShortenedNames', SHORTENEDNAMES );
-  });
+function getShortenedNamesFromDB( parent ) {
+  if (!SHORTENEDNAMES_TABLE_LOCKED) {
+    SHORTENEDNAMES = [];
+    var queryString = 'SELECT * FROM nameschema.shortened_names ORDER BY long_name;';
+    console.log('Getting shortened_names from DB');
+    dbfun.ezQuery( queryString, function(results) {
+      console.log(results);
+      SHORTENEDNAMES = results.rows.slice();
+      console.log('Finished getting shortened_names');
+      io.emit( 'pushShortenedNames', SHORTENEDNAMES, parent );
+    });
+  } else {
+    io.emit( 'shortenedNamesTableLocked' );
+  };
 };
 function getNicknamesFromDB( parent ) {
   // parent is where this function is and tells how the io.emit should be handled
@@ -329,11 +304,11 @@ function getNicknamesFromDB( parent ) {
     var queryString = 'SELECT * FROM nameschema.nicknames ORDER BY real_name;';
     console.log('Getting nicknames from DB');
     dbfun.ezQuery( queryString, function(results) {
-      NICKNAMES = results.rows.slice()
+      NICKNAMES = results.rows.slice();
       console.log('Finished getting nicknames');
       io.emit( 'pushNicknames', NICKNAMES, parent );
     });
   } else {
-    io.emit( 'nicknameTableLocked' );
-  }
+    io.emit( 'nicknamesTableLocked' );
+  };
 };

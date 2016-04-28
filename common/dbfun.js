@@ -92,6 +92,29 @@ funcObj.funcQuery = 'CREATE OR REPLACE FUNCTION ' +
   'LANGUAGE plpgsql;';
 funcList.push(funcObj);
 // upsert_nickname End
+// upsert_shortened_name Start
+var funcObj = {};
+funcObj.funcName = 'upsert_shortened_name()';
+funcObj.funcQuery = 'CREATE OR REPLACE FUNCTION ' +
+  'upsert_shortened_name(new_long varchar(20), new_shortened varchar(10)) RETURNS VOID AS '+
+  '$$ ' +
+  'BEGIN ' +
+    'LOOP ' +
+        'UPDATE nameschema.shortened_names SET shortened_name = new_shortened WHERE long_name = new_long; ' +
+        'IF found THEN ' +
+            'RETURN; ' +
+        'END IF; ' +
+        'BEGIN ' +
+            'INSERT INTO nameschema.shortened_names(long_name,shortened_name) VALUES (new_long, new_shortened); ' +
+            'RETURN; ' +
+        'EXCEPTION WHEN unique_violation THEN ' +
+        'END; ' +
+    'END LOOP; ' +
+  'END; ' +
+  '$$ ' +
+  'LANGUAGE plpgsql;';
+funcList.push(funcObj);
+// upsert_shortened_name End
 //console.log(funcList.length);
 
 
@@ -174,6 +197,14 @@ dbfun.ezQuery = function( queryString, input1, input2 ) {
 
 dbfun.upsertNickname = function(realName, nickname, callback) {
   dbfun.ezQuery( 'SELECT upsert_nickname($1, $2)',[realName, nickname], function(result) {
+    //console.log('upsert_nickname query result');
+    //console.log(result);
+    callback();
+  });
+};
+
+dbfun.upsertShortenedName = function(longName, shortenedName, callback) {
+  dbfun.ezQuery( 'SELECT upsert_shortened_name($1, $2)',[longName, shortenedName], function(result) {
     //console.log('upsert_nickname query result');
     //console.log(result);
     callback();
