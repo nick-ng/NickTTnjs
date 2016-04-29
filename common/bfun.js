@@ -18,6 +18,11 @@ bfun.loadFile = function ( somePath ) {
 };
 
 bfun.loadCSV = function ( someString ) {
+  // Remove spaces between " and ,
+  someString = someString.replace( /"\s+,/g, '",' );
+  // Remove spaces between , and "
+  someString = someString.replace( /,\s+"/g, ',"' );
+  // Remove spaces before 
   var outArray = $.csv.toArrays( someString, csvOptions );
   return outArray;
 };
@@ -44,7 +49,9 @@ bfun.loadCSVObjectsFile = function ( somePath ) {
 };
   
 bfun.removeWhiteSpace = function ( someString ) {
+  // Replace multiple spaces with one, REMOVE leading and trailing spaces.
   return someString.replace( /[\s\n\r]+/g, ' ' ).replace( /^\s|\s$/g, '' );
+  // This matches leading and trailing spaces of any number /^\s+|\s+$/g
 };
   
 bfun.trimAroundHyphen = function ( someString ) {
@@ -100,3 +107,5 @@ bfun.testCSV = function () {
 };
 
 module.exports = bfun;
+
+console.log('Loaded bfun');

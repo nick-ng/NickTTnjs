@@ -9,7 +9,7 @@ var PG_DATABASE_URL = process.env.DATABASE_URL;
 
 // PostgreSQL Client
 pg.defaults.ssl = true;
-pg.defaults.poolSize = 3;
+pg.defaults.poolSize = 3; // Increase based on your database privileges
 //pg.defaults.database = process.env.DATABASE_URL;
 /*
 var pgClient1 = new pg.Client(PG_DATABASE_URL);
@@ -18,8 +18,6 @@ pgClient1.on('drain', function() {
   pgClient1.end.bind(pgClient1);
 });
 */
-
-console.log('Loaded dbfun');
 
 /* upsert function from PostgreSQL manual
 CREATE FUNCTION merge_db(key INT, data TEXT) RETURNS VOID AS
@@ -227,3 +225,5 @@ for (var i = 0; i < funcList.length; i++) {
     console.log(result);
   });
 };
+
+console.log('Loaded dbfun');

@@ -6,7 +6,7 @@ var http = require( 'http' ).Server( app );
 var io = require( 'socket.io' )( http );
 var $ = jQuery = require('jquery');
 require('jquery-csv');
-var pg = require('pg');
+//var pg = require('pg'); // PostgreSQL handled by dbfun
 // My requires
 var bfun = require( __dirname + '/common/bfun' );
 var dbfun = require( __dirname + '/common/dbfun' );
@@ -14,10 +14,11 @@ var dbfun = require( __dirname + '/common/dbfun' );
 // "Global" variables
 var PAGEDIR = __dirname + '/pages';
 var DICTDIR = __dirname + '/dicts';
-var PG_DATABASE_URL = process.env.DATABASE_URL;
+//var PG_DATABASE_URL = process.env.DATABASE_URL;
 var SHORTENEDNAMES = [];
 var NICKNAMES = [];
 var NICKNAMES_TABLE_LOCKED = false;
+var SHORTENEDNAMES_TABLE_LOCKED = false;
 
 app.set( 'port', ( process.env.PORT || 3434 ) );
 app.set( 'views', __dirname + '/public' );
@@ -28,13 +29,7 @@ app.use( express.static( __dirname + '/js' ) );
 //app.use( express.static( DICTDIR ) );
 
 // PostgreSQL
-pg.defaults.ssl = true;
-var schemasAndTables = {};
-schemasAndTables.schemas = ['names'];
-var pgClient = new pg.Client(PG_DATABASE_URL);
-pgClient.connect();
-initDatabase( pgClient );
-//var tempQuery = 'SELECT table_schema,table_name FROM information_schema.tables;'
+initDatabase();
 
 // The pages
 app.get( '/', function( req, res ) {
@@ -73,22 +68,111 @@ io.on( 'connection', function( socket ) {
   socket.on( 'pullNicknames', function ( parent ) {
     getNicknamesFromDB( parent )
   });
+  
+  // Comment these if people start messing with you?
+  socket.on( 'resetShortenedNames', function () {
+    if (!SHORTENEDNAMES_TABLE_LOCKED) {
+      SHORTENEDNAMES_TABLE_LOCKED = true;
+      dbfun.ezQuery( 'DROP TABLE IF EXISTS nameschema.shortened_names;', function(results) {
+        makeShortenedNamesOnDB();
+      });
+    } else {
+      io.emit( 'shortenedNamesTableLocked' );
+    };
+  });
+  
+  // Nicknames
+  socket.on( 'addOneNickname', function (newNickname) {
+    dbfun.upsertNickname( newNickname.real_name, newNickname.nickname, function() {
+      getNicknamesFromDB( 'single' );
+    });
+  });
+  
+  socket.on( 'appendNicknames', function ( tempText ) {
+    console.log('Trying to parse:\n' + tempText);
+    var errorString = '';
+    var nicknamesAdded = false;
+    try {
+      var tempNames = bfun.loadCSV( tempText );
+      for ( var i = 0; i < tempNames.length; i++ ) {
+        if (tempNames[i].length == 2) {
+          tempNames[i][0] = bfun.trimAroundHyphen( tempNames[i][0] );
+          tempNames[i][1] = bfun.removeWhiteSpace( tempNames[i][1] );
+          dbfun.upsertNickname( tempNames[i][0], tempNames[i][1], function() {
+            getNicknamesFromDB( 'append' );
+          });
+          nicknamesAdded = true;
+        } else {
+          errorString += 'Couldn\'t add ' + tempNames[i] + '<br/>';
+        };
+      };
+    } catch(e) {
+      errorString = 'Couldn\'t parse <br>' + tempText;
+      console.error('Nick: Error when appending nicknames: ' + tempText, e);
+    };
+    if (!nicknamesAdded) {
+      if (errorString.length == 0) {
+        errorString = 'Couldn\'t add ' + tempText;
+      };
+      io.emit( 'nicknameOutstream', errorString );
+      // Unlock buttons if dbfun never gets called.
+      io.emit( 'nicknamesTableUnlocked' );
+    };
+  });
+  
+  socket.on( 'replaceNicknames', function ( tempText ) {
+    var newNicknames = [];
+    console.log('Trying to parse:\n' + tempText);
+    var errorString = '';
+    var nicknamesAdded = false;
+    try {
+      var tempNames = bfun.loadCSV( tempText );
+      for ( var i = 0; i < tempNames.length; i++ ) {
+        if (tempNames[i].length == 2) {
+          var nicknameObj = {};
+          // makeNicknamesOnDB already trims whitespace so no need here.
+          nicknameObj.real_name = tempNames[i][0]
+          nicknameObj.nickname = tempNames[i][1]
+          newNicknames.push(nicknameObj);
+          nicknamesAdded = true;
+        } else {
+          errorString += 'Couldn\'t add ' + tempNames[i] + '<br/>';
+        };
+      };
+    } catch(e) {
+      errorString = 'Couldn\'t parse <br>' + tempText;
+      console.error('Nick: Error when replacing nicknames: ' + tempText, e);
+    };
+    if (!nicknamesAdded) {
+      if (errorString.length == 0) {
+        errorString = 'Couldn\'t add ' + tempText;
+      };
+      io.emit( 'nicknameOutstream', errorString );
+      // Unlock buttons if dbfun never gets called.
+      io.emit( 'nicknamesTableUnlocked' );
+    } else {
+      if (!NICKNAMES_TABLE_LOCKED) {
+        NICKNAMES_TABLE_LOCKED = true;
+        dbfun.ezQuery( 'DROP TABLE IF EXISTS nameschema.nicknames;', function(results) {
+          makeNicknamesOnDB( newNicknames );
+        });
+      } else {
+        io.emit( 'nicknamesTableLocked' );
+      };
+    };
+  });
+  
   socket.on( 'resetNicknames', function () {
     if (!NICKNAMES_TABLE_LOCKED) {
       NICKNAMES_TABLE_LOCKED = true;
-      var query = pgClient.query( 'DROP TABLE IF EXISTS nameschema.nicknames;' );
-      query.on('end', function () { // No 'result' parameter but it still works?
+      dbfun.ezQuery( 'DROP TABLE IF EXISTS nameschema.nicknames;', function(results) {
         makeNicknamesOnDB();
       });
     } else {
       io.emit( 'nicknamesTableLocked' );
     }
   });
-  socket.on( 'addOneNickname', function (newNickname) {
-    dbfun.upsertNickname( newNickname.real_name, newNickname.nickname, function() {
-      getNicknamesFromDB( 'single' );
-    });
-  });
+  // end of io.on( 'connection', callback() );
 });
 
 http.listen( app.get( 'port' ), function(){

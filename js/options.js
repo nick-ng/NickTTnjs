@@ -34,14 +34,16 @@ $('#nicknamesButton').click(function() {
   $('#nicknamesSingleButton').prop( 'disabled', true );
   var tempText = $( '#nicknamesText' ).val();
   if ( nicknameButtonFunction == 'append' ) {
-    $( '#nicknamesButton' ).val( 'Append' );
-    $( '#nicknamesOutstream' ).html( 'Appended nicknames:<br>' + tempText );
+    //$( '#nicknamesButton' ).val( 'Append' );
+    $( '#nicknamesOutstream' ).html( 'Appending nicknames' );
+    socket.emit( 'appendNicknames', tempText );
   } else if (nicknameButtonFunction == 'replace') {
-    $( '#nicknamesButton' ).val( 'Replace' );
-    $( '#nicknamesOutstream' ).html( 'Replaced nicknames:<br>' + tempText );
+    //$( '#nicknamesButton' ).val( 'Replace' );
+    $( '#nicknamesOutstream' ).html( 'Replacing nicknames' );
+    socket.emit( 'replaceNicknames', tempText );
   } else if (nicknameButtonFunction == 'reset') {
-    $( '#nicknamesButton' ).val( 'Reset' );
-    $( '#nicknamesOutstream' ).text( 'Reset nicknames.' );
+    //$( '#nicknamesButton' ).val( 'Reset' );
+    $( '#nicknamesOutstream' ).text( 'Resetting nicknames.' );
     $( '#nicknamesTable' ).find('tr:gt(0)').remove();
     socket.emit( 'resetNicknames' );
   }
@@ -150,5 +152,5 @@ socket.on( 'nicknamesTableUnlocked', function() {
   $('#nicknamesSingleButton').prop( 'disabled', false );
 });
 socket.on( 'nicknameOutstream', function( displayString ) {
-  $( '#nicknamesOutstream' ).html( 'Received: <br>' + displayString );
+  $( '#nicknamesOutstream' ).html( displayString );
 });
