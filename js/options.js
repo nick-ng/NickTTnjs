@@ -73,8 +73,8 @@ function getNicknameRadioVal() {
 $('#shortenedNamesButton').click(function() {
   var tempText = $( '#shortenedNamesText' ).val();
   if ( shortenedNameButtonFunction == 'append' ) {
-    $( '#shortenedNamesButton' ).val( 'Append' );
-    $( '#shortenedNamesOutstream' ).html( 'Appended short names:<br>' + tempText );
+    $( '#shortenedNamesOutstream' ).html( 'Appending shortened names' );
+    socket.emit( 'appendShortenedNames', tempText );
   } else if (shortenedNameButtonFunction == 'replace') {
     $( '#shortenedNamesButton' ).val( 'Replace' );
     $( '#shortenedNamesOutstream' ).html( 'Replaced short names:<br>' + tempText );
@@ -117,11 +117,19 @@ socket.on( 'pushShortenedNames', function( shortenedNames ) {
     $( '#shortenedNamesTable tr:last' ).after( tableRowContent ); // Append a new row.
   };
 });
-socket.on( 'ShortenedNamesTableLocked', function() {
+socket.on( 'shortenedNamesTableLocked', function() {
   $('#shortenedNamesButton').prop( 'disabled', false );
   $('#shortenedNamesSingleButton').prop( 'disabled', false );
   alert('Shortened names list is currently in use. Try again.');
 });
+socket.on( 'shortenedNamesTableUnlocked', function() {
+  $('#shortenedNamesButton').prop( 'disabled', false );
+  $('#shortenedNamesSingleButton').prop( 'disabled', false );
+});
+socket.on( 'shortenedNameOutstream', function( displayString ) {
+  $( '#shortenedNamesOutstream' ).html( displayString );
+});
+
 socket.on( 'pushNicknames', function( nicknames, parent ) {
   // Any previous requests have been completed so enable the buttons.
   $('#nicknamesButton').prop( 'disabled', false );

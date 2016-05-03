@@ -70,17 +70,6 @@ io.on( 'connection', function( socket ) {
   });
   
   // Comment these if people start messing with you?
-  socket.on( 'resetShortenedNames', function () {
-    if (!SHORTENEDNAMES_TABLE_LOCKED) {
-      SHORTENEDNAMES_TABLE_LOCKED = true;
-      dbfun.ezQuery( 'DROP TABLE IF EXISTS nameschema.shortened_names;', function(results) {
-        makeShortenedNamesOnDB();
-      });
-    } else {
-      io.emit( 'shortenedNamesTableLocked' );
-    };
-  });
-  
   // Nicknames
   socket.on( 'addOneNickname', function (newNickname) {
     dbfun.upsertNickname( newNickname.real_name, newNickname.nickname, function() {
@@ -172,6 +161,99 @@ io.on( 'connection', function( socket ) {
       io.emit( 'nicknamesTableLocked' );
     }
   });
+  
+  // Shortened names
+  socket.on( 'resetShortenedNames', function () {
+    if (!SHORTENEDNAMES_TABLE_LOCKED) {
+      SHORTENEDNAMES_TABLE_LOCKED = true;
+      dbfun.ezQuery( 'DROP TABLE IF EXISTS nameschema.shortened_names;', function(results) {
+        makeShortenedNamesOnDB();
+      });
+    } else {
+      io.emit( 'shortenedNamesTableLocked' );
+    };
+  });
+  
+  socket.on( 'addOneShortenedName', function (newShortenedName) {
+    dbfun.upsertShortenedName( newShortenedName.long_name, newShortenedName.shortened_name, function() {
+      getShortenedNamesFromDB( 'single' );
+    });
+  });
+  
+  socket.on( 'appendShortenedNames', function ( tempText ) {
+    console.log('Trying to parse:\n' + tempText);
+    var errorString = '';
+    var shortenedNamesAdded = false;
+    try {
+      var tempNames = bfun.loadCSV( tempText );
+      for ( var i = 0; i < tempNames.length; i++ ) {
+        if (tempNames[i].length == 2) {
+          tempNames[i][0] = bfun.trimAroundHyphen( tempNames[i][0] );
+          tempNames[i][1] = bfun.removeWhiteSpace( tempNames[i][1] );
+          dbfun.upsertShortenedName( tempNames[i][0], tempNames[i][1], function() {
+            getShortenedNamesFromDB( 'append' );
+          });
+          shortenedNamesAdded = true;
+        } else {
+          errorString += 'Couldn\'t add ' + tempNames[i] + '<br/>';
+        };
+      };
+    } catch(e) {
+      errorString = 'Couldn\'t parse <br>' + tempText;
+      console.error('Nick: Error when appending shortened names: ' + tempText, e);
+    };
+    if (!shortenedNamesAdded) {
+      if (errorString.length == 0) {
+        errorString = 'Couldn\'t parse ' + tempText;
+      };
+      io.emit( 'shortenedNameOutstream', errorString );
+      // Unlock buttons if dbfun never gets called.
+      io.emit( 'shortenedNamesTableUnlocked' );
+    };
+  });
+  
+  socket.on( 'replaceShortenedNames', function ( tempText ) {
+    var newShortenedNames = [];
+    console.log('Trying to parse:\n' + tempText);
+    var errorString = '';
+    var shortenedNamesAdded = false;
+    try {
+      var tempNames = bfun.loadCSV( tempText );
+      for ( var i = 0; i < tempNames.length; i++ ) {
+        if (tempNames[i].length == 2) {
+          var shortenedNameObj = {};
+          // makeNicknamesOnDB already trims whitespace so no need here.
+          shortenedNameObj.long_name = tempNames[i][0]
+          shortenedNameObj.shortened_name = tempNames[i][1]
+          newShortenedNames.push(shortenedNameObj);
+          shortenedNamesAdded = true;
+        } else {
+          errorString += 'Couldn\'t add ' + tempNames[i] + '<br/>';
+        };
+      };
+    } catch(e) {
+      errorString = 'Couldn\'t parse <br>' + tempText;
+      console.error('Nick: Error when replacing shortened names: ' + tempText, e);
+    };
+    if (!shortenedNamesAdded) {
+      if (errorString.length == 0) {
+        errorString = 'Couldn\'t parse ' + tempText;
+      };
+      io.emit( 'shortenedNameOutstream', errorString );
+      // Unlock buttons if dbfun never gets called.
+      io.emit( 'shortenedNamesTableUnlocked' );
+    } else {
+      if (!SHORTENEDNAMES_TABLE_LOCKED) {
+        SHORTENEDNAMES_TABLE_LOCKED = true;
+        dbfun.ezQuery( 'DROP TABLE IF EXISTS nameschema.shortened_names;', function(results) {
+          makeShortenedNamesOnDB( newNicknames );
+        });
+      } else {
+        io.emit( 'shortenedNamesTableLocked' );
+      };
+    };
+  });
+  
   // end of io.on( 'connection', callback() );
 });
 
