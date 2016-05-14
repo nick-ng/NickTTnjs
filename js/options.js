@@ -44,7 +44,7 @@ $('#nicknamesButton').click(function() {
   } else if (nicknameButtonFunction == 'reset') {
     //$( '#nicknamesButton' ).val( 'Reset' );
     $( '#nicknamesOutstream' ).text( 'Resetting nicknames.' );
-    $( '#nicknamesTable' ).find('tr:gt(0)').remove();
+    //$( '#nicknamesTable' ).find('tr:gt(0)').remove();
     socket.emit( 'resetNicknames' );
   }
 });
@@ -69,6 +69,16 @@ function getNicknameRadioVal() {
   }
 };
 
+// Shortened name controls
+$('#shortenedNamesSingleButton').click(function () {
+  var newShortenedName = {};
+  newShortenedName.long_name = $( '#shortenedLongName' ).val();
+  newShortenedName.shortened_name = $( '#shortenedShortName' ).val();
+  //var newNickname = {real_name: 'Nick Ng', nickname: 'Lead Dev.'};
+  $('#shortenedNamesButton').prop( 'disabled', true );
+  $('#shortenedNamesSingleButton').prop( 'disabled', true );
+  socket.emit( 'addOneShortenedName', newShortenedName );
+});
 // Shortened name bulk controls
 $('#shortenedNamesButton').click(function() {
   var tempText = $( '#shortenedNamesText' ).val();
@@ -81,6 +91,7 @@ $('#shortenedNamesButton').click(function() {
   } else if (shortenedNameButtonFunction == 'reset') {
     $( '#shortenedNamesButton' ).val( 'Reset' );
     $( '#shortenedNamesOutstream' ).text( 'Reset short names.' );
+    socket.emit( 'resetShortenedNames' );
   }
 });
 $( "input[name=shortenedNamesRadio]:radio" ).change( function() {
@@ -105,10 +116,18 @@ function getShortenNameRadioVal() {
 };
 
 // Socket.IO events
-socket.on( 'pushShortenedNames', function( shortenedNames ) {
+socket.on( 'pushShortenedNames', function( shortenedNames, parent ) {
   // Any previous requests have been completed so enable the buttons.
   $('#shortenedNamesButton').prop( 'disabled', false );
   $('#shortenedNamesSingleButton').prop( 'disabled', false );
+  if (parent == 'single') {
+    // clear single name input boxes
+    $( '#shortenedLongName' ).val('');
+    $( '#shortenedShortName' ).val('');
+  };
+  if (parent = 'bulk') {
+    // clear bulk box
+  };
   // Remove existing table rows
   $( '#shortenedNamesTable' ).find('tr:gt(0)').remove();
   for ( var i = 0; i < shortenedNames.length; i++ ) {
