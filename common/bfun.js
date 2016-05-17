@@ -86,6 +86,17 @@ bfun.initialHyphenName = function ( someSubstring ) {
   return nameInitials;
 };
 
+bfun.randomString = function ( strLength, charSet ) {
+  var result = [];
+  strLength = strLength || 5;
+  //charSet = charSet || 'abcdefghijklmnopqrstuvwxyz0123456789';
+  charSet = charSet || '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  while ( result.length < strLength ) {
+    result.push(charSet.charAt(Math.floor(Math.random() * charSet.length)));
+  }
+  return result.join('');
+}
+
 bfun.helloWorld = function () {
   console.log('Hello World');
 };

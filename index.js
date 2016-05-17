@@ -402,6 +402,7 @@ function makeShortenedNamesOnDB( newShortenedNames ) {
   dbfun.ezQuery( sQueryString, function(result) {
     console.log('Created shortened_names');
     SHORTENEDNAMES_TABLE_LOCKED =  false;
+    io.emit( 'shortenedNamesTableUnlocked' );
     console.log(result);
     // Put shortened names into table.
     for (var i = 0; i < newShortenedNames.length; i++ ) {

@@ -81,16 +81,19 @@ $('#shortenedNamesSingleButton').click(function () {
 });
 // Shortened name bulk controls
 $('#shortenedNamesButton').click(function() {
+  $('#shortenedNamesButton').prop( 'disabled', true );
+  $('#shortenedNamesSingleButton').prop( 'disabled', true );
   var tempText = $( '#shortenedNamesText' ).val();
   if ( shortenedNameButtonFunction == 'append' ) {
     $( '#shortenedNamesOutstream' ).html( 'Appending shortened names' );
     socket.emit( 'appendShortenedNames', tempText );
   } else if (shortenedNameButtonFunction == 'replace') {
-    $( '#shortenedNamesButton' ).val( 'Replace' );
-    $( '#shortenedNamesOutstream' ).html( 'Replaced short names:<br>' + tempText );
+    //$( '#shortenedNamesButton' ).val( 'Replace' );
+    $( '#shortenedNamesOutstream' ).html( 'Replacing shortened names' );
+    socket.emit( 'replaceShortenedNames' );
   } else if (shortenedNameButtonFunction == 'reset') {
-    $( '#shortenedNamesButton' ).val( 'Reset' );
-    $( '#shortenedNamesOutstream' ).text( 'Reset short names.' );
+    //$( '#shortenedNamesButton' ).val( 'Reset' );
+    $( '#shortenedNamesOutstream' ).text( 'Resetting shortened names' );
     socket.emit( 'resetShortenedNames' );
   }
 });
