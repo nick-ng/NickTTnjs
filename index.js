@@ -33,9 +33,9 @@ initDatabase();
 
 // The pages
 app.get( '/', function( req, res ) {
-  res.sendFile(PAGEDIR + '/index.html');
+  res.sendFile(PAGEDIR + '/home.html');
 });
-app.get( '/playerdetails', function( req, res ) {
+app.get( '/playerdetails', function(req, res) {
   res.sendFile(PAGEDIR + '/playerdetails.html');
 });
 app.get( '/finalstandings', function( req, res ) {
@@ -61,8 +61,10 @@ io.on( 'connection', function( socket ) {
     io.emit( 'short_name change', playerList );
   });
   
-  // Name List events
-  socket.on( 'pullShortenedNames', function ( parent ) {
+  /* ====================
+   * = Name List events =
+   * ==================== */
+  socket.on( 'pullShortenedNames', function (parent) {
     getShortenedNamesFromDB( parent );
   });
   socket.on( 'pullNicknames', function ( parent ) {
@@ -77,7 +79,7 @@ io.on( 'connection', function( socket ) {
     });
   });
   
-  socket.on( 'appendNicknames', function ( tempText ) {
+  socket.on( 'appendNicknames', function (tempText) {
     console.log('Trying to parse:\n' + tempText);
     var errorString = '';
     var nicknamesAdded = false;
@@ -109,7 +111,7 @@ io.on( 'connection', function( socket ) {
     };
   });
   
-  socket.on( 'replaceNicknames', function ( tempText ) {
+  socket.on( 'replaceNicknames', function (tempText) {
     var newNicknames = [];
     console.log('Trying to parse:\n' + tempText);
     var errorString = '';
@@ -180,7 +182,7 @@ io.on( 'connection', function( socket ) {
     });
   });
   
-  socket.on( 'appendShortenedNames', function ( tempText ) {
+  socket.on( 'appendShortenedNames', function (tempText) {
     console.log('Trying to parse:\n' + tempText);
     var errorString = '';
     var shortenedNamesAdded = false;
@@ -212,7 +214,7 @@ io.on( 'connection', function( socket ) {
     };
   });
   
-  socket.on( 'replaceShortenedNames', function ( tempText ) {
+  socket.on( 'replaceShortenedNames', function (tempText) {
     var newShortenedNames = [];
     console.log('Trying to parse:\n' + tempText);
     var errorString = '';
@@ -252,6 +254,27 @@ io.on( 'connection', function( socket ) {
         io.emit( 'shortenedNamesTableLocked' );
       };
     };
+  });
+  
+  /* =========================
+   * = Tournament-Key events =
+   * ========================= */
+  // Respond to the different buttons
+  socket.on( 'pullTournamentKey', function (mode) {
+    if (mode == 'new') {
+      newTournamentKey = bfun.randomString( 8 ).toLowerCase();
+      io.emit( 'pushTournamentKey', newTournamentKey);
+    };
+  });
+  
+  socket.on( 'checkTournamentKey', function (maybeKey) {
+    //asdf
+  });
+  
+  socket.on( 'demoTournamentReset', function (demoKey) {
+    //reset the appropriate tournament
+    // then push demo key via callback (place holder pushes directly)
+    io.emit( 'pushTournamentKey', demoKey);
   });
   
   // end of io.on( 'connection', callback() );

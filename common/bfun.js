@@ -89,8 +89,8 @@ bfun.initialHyphenName = function ( someSubstring ) {
 bfun.randomString = function ( strLength, charSet ) {
   var result = [];
   strLength = strLength || 5;
-  //charSet = charSet || 'abcdefghijklmnopqrstuvwxyz0123456789';
-  charSet = charSet || '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  charSet = charSet || 'abcdefghijklmnopqrstuvwxyz0123456789';
+  //charSet = charSet || '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   while ( result.length < strLength ) {
     result.push(charSet.charAt(Math.floor(Math.random() * charSet.length)));
   }

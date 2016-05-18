@@ -50,5 +50,5 @@ schema: tournament00000000 // 'tournament' plus a unique 8 digit number between 
     column: result - 0: Unplayed, 1: Player 1 victory, 2: Player 2 victory, 3: Draw (For exporting to Elo site)
 
 // Cookies
-nicktt_currenttournament=1234567890abcdef : Current tournament-key (16 character alpha-numeric string). Expires 100 days
-nicktt_recenttournaments=1234567890abcdef-1234567890abcdef-1234567890abcdef : Recently accessed tournaments. Max 10? Too many may break the load dialogue. Expires 100 days.
+nicktt_currenttournament=12345678 : Current tournament-key (8 character alpha-numeric string). Expires 100 days
+nicktt_recenttournaments=12345678-12345678-12345678 : Recently accessed tournaments. Max 10? Too many may break the load dialogue. Expires 100 days.

@@ -17,12 +17,9 @@
   </ul> 
 <div style="margin-top:50px;">
   <hr />
+  <h1>Nick's Tournament Tool<h1>
   </div>
-  <div style="margin-top:100px">
-  <p class="mini-h">
-    <input id="saveTournamentButton" type="button" value="Save Tournament" />
-  </p>
-</div>
+  <div id="currentTournamentInfo"></div>
 <div style="margin-top:100px">
   <p class="mini-h">
     <input id="newTournamentButton" type="button" value="New Tournament" />
@@ -30,18 +27,35 @@
     <input id="demoTournamentButton" type="button" value="Demonstration" />
   </p>
 </div>
-<div id="newTournamentDialog" title="Create a new tournament?">
-    <p>This will clear the current tournament and generate a new tournament-key.</p>
-    <p>Your previous tournaments can be accessed by clicking on the "Load Tournament" button and entering their tournament-key.</p>
+<div style="display:none" id="newTournamentDialog" title="Create new tournament">
+  <p>This will clear the current tournament and generate a new tournament-key.</p>
+  <p>Your previous tournaments can be accessed by clicking on the "Load Tournament" button and entering their tournament-key.</p>
+</div>  
+<div style="display:none" id="loadTournamentDialog" title="Load tournament">
+  <div id="loadWarning"></div>
+  <p>Tournament-Key<br>
+  <input id="loadTournamentKey" type="text"> <input id="dialogLoadButton" type="button" value="Load"></p>
+  <p id="recentTournaments"></p>
+</div>
+<div style="display:none" id="demoTournamentDialog" title="Demo tournament">
+  <p>Choose a demo to load:
+    <ul class="tournament-key-ul">
+      <li><input id="demo0" type="radio" name="demoRadio" value="demo0000" checked="checked" /> Before the tournament</li>
+      <li><input id="demo1" type="radio" name="demoRadio" value="demo0001" /> Midway through the tournament</li>
+      <li><input id="demo2" type="radio" name="demoRadio" value="demo0002" /> After the tournament</li>
+    </ul>
+  </p>
 </div>
 <hr />
-<p class="mini-h" id="outstream">Nick's Tournament Tool</p>
+<p class="mini-h" id="outstream"></p>
     <footer class="footer">&copy; <a href="http://nick-ng.com" target="_blank">Nick Ng</a> - 2016</footer>
     
     <script type="text/javascript" src="socket.io-1.4.5.js"></script>
     <script type="text/javascript" src="jquery-2.2.3.min.js"></script>
     <link rel="stylesheet" href="jquery-ui.min.css">
     <script type="text/javascript" src="jquery-ui.min.js"></script>
+    <script type="text/javascript" src="jquery.cookie.js"></script>
+    <script type="text/javascript" src="common.js"></script>
     <script type="text/javascript" src="home.js"></script>    
   </body>
 </html>

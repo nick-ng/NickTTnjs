@@ -55,6 +55,11 @@ th {
   vertical-align: top;
 }
 
+.tournament-key-ul {
+  list-style-type: none;
+  vertical-align: middle;
+}
+
 .navbar-ul {
     list-style-type: none;
     margin: 0;
@@ -76,7 +81,11 @@ th {
     border-left: 1px solid #bbb;
 }
 
-.navbar-a {
+.navbar-tk {
+    float: left;
+}
+
+.navbar-a, .navbar-s, .navbar-tk {
     display: block;
     color: white;
     text-align: center;

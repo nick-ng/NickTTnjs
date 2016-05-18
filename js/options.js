@@ -1,7 +1,3 @@
-var bgLight = '#eee';
-var bgDark = '#ccc';
-var socket = io();
-
 var shortenedNameButtonFunction = 'append';
 var nicknameButtonFunction = 'append';
 
@@ -13,6 +9,7 @@ $( document ).ready(function() {
   getNicknameRadioVal();
   socket.emit( 'pullShortenedNames', 'optionsReady' );
   socket.emit( 'pullNicknames', 'optionsReady' );
+  common.getTournamentKey(true)
 }); // $( document ).ready(function() {
 
 // Nickname controls

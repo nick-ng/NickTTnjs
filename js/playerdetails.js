@@ -1,12 +1,9 @@
-var bgLight = '#eee';
-var bgDark = '#ccc';
-var socket = io();
-
 // ==============
 // Document.Ready
 // ==============
 $( document ).ready(function() {
   addPlayerRow();
+  common.getTournamentKey()
 }); // $( document ).ready(function() {
 
 $('#addPlayerButton').click(function() {
@@ -118,10 +115,10 @@ function fixRowColours() {
   for (var i = 1; i < rowCount; i++) {
     if ($( '#playerRow' + i ).is(":visible")) {
       if (bgColourToggler == 1) {
-        $( '#playerRow' + i ).css( "background-color", bgLight );
+        $( '#playerRow' + i ).css( "background-color", common.bgLight );
         bgColourToggler = 0;
       } else {
-        $( '#playerRow' + i ).css( "background-color", bgDark );
+        $( '#playerRow' + i ).css( "background-color", common.bgDark );
         bgColourToggler = 1;
       }
     }
