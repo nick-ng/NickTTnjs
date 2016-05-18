@@ -4,6 +4,7 @@
     <title>Nick's Tournament Tool</title>
     <link rel="shortcut icon" href="narwhal-32.png" />
     <link rel="stylesheet" type="text/css" href="nickstyle.css" />
+
   </head>
   <body>
   <ul class="navbar-ul">
@@ -18,23 +19,29 @@
   <hr />
   </div>
   <div style="margin-top:100px">
-  <p style="vertical-align:top;">
+  <p class="mini-h">
     <input id="saveTournamentButton" type="button" value="Save Tournament" />
   </p>
 </div>
 <div style="margin-top:100px">
-  <p>
+  <p class="mini-h">
     <input id="newTournamentButton" type="button" value="New Tournament" />
     <input id="loadTournamentButton" type="button" value="Load Tournament" />
     <input id="demoTournamentButton" type="button" value="Demonstration" />
   </p>
 </div>
+<div id="newTournamentDialog" title="Create a new tournament?">
+    <p>This will clear the current tournament and generate a new tournament-key.</p>
+    <p>Your previous tournaments can be accessed by clicking on the "Load Tournament" button and entering their tournament-key.</p>
+</div>
 <hr />
-<p id="outstream">Nick's Tournament Tool</p>
+<p class="mini-h" id="outstream">Nick's Tournament Tool</p>
     <footer class="footer">&copy; <a href="http://nick-ng.com" target="_blank">Nick Ng</a> - 2016</footer>
     
     <script type="text/javascript" src="socket.io-1.4.5.js"></script>
-    <script type="text/javascript" src="jquery-2.2.2.min.js"></script>
-    <script type="text/javascript" src="home.js"></script>
+    <script type="text/javascript" src="jquery-2.2.3.min.js"></script>
+    <link rel="stylesheet" href="jquery-ui.min.css">
+    <script type="text/javascript" src="jquery-ui.min.js"></script>
+    <script type="text/javascript" src="home.js"></script>    
   </body>
 </html>

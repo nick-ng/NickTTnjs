@@ -1,5 +1,6 @@
 body, .invis-t {
   font-family: Arial, Helvetica, sans-serif;
+  color: #011;
   background-color: #fff;
 }
 
@@ -16,11 +17,15 @@ body, .invis-t {
   margin-right:12px;
   /* border-right: 1px solid #bbb */
 }
-
-h1, h2, h3, h4, p, .footer, .invis-t{
-  color: #011;
+h1, h2, h3, h4, .footer, .invis-t{
   text-align:center;
 }
+
+.mini-h{
+  vertical-align:top;
+  text-align:center;
+}
+
 table {
   border: 1px solid black;
   border-collapse: collapse;

@@ -15,36 +15,36 @@
     <li class="navbar-li" style="float:right"><a class="navbar-a" href="./options">Options</a></li>
   </ul> 
 <div style="margin-top:50px;">
-    <center>
-      <hr />
-      <p style="vertical-align:top;">
-        <input id="addPlayerButton" type="button" value="Add Player" />
-        <input id="hideEmptyButton" type="button" value="Hide Empty Rows" />
-        <input id="showEmptyButton" type="button" value="Show Empty Rows" />
-        <table id="tbl">
-          <tbody>
-            <tr>
-              <th style="text-align: right;">ID</th>
-              <th style="text-align: left;">Full Name</th>
-              <th style="text-align: left;">E-mail</th>
-              <th style="text-align: left;">Short Name</th>
-              <th style="text-align: center;">Still<br /> Playing</th>
-              <th style="text-align: center;">Paid</th>
-              <th style="text-align: left;">Club</th>
-              <th id="FactionHeader" style="text-align: left;">Guild</th>
-            </tr>
-          </tbody>
-        </table>
-    </p>
+  <hr />
+  <center>
+  <p style="vertical-align:top;">
+    <input id="addPlayerButton" type="button" value="Add Player" />
+    <input id="hideEmptyButton" type="button" value="Hide Empty Rows" />
+    <input id="showEmptyButton" type="button" value="Show Empty Rows" />
+  </p>
+  <table id="tbl">
+    <tbody>
+      <tr>
+        <th style="text-align: right;">ID</th>
+        <th style="text-align: left;">Full Name</th>
+        <th style="text-align: left;">E-mail</th>
+        <th style="text-align: left;">Short Name</th>
+        <th style="text-align: center;">Still<br /> Playing</th>
+        <th style="text-align: center;">Paid</th>
+        <th style="text-align: left;">Club</th>
+        <th id="FactionHeader" style="text-align: left;">Guild</th>
+      </tr>
+    </tbody>
+  </table>    
+  </center>
 </div>
-<p id="outstream"></p>
+<p class="mini-h" id="outstream"></p>
 <hr />
     <footer class="footer">&copy; <a href="http://nick-ng.com" target="_blank">Nick Ng</a> - 2016</footer>
-    </center>
     
     <!-- use "local" libraries -->
     <script type="text/javascript" src="socket.io-1.4.5.js"></script>
-    <script type="text/javascript" src="jquery-2.2.2.min.js"></script>
+    <script type="text/javascript" src="jquery-2.2.3.min.js"></script>
     <!-- -->
     <!-- use online CDN for libraries.
     <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
