@@ -209,6 +209,15 @@ dbfun.upsertShortenedName = function(longName, shortenedName, callback) {
   });
 };
 
+dbfun.getTournaments = function(callback) {
+  var queryString = 'SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE \'tournament_\%\';';
+  //console.log(queryString);
+  dbfun.ezQuery( queryString, function(result) {
+    console.log(result.rows);
+    callback(result.rows);
+  });
+};
+
 module.exports = dbfun;
 
 // Initialise database functions:

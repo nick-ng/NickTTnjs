@@ -97,6 +97,10 @@ bfun.randomString = function ( strLength, charSet ) {
   return result.join('');
 }
 
+bfun.key2TournamentKey = function (generalKey) {
+  return 'tournament' + generalKey.toLowerCase().replace( /[^a-z|\d]/g, '' );
+};
+
 bfun.helloWorld = function () {
   console.log('Hello World');
 };

@@ -263,18 +263,25 @@ io.on( 'connection', function( socket ) {
   socket.on( 'pullTournamentKey', function (mode) {
     if (mode == 'new') {
       newTournamentKey = bfun.randomString( 8 ).toLowerCase();
-      io.emit( 'pushTournamentKey', newTournamentKey);
+      io.to(socket.id).emit( 'pushTournamentKey', newTournamentKey);
     };
   });
   
   socket.on( 'checkTournamentKey', function (maybeKey) {
-    //asdf
+    dbfun.getTournaments(function(tournamentList) {
+      //stuff
+      /*if (yourArray.indexOf("someString") > -1) {
+        //In the array!
+      } else {
+        //Not in the array
+      } */
+    });
   });
   
   socket.on( 'demoTournamentReset', function (demoKey) {
     //reset the appropriate tournament
     // then push demo key via callback (place holder pushes directly)
-    io.emit( 'pushTournamentKey', demoKey);
+    io.to(socket.id).emit( 'pushTournamentKey', demoKey);
   });
   
   // end of io.on( 'connection', callback() );
