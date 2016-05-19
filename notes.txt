@@ -17,37 +17,36 @@ player.faction = string; What in-game faction (guild, race, country etc.) the pl
 SQL structure (layout?)
 schema: nameschema
   table: shortenednames
-    column: long names (primary)
-    column: shortened names
+    column: long_names (primary)
+    column: shortened_names
   table: nicknames
-    column: real name
+    column: real_name (primary)
     column: nickname
-schema: tournament00000000 // 'tournament' plus a unique 8 digit number between 1 and 99999999(...998?) - 18 characters total
+schema: tournament00000000 // 'tournament' plus a unique 8 digit string between 00000000 and zzzzzzzz - 18 characters total
   table: infotable(?)
     column: tournament name
     column: tournament date - Automatically remove the oldest tournament once we approach the database limit.
     column: completed - Flag set by a control on the Final Standings page?
   table: playertable
-    column: id PRIMARY KEY
-    column: fullname
-    column: email(!)
-    column: shortnames (csv? array?)
-    column: shortname (shortest unique shortname)
-    column: stillplaying (boolean)
-    column: paid
-    column: club
-    column: faction
-    column: opponentids (csv? array?)
-    column: tablenumbers (csv? array?)
+    column: id (int) (primary)
+    column: full_name (text) - May as well use text type since it's supported by PostgreSQL
+    column: email(!) (text) - Should be secure?
+    column: short_name (text) - Usually undefined. Set if the user has manually entered a short name.
+    column: stillplaying (bool)
+    column: paid (bool)
+    column: club (text)
+    column: faction (text)
+    column: opponentids (int array)
+    column: tablenumbers (int array)
     column: score (int) Primary score of the tournament
-    column: tiebreaka
-    column: tiebreakb
-    column: tiebreakc
+    column: tiebreaka (int)
+    column: tiebreakb (int)
+    column: tiebreakc (int)
   table: pairingstable
-    column: round
-    column: player1 - id. Retrieve full name from table before sending to Elo site.
-    column: player2
-    column: result - 0: Unplayed, 1: Player 1 victory, 2: Player 2 victory, 3: Draw (For exporting to Elo site)
+    column: round (int)
+    column: player1 (int) - id. Retrieve full name from table before sending to Elo site.
+    column: player2 (int)
+    column: result (int) - 0: Unplayed, 1: Player 1 victory, 2: Player 2 victory, 3: Draw (For exporting to Elo site)
 
 // Cookies
 nicktt_currenttournament=12345678 : Current tournament-key (8 character alpha-numeric string). Expires 100 days

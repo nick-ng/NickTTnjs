@@ -19,6 +19,7 @@ var SHORTENEDNAMES = [];
 var NICKNAMES = [];
 var NICKNAMES_TABLE_LOCKED = false;
 var SHORTENEDNAMES_TABLE_LOCKED = false;
+var TOURNAMENT_KEY_LENGTH = 8;
 
 app.set( 'port', ( process.env.PORT || 3434 ) );
 app.set( 'views', __dirname + '/public' );
@@ -262,19 +263,33 @@ io.on( 'connection', function( socket ) {
   // Respond to the different buttons
   socket.on( 'pullTournamentKey', function (mode) {
     if (mode == 'new') {
-      newTournamentKey = bfun.randomString( 8 ).toLowerCase();
-      io.to(socket.id).emit( 'pushTournamentKey', newTournamentKey);
+      dbfun.getTournaments(function(tournamentList) {
+        //~ console.log(tournamentList);
+        var newSchema = bfun.generateNewSchema(TOURNAMENT_KEY_LENGTH, tournamentList);
+        if (newSchema) {
+          // We got a new unique key so make a tournament schema
+          dbfun.ezQuery( 'CREATE SCHEMA ' + newSchema + ';', function(result) {
+            // Let client know when we've created the tournament.
+            io.to(socket.id).emit( 'pushTournamentKey', bfun.tSchema2tKey(newSchema));
+            // Create tournament information and functions so a user can add player details while protecting us from SQLi
+          });
+        } else {
+          var errorMsg = 'Couldn\'t generate a new tournament-key in time. Something went wrong.';
+          io.to(socket.id).emit( 'homeError', errorMsg);
+        };
+      });
     };
   });
   
   socket.on( 'checkTournamentKey', function (maybeKey) {
-    dbfun.getTournaments(function(tournamentList) {
-      //stuff
-      /*if (yourArray.indexOf("someString") > -1) {
-        //In the array!
+    dbfun.checkTournament(maybeKey, function(tournamentExists, actualKey) {
+      if (tournamentExists) {
+        //stuff
+        io.to(socket.id).emit( 'pushTournamentKey', actualKey);
       } else {
-        //Not in the array
-      } */
+        var errorMsg = maybeKey + ' is not a valid tournament-key.';
+        io.to(socket.id).emit( 'homeError', errorMsg);
+      };
     });
   });
   

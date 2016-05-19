@@ -91,8 +91,8 @@ function homeLoadTournament(tournamentKey) {
     // Send key to be validated
     tempTournamentKey = $( '#loadTournamentKey' ).val();
     $( '#loadWarning' ).html('Checking ' + tempTournamentKey);
-    console.log('Validating ' + $( '#loadTournamentKey' ).val() );
-    socket.emit( 'checkTournamentKey', $( '#loadTournamentKey' ).val() );
+    console.log('Validating ' + tempTournamentKey );
+    socket.emit( 'checkTournamentKey', tempTournamentKey );
   };
 };
 
@@ -114,4 +114,10 @@ socket.on( 'pushTournamentKey', function( tournamentKey ) {
   $( '#demoTournamentDialog' ).dialog( 'option', 'title', 'Redirecting...' );
   dialogText = '</p><p>Demo tournament loaded. If you aren\'t redirected, click <a href="./playerdetails">here</a> to continue.</p>';
   $( '#demoTournamentDialog' ).html(dialogText);
+});
+
+socket.on( 'homeError', function(errorMsg) {
+  $( '#newTournamentDialog' ).html( '<p>' + errorMsg + '</p>' );
+  $( '#loadWarning' ).html(errorMsg);
+  $( '#demoTournamentDialog' ).html( '<p>' + errorMsg + '</p>' );
 });

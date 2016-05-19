@@ -213,8 +213,20 @@ dbfun.getTournaments = function(callback) {
   var queryString = 'SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE \'tournament_\%\';';
   //console.log(queryString);
   dbfun.ezQuery( queryString, function(result) {
-    console.log(result.rows);
-    callback(result.rows);
+    tournamentList = [];
+    for (var i = 0; i < result.rows.length; i++) {
+      tournamentList.push(result.rows[i].schema_name);
+    };
+    callback(tournamentList);
+  });
+};
+
+dbfun.checkTournament = function(tKey, callback) {
+  tSchema = bfun.tKey2tSchema(tKey);
+  var queryString = 'SELECT schema_name FROM information_schema.schemata WHERE schema_name = \'' + tSchema + '\';';
+  dbfun.ezQuery( queryString, function(result) {
+    //~ console.log(result.rows);
+    callback(result.rows.length != 0, bfun.tSchema2tKey(tSchema)); // passes false if tSchema isn't found.
   });
 };
 
