@@ -62,6 +62,20 @@ io.on( 'connection', function( socket ) {
     io.emit( 'short_name change', playerList );
   });
   
+  socket.on( 'playerDetailsFocusout', function(updateObject) {
+    dbfun.updatePlayerDetails(updateObject, function(result) {
+      //console.log('Player details updated');
+      // Update short names
+    });
+  });
+  
+  socket.on( 'pullAllPlayerDetails',  function(tKey) {
+    dbfun.getAllPlayerDetails(tKey, function(playerList) {
+      // fix short names here.
+      io.to(socket.id).emit( 'pushAllPlayerDetails', playerList);
+    });
+  });
+  
   /* ====================
    * = Name List events =
    * ==================== */
@@ -269,9 +283,13 @@ io.on( 'connection', function( socket ) {
         if (newSchema) {
           // We got a new unique key so make a tournament schema
           dbfun.ezQuery( 'CREATE SCHEMA ' + newSchema + ';', function(result) {
-            // Let client know when we've created the tournament.
-            io.to(socket.id).emit( 'pushTournamentKey', bfun.tSchema2tKey(newSchema));
+            var tournamentObj = {};
+            tournamentObj.key = bfun.tSchema2tKey(newSchema);
             // Create tournament information and functions so a user can add player details while protecting us from SQLi
+            dbfun.initialiseTournamentTables(tournamentObj, function(outObj) {
+              // Let client know when we've created the tournament.
+              io.to(socket.id).emit( 'pushTournamentKey', tournamentObj.key);
+            });
           });
         } else {
           var errorMsg = 'Couldn\'t generate a new tournament-key in time. Something went wrong.';

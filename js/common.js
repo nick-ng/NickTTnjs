@@ -21,3 +21,9 @@ common.getTournamentKey = function (getOnly) {
     socket.emit( 'pullTournamentKey', 'new' );
   };
 };
+
+common.removeWhiteSpace = function (someString) {
+  // Replace multiple spaces with one, REMOVE leading and trailing spaces.
+  return someString.replace( /[\s\n\r]+/g, ' ' ).replace( /^\s|\s$/g, '' );
+  // This matches leading and trailing spaces of any number /^\s+|\s+$/g
+};

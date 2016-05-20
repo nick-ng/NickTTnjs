@@ -42,7 +42,8 @@ schema: tournament00000000 // 'tournament' plus a unique 8 digit string between 
     column: tiebreaka (int)
     column: tiebreakb (int)
     column: tiebreakc (int)
-  table: pairingstable
+  table: pairingtable
+    column: id (int)
     column: round (int)
     column: player1 (int) - id. Retrieve full name from table before sending to Elo site.
     column: player2 (int)
@@ -51,3 +52,6 @@ schema: tournament00000000 // 'tournament' plus a unique 8 digit string between 
 // Cookies
 nicktt_currenttournament=12345678 : Current tournament-key (8 character alpha-numeric string). Expires 100 days
 nicktt_recenttournaments=12345678-12345678-12345678 : Recently accessed tournaments. Max 10? Too many may break the load dialogue. Expires 100 days.
+
+// Misc.
+Detect pressing tab on the "faction" player detail box with keydown (tab has keyCode 9).

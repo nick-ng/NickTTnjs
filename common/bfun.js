@@ -97,8 +97,12 @@ bfun.randomString = function ( strLength, charSet ) {
   return result.join('');
 }
 
+bfun.sanitize = function (anything) {
+  return anything.toString().replace( /[^a-zA-Z\d\_]/g, '' );
+};
+
 bfun.tKey2tSchema = function (tKey) {
-  return 'tournament' + tKey.toLowerCase().replace( /[^a-z|\d]/g, '' );
+  return 'tournament' + bfun.sanitize(tKey.toLowerCase());
 };
 
 bfun.tSchema2tKey = function (tSchema) {

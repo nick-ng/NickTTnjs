@@ -1,20 +1,28 @@
+var rowIDList = [0];
+
 // ==============
 // Document.Ready
 // ==============
 $( document ).ready(function() {
-  addPlayerRow();
   common.getTournamentKey()
+  addPlayerRow();
+  if (common.tournamentKey) {
+    socket.emit( 'pullAllPlayerDetails', common.tournamentKey );
+  };
 }); // $( document ).ready(function() {
 
 $('#addPlayerButton').click(function() {
   addPlayerRow();
 });
   
-function addPlayerRow() {
+function addPlayerRow(customID) {
   //Get number of rows already in the table.
   var rowProperties = $('#tbl').prop('rows');
-  var rowCount = rowProperties.length; // Can be combined into one line but having it like this so I know later.
-  var newID = rowCount; // There will be one more row than there are players because of the header row.
+  //var rowCount = rowProperties.length; // Can be combined into one line but having it like this so I know later.
+  //var newID = customID || rowCount; // There will be one more row than there are players because of the header row.
+  var autoID = Math.max(...rowIDList) + 1;
+  var newID = customID || autoID;
+  rowIDList.push(newID);
   // The row's contents
   var tableRowContent = '<tr id="playerRow' + newID + '">' +
     '<td style="text-align: right;">' + newID + '</td>' +
@@ -38,53 +46,107 @@ function addPlayerRow() {
   
   // Set up events for cells.
   $( '#fullName' + newID ).focusout( function() {
-    var fullName = $( '#fullName' + newID ).val();
-    if ( fullName.length > 0 ) { // If they've entered a full name
-      var shortName = $( '#shortName' + newID ).val();
-      var player = {};
-      player.ID = newID;
-      player.fullName = fullName;
-      //player.email = playerEmail;
-      //player.shortNames = [shortName1,shortName2,etc.];
-      player.shortName = shortName;
-      //player.stillPlaying = true;
-      //player.paid = false;
-      //player.club = club;
-      //player.faction = faction;
-      socket.emit( 'fullName focusout', player );
-    }
+    //var fullName = $( '#fullName' + newID ).val();
+    var value = $(this).val();
+    var updateObject = {};
+    // updateObject.tKey - Tournament Key
+    updateObject.tKey = common.tournamentKey;
+    // updateObject.id - Player ID to update
+    updateObject.id = newID;
+    // updateObject.field - Player field to object (full_name, email, etc.);
+    updateObject.field = 'full_name';
+    // updateObject.value - New value of field
+    updateObject.value = value;
+    socket.emit( 'playerDetailsFocusout', updateObject );
+    autoStillPlaying(updateObject.value, newID);
     return false;
   });
   
+  $( '#playerEmail' + newID ).focusout( function() {
+    var updateObject = {tKey:common.tournamentKey, id:newID};
+    updateObject.field = 'email';
+    updateObject.value = $(this).val();
+    socket.emit( 'playerDetailsFocusout', updateObject );
+    return false;
+  });
   
-  fixRowColours()
-  showAllRows()
+  $( '#shortName' + newID ).focusout( function() {
+    var updateObject = {tKey:common.tournamentKey, id:newID};
+    updateObject.field = 'short_name';
+    updateObject.value = $(this).val();
+    socket.emit( 'playerDetailsFocusout', updateObject );
+    return false;
+  });
+  
+  $( '#stillPlaying' + newID ).change( function() {
+    var updateObject = {tKey:common.tournamentKey, id:newID};
+    updateObject.field = 'stillplaying';
+    updateObject.value = $(this).prop( 'checked' );
+    socket.emit( 'playerDetailsFocusout', updateObject );
+    return false;
+  });
+  
+  $( '#paid' + newID ).change( function() {
+    var updateObject = {tKey:common.tournamentKey, id:newID};
+    updateObject.field = 'paid';
+    updateObject.value = $(this).prop( 'checked' );
+    socket.emit( 'playerDetailsFocusout', updateObject );
+    return false;
+  });
+  
+  $( '#club' + newID ).focusout( function() {
+    var updateObject = {tKey:common.tournamentKey, id:newID};
+    updateObject.field = 'club';
+    updateObject.value = $(this).val();
+    socket.emit( 'playerDetailsFocusout', updateObject );
+    return false;
+  });
+  
+  $( '#faction' + newID ).focusout( function() {
+    var updateObject = {tKey:common.tournamentKey, id:newID};
+    updateObject.field = 'faction';
+    updateObject.value = $(this).val();
+    socket.emit( 'playerDetailsFocusout', updateObject );
+    return false;
+  });
+  
+  showAllRows() // also fixRowColours()
   // Count rows / players
   rowCount = rowProperties = $('#tbl').prop('rows').length;
   //$('#outstream').text('There are ' + rowCount + ' rows');
   
   var playerCount = rowCount - 1;
   return playerCount; // Return player count in case we need it later.
-}
+};
 
 $('#hideEmptyButton').click(function() {
   hideEmptyRows();
 });
 
+function autoStillPlaying(value, id) {
+  if (common.removeWhiteSpace(value)) {
+    var updateObject = {tKey:common.tournamentKey, id:id};
+    updateObject.field = 'stillplaying';
+    updateObject.value = true;
+    $( '#stillPlaying' + id).prop( 'checked', true );
+    socket.emit( 'playerDetailsFocusout', updateObject );
+  };
+};
+
 function hideEmptyRows() {
-  var rowCount = $('#tbl').prop('rows').length; // I feel like I store the value somewhere rather than invoking this everytime.
-  var inputIds = ['givenName', 'familyName', 'shortName', 'club', 'team'];
-  var bgColourToggler = 1; // 1 = light, 0 = dark.
-  for (var i = 1; i < rowCount; i++) {
+  //var inputIds = ['fullName', 'playerEmail', 'shortName', 'club', 'faction'];
+  var inputIds = ['fullName', 'playerEmail'];
+  //var bgColourToggler = 1; // 1 = light, 0 = dark.
+  for (var i = 0; i < rowIDList.length; i++) {
     var wholeString = ''
     for (var j = 0; j < inputIds.length; j++) {
-      wholeString = wholeString + $('#' + inputIds[j] + i).val();
+      wholeString = wholeString + $('#' + inputIds[j] + rowIDList[i]).val();
     }
     var trimString = $.trim(wholeString);
     //console.log('' + i + ': ' + wholeString);
     if (trimString == "") { // If none of the cells contain characters (except for white space)...
       //console.log('There is nothing of value in that row');
-      $('#playerRow' + i).hide(); // remove empty row.
+      $('#playerRow' + rowIDList[i]).hide(); // remove empty row.
     }
   }
   fixRowColours()
@@ -98,9 +160,9 @@ $('#showEmptyButton').click(function() {
 });
 
 function showAllRows() {
-  var rowCount = $('#tbl').prop('rows').length; // I feel like I should store the value somewhere rather than invoking this everytime.
-  for (var i = 1; i < rowCount; i++) {
-    $('#playerRow' + i).show(); // show row.
+  //var rowCount = $('#tbl').prop('rows').length; // I feel like I should store the value somewhere rather than invoking this everytime.
+  for (var i = 0; i < rowIDList.length; i++) {
+    $('#playerRow' + rowIDList[i]).show(); // show row.
   }
   fixRowColours()
   $('#showEmptyButton').hide()
@@ -111,25 +173,42 @@ function showAllRows() {
 function fixRowColours() {
   // Adjust background colour of rows.
   var bgColourToggler = 1; // 1 = light, 0 = dark.
-  var rowCount = $('#tbl').prop('rows').length;
-  for (var i = 1; i < rowCount; i++) {
-    if ($( '#playerRow' + i ).is(":visible")) {
+  //var rowCount = $('#tbl').prop('rows').length;
+  for (var i = 0; i < rowIDList.length; i++) {
+    if ($( '#playerRow' + rowIDList[i] ).is(":visible")) {
       if (bgColourToggler == 1) {
-        $( '#playerRow' + i ).css( "background-color", common.bgLight );
+        $( '#playerRow' + rowIDList[i] ).css( "background-color", common.bgLight );
         bgColourToggler = 0;
       } else {
-        $( '#playerRow' + i ).css( "background-color", common.bgDark );
+        $( '#playerRow' + rowIDList[i] ).css( "background-color", common.bgDark );
         bgColourToggler = 1;
       }
     }
   }
 }
 
-socket.on( 'shortName change', function(playerList){
+socket.on( 'shortName change', function(playerList) {
   //console.log( shortName );
   for (var i = 0; i < playerList.length; i++ ) {
     player = playerList[i];
     $( '#shortName' + player.ID ).val( player.shortName );
     $( '#stillPlaying' + player.ID ).attr( 'checked', true );
+  };
+});
+
+socket.on( 'pushAllPlayerDetails', function(playerList) {
+  //console.log(playerList);
+  for (var i = 0; i < playerList.length; i++) {
+    var id = playerList[i].id
+    if (rowIDList.indexOf(id) == -1) {
+      addPlayerRow(id);
+    };
+    $( '#fullName' + id).val(playerList[i].full_name);
+    $( '#playerEmail' + id).val(playerList[i].email);
+    //$( '#shortName' + id).val(playerList[i].short_name);
+    $( '#stillPlaying' + id).prop( 'checked', playerList[i].stillplaying);
+    $( '#paid' + id).prop( 'checked', playerList[i].paid);
+    $( '#club' + id).val(playerList[i].club);
+    $( '#faction' + id).val(playerList[i].faction);
   };
 });
