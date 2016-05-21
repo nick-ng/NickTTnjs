@@ -266,8 +266,8 @@ dbfun.initialiseTournamentTables = function(tObject, callback) {
     'faction text,' +
     'opponentids smallint[],' +
     'tablenumbers smallint[],' +
-    'score int DEFAULT 0,' +
-    'tiebreak int[]);'
+    'score int[] DEFAULT \'{0}\',' +
+    'tiebreak int[][] DEFAULT \'{0}\');'
   dbfun.ezQuery(queryString2, callback);
 };
 

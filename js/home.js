@@ -64,19 +64,19 @@ $(document).ready(function() {
   };
 }); // $( document ).ready(function() {
 
-$( '#newTournamentButton' ).click(function() {
+$( '#newTournamentButton' ).button().click(function() {
   $( '#newTournamentDialog' ).dialog( 'open' );
 });
 
-$( '#loadTournamentButton' ).click(function() {
+$( '#loadTournamentButton' ).button().click(function() {
   $( '#loadTournamentDialog' ).dialog( 'open' );
 });
 
-$( '#demoTournamentButton' ).click(function() {
+$( '#demoTournamentButton' ).button().click(function() {
   $( '#demoTournamentDialog' ).dialog( 'open' );
 });
 
-$( '#dialogLoadButton' ).click(function() {
+$( '#dialogLoadButton' ).button().click(function() {
   homeLoadTournament();
 });
 

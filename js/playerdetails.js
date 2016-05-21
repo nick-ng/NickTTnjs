@@ -4,14 +4,15 @@ var rowIDList = [0];
 // Document.Ready
 // ==============
 $( document ).ready(function() {
-  common.getTournamentKey()
   addPlayerRow();
+  common.getTournamentKey();
   if (common.tournamentKey) {
+    $( '#outstream' ).html( 'Loading players. Please wait.');
     socket.emit( 'pullAllPlayerDetails', common.tournamentKey );
   };
 }); // $( document ).ready(function() {
 
-$('#addPlayerButton').click(function() {
+$('#addPlayerButton').button().click(function() {
   addPlayerRow();
 });
   
@@ -119,7 +120,7 @@ function addPlayerRow(customID) {
   return playerCount; // Return player count in case we need it later.
 };
 
-$('#hideEmptyButton').click(function() {
+$('#hideEmptyButton').button().click(function() {
   hideEmptyRows();
 });
 
@@ -155,7 +156,7 @@ function hideEmptyRows() {
   $('#addPlayerButton').hide()
 }
 
-$('#showEmptyButton').click(function() {
+$('#showEmptyButton').button().click(function() {
   showAllRows();
 });
 
@@ -211,4 +212,5 @@ socket.on( 'pushAllPlayerDetails', function(playerList) {
     $( '#club' + id).val(playerList[i].club);
     $( '#faction' + id).val(playerList[i].faction);
   };
+  $( '#outstream' ).html( '');
 });

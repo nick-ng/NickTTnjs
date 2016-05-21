@@ -13,7 +13,7 @@ $( document ).ready(function() {
 }); // $( document ).ready(function() {
 
 // Nickname controls
-$('#nicknamesSingleButton').click(function () {
+$('#nicknamesSingleButton').button().click(function () {
   var newNickname = {};
   newNickname.real_name = $( '#nickRealName' ).val();
   newNickname.nickname = $( '#nickNickname' ).val();
@@ -23,7 +23,7 @@ $('#nicknamesSingleButton').click(function () {
   socket.emit( 'addOneNickname', newNickname );
 });
 // Nickname bulk controls
-$('#nicknamesButton').click(function() {
+$('#nicknamesButton').button().click(function() {
   // Disable all buttons so the previous request doesn't get interrupted
   // Main script also blocks table access if table is being accessed by
   // another user or if two pages are open.
@@ -67,7 +67,7 @@ function getNicknameRadioVal() {
 };
 
 // Shortened name controls
-$('#shortenedNamesSingleButton').click(function () {
+$('#shortenedNamesSingleButton').button().click(function () {
   var newShortenedName = {};
   newShortenedName.long_name = $( '#shortenedLongName' ).val();
   newShortenedName.shortened_name = $( '#shortenedShortName' ).val();
@@ -77,7 +77,7 @@ $('#shortenedNamesSingleButton').click(function () {
   socket.emit( 'addOneShortenedName', newShortenedName );
 });
 // Shortened name bulk controls
-$('#shortenedNamesButton').click(function() {
+$('#shortenedNamesButton').button().click(function() {
   $('#shortenedNamesButton').prop( 'disabled', true );
   $('#shortenedNamesSingleButton').prop( 'disabled', true );
   var tempText = $( '#shortenedNamesText' ).val();

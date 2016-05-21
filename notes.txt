@@ -39,9 +39,7 @@ schema: tournament00000000 // 'tournament' plus a unique 8 digit string between 
     column: opponentids (int array)
     column: tablenumbers (int array)
     column: score (int) Primary score of the tournament
-    column: tiebreaka (int)
-    column: tiebreakb (int)
-    column: tiebreakc (int)
+    column: tiebreak (int[])
   table: pairingtable
     column: id (int)
     column: round (int)
@@ -55,3 +53,7 @@ nicktt_recenttournaments=12345678-12345678-12345678 : Recently accessed tourname
 
 // Misc.
 Detect pressing tab on the "faction" player detail box with keydown (tab has keyCode 9).
+When you switch to Bootstrap, you may need to replace .button().click(... with just click(.
+
+// Home, Load
+What you want is called a "select"

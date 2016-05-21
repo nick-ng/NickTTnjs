@@ -69,10 +69,29 @@ io.on( 'connection', function( socket ) {
     });
   });
   
-  socket.on( 'pullAllPlayerDetails',  function(tKey) {
+  socket.on( 'pullAllPlayerDetails',  function(tKey, mode) {
+    mode = mode || 'playerdetails';
     dbfun.getAllPlayerDetails(tKey, function(playerList) {
+      var extraInfo;
       // fix short names here.
-      io.to(socket.id).emit( 'pushAllPlayerDetails', playerList);
+      switch ( mode ) {
+        case 'scores':
+          rounds = 1;
+          extraInfo = rounds; // rounds
+          for (var j = 0; j < playerList.length; j++) {
+            playerList[j].opponentnames = [];
+            for (var i = 0; i < rounds; i++) {
+              playerList[j].opponentnames[i] = '' + j + i;
+            }
+          }
+          break;
+        case 'finalstandings':
+          extraInfo = 0; // example
+          break;
+        default: // playerdetails
+          extraInfo = 'hello';
+      }
+      io.to(socket.id).emit( 'pushAllPlayerDetails', playerList, extraInfo);
     });
   });
   
