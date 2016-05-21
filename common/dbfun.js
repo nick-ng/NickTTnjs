@@ -265,9 +265,12 @@ dbfun.initialiseTournamentTables = function(tObject, callback) {
     'club text,' +
     'faction text,' +
     'opponentids smallint[],' +
-    'tablenumbers smallint[],' +
-    'score int[] DEFAULT \'{0}\',' +
-    'tiebreak int[][] DEFAULT \'{0}\');'
+    'score int[] DEFAULT \'{0}\',';
+  for (var i = 0; i < 10; i++) {
+    // A 2D array would be better but I can't figure out an easy way.
+    queryString2 += 'tiebreak' + i + ' int[] DEFAULT \'{0}\',';
+  };
+  queryString2 += 'tablenumbers smallint[]);';
   dbfun.ezQuery(queryString2, callback);
 };
 
@@ -281,18 +284,21 @@ dbfun.updatePlayerDetails = function(updateObject, callback) {
       var tSchema = bfun.tKey2tSchema(actualKey);
       var id = parseInt(updateObject.id);
       var field = bfun.sanitize(updateObject.field);
-      var queryString = 'UPDATE ' + tSchema + '.playertable SET ' + field + ' = $2 WHERE id = $1;';
+      if (typeof updateObject.round === 'number') {
+        field += '[' + updateObject.round + ']';
+      };
       var params = [id, updateObject.value]
       if (updateObject.value.constructor === Array) { // handle arrays. Only update one value in an array at a time with this function.
         for (var i = 0; i < updateObject.value.length; i++) {
           if (updateObject.value[i] != null) {
             pi = i + 1;
-            queryString = 'UPDATE ' + tSchema + '.playertable SET ' + field + '[' + pi + '] = $2 WHERE id = $1;';
+            field += '[' + pi + ']';
             params[1] = updateObject.value[i];
             break;
           }
         }
       }
+      var queryString = 'UPDATE ' + tSchema + '.playertable SET ' + field + ' = $2 WHERE id = $1;';
       //~ console.log('updateObject.value =');
       //~ console.log(updateObject.value);
       //~ console.log('Sending ' + queryString + ' with:');

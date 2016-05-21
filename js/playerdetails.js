@@ -16,7 +16,7 @@ $('#addPlayerButton').button().click(function() {
   addPlayerRow();
 });
   
-function addPlayerRow(customID) {
+function addPlayerRow(customID, source) {
   //Get number of rows already in the table.
   var rowProperties = $('#tbl').prop('rows');
   //var rowCount = rowProperties.length; // Can be combined into one line but having it like this so I know later.
@@ -29,7 +29,7 @@ function addPlayerRow(customID) {
     '<td style="text-align: right;">' + newID + '</td>' +
     '<td><input type="text" id="fullName' + newID + '" /></td>' +
     '<td><input type="text" id="playerEmail' + newID + '" /></td>' +
-    '<td><input type="text" id="shortName' + newID + '" /></td>' +
+    '<td><input type="text" id="shortName' + newID + '" /><input type="text" style="display:none" id="shortNameHide' + newID + '" /></td>' +
     '<td style="text-align: center;"><input type="checkbox" unchecked id="stillPlaying' + newID + '" /></td>' +
     '<td style="text-align: center;"><input type="checkbox" unchecked id="paid' + newID + '" /></td>' +
     '<td><input type="text" id="club' + newID + '" /></td>' +
@@ -74,8 +74,11 @@ function addPlayerRow(customID) {
   $( '#shortName' + newID ).focusout( function() {
     var updateObject = {tKey:common.tournamentKey, id:newID};
     updateObject.field = 'short_name';
-    updateObject.value = $(this).val();
-    socket.emit( 'playerDetailsChanged', updateObject );
+    updateObject.value = common.removeWhiteSpace( $(this).val());
+    if (common.removeWhiteSpace( $( '#shortNameHide' + newID).val()) != updateObject.value) {
+      // User has entered a custom short name so store it on DB.
+      socket.emit( 'playerDetailsChanged', updateObject );
+    };
     return false;
   });
   
@@ -111,13 +114,32 @@ function addPlayerRow(customID) {
     return false;
   });
   
+  /*
+  $( '#faction' + newID ).bind( 'keydown', function( event ) {
+    console.log(event.isDefaultPrevented());
+    var lastFactionID = 'faction' + Math.max(...rowIDList);
+    console.log(lastFactionID);
+    // Which is best because it's the same across all browsers.
+    // Alternatives: keyCode: 9, key: Tab
+    if ( (event.which == 9) && ($(this).prop( 'id' ) == lastFactionID) ) {
+      addPlayerRow(undefined, 'autoTab');
+    };
+    return false;
+  });
+  */
+  
   showAllRows() // also fixRowColours()
+  if (source == 'autoTab') {
+    //set focus
+    $( '#fullName' + newID ).focus();
+  };
   // Count rows / players
-  rowCount = rowProperties = $('#tbl').prop('rows').length;
+  //rowCount = rowProperties = $('#tbl').prop('rows').length;
   //$('#outstream').text('There are ' + rowCount + ' rows');
   
-  var playerCount = rowCount - 1;
-  return playerCount; // Return player count in case we need it later.
+  //var playerCount = rowCount - 1;
+  //return playerCount; // Return player count in case we need it later.
+  return 0;
 };
 
 $('#hideEmptyButton').button().click(function() {
@@ -188,6 +210,7 @@ function fixRowColours() {
   }
 }
 
+/*
 socket.on( 'shortName change', function(playerList) {
   //console.log( shortName );
   for (var i = 0; i < playerList.length; i++ ) {
@@ -196,21 +219,26 @@ socket.on( 'shortName change', function(playerList) {
     $( '#stillPlaying' + player.ID ).attr( 'checked', true );
   };
 });
+*/
 
-socket.on( 'pushAllPlayerDetails', function(playerList) {
+socket.on( 'pushAllPlayerDetails', function(playerList, instructions) {
   //console.log(playerList);
   for (var i = 0; i < playerList.length; i++) {
-    var id = playerList[i].id
+    var id = playerList[i].id;
     if (rowIDList.indexOf(id) == -1) {
       addPlayerRow(id);
     };
-    $( '#fullName' + id).val(playerList[i].full_name);
-    $( '#playerEmail' + id).val(playerList[i].email);
-    //$( '#shortName' + id).val(playerList[i].short_name);
-    $( '#stillPlaying' + id).prop( 'checked', playerList[i].stillplaying);
-    $( '#paid' + id).prop( 'checked', playerList[i].paid);
-    $( '#club' + id).val(playerList[i].club);
-    $( '#faction' + id).val(playerList[i].faction);
+    if (instructions != 'shortNamesOnly' ) {
+      // set everything else.
+      $( '#fullName' + id).val(playerList[i].full_name);
+      $( '#playerEmail' + id).val(playerList[i].email);
+      $( '#stillPlaying' + id).prop( 'checked', playerList[i].stillplaying);
+      $( '#paid' + id).prop( 'checked', playerList[i].paid);
+      $( '#club' + id).val(playerList[i].club);
+      $( '#faction' + id).val(playerList[i].faction);
+    }
+    $( '#shortName' + id).val(playerList[i].short_name);
+    $( '#shortNameHide' + id).val(playerList[i].short_name);
   };
-  $( '#outstream' ).html( '');
+  $( '#outstream' ).html( '' );
 });

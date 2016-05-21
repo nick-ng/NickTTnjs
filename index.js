@@ -65,14 +65,33 @@ io.on( 'connection', function( socket ) {
   socket.on( 'playerDetailsChanged', function(updateObject, mode) {
     mode = mode || 'playerdetails';
     dbfun.updatePlayerDetails(updateObject, function(result) {
-      //console.log('Player details updated');
+      //~ console.log('Player details updated');
+      //~ console.log(result);
       // Update short names
+      switch ( mode ) {
+        case 'scores':
+          // example
+          break;
+        case 'finalstandings':
+          // example
+          break;
+        default: // playerdetails
+          if (updateObject.field == 'full_name') {
+            // If they changed the full name, push updated short names.
+            dbfun.getAllPlayerDetails(updateObject.tKey, function(playerList) {
+              playerList = chooseShortNames(playerList, true);
+              io.to(socket.id).emit( 'pushAllPlayerDetails', playerList, 'shortNamesOnly');
+            })
+          };
+      }
     });
   });
   
   socket.on( 'pullAllPlayerDetails',  function(tKey, mode) {
     mode = mode || 'playerdetails';
     dbfun.getAllPlayerDetails(tKey, function(playerList) {
+      // sort out short names
+      playerList = chooseShortNames(playerList);
       var extraInfo;
       // fix short names here.
       switch ( mode ) {
@@ -361,63 +380,47 @@ function nickifyNames( fullName, playerID ) {
   var fullName1 = bfun.trimAroundHyphen( shortenNames( fullName ) );
   // Check if they have a nickname then return that.
   for ( var i = 0; i < NICKNAMES.length; i++ ) {
-    if ( fullName1.toUpperCase() == NICKNAMES[i]['real_name'].toUpperCase() ) {
+    if ( fullName1.toUpperCase() == shortenNames(NICKNAMES[i]['real_name']).toUpperCase() ) {
       // If they have a nickname, return an array with one element.
       //console.log([NICKNAMES[i]['nickname']]);
-      return [NICKNAMES[i]['nickname'], NICKNAMES[i]['nickname']];
+      return [NICKNAMES[i]['nickname']]; // returns a list with a single element.
     };
   };
   // Otherwise, shorten their name.
-  var nameParts = fullName1.split( ' ' );
-  if ( nameParts.length == 1 ) { // If they only have one name, return [shortenedName
-    var nameList = [
-      bfun.shortenHyphenName( nameParts[0] ),
-      nameParts[0]
-    ];
-    return nameList;
+  return bfun.makeShortNameList(fullName1, playerID);
+};
+
+function chooseShortNames(playerList, shortNamesOnly) {
+  playerList2 = [];
+  for (var i = 0; i < playerList.length; i++) {
+    var fullNameNoSpace = bfun.trimAroundHyphen(playerList[i].full_name);
+    var shortNameNoSpace = bfun.trimAroundHyphen(playerList[i].short_name);
+    if (fullNameNoSpace && !shortNameNoSpace) {
+      //~ console.log(playerList[i].full_name);
+      playerList[i].shortNameList = nickifyNames(playerList[i].full_name, playerList[i].id);
+      if (playerList[i].shortNameList.length == 1) {
+        // Is nickname so set that.
+        playerList[i].short_name = playerList[i].shortNameList[0];
+      } else {
+        /* Place holder. I want to choose the name with the lowest index
+         * that is also unique and if that index isn't 0, then all names
+         * which are duplicates should also be removed. Probably use shift
+         * in some manner.
+         */
+        playerList[i].short_name = playerList[i].shortNameList[1];
+      }
+      playerList2.push({id:playerList[i].id, short_name:playerList[i].short_name});
+      //playerList2[i].id = playerList[i].id;
+      //playerList2[i].short_name = playerList[i].short_name;
+    } else {
+      console.log( 'Full name = "' + playerList[i].full_name + '"' );
+      console.log( 'Short name = "' + playerList[i].short_name + '"' );
+    };
   };
-  var firstName1 = nameParts.shift();
-  var firstName = bfun.shortenHyphenName( firstName1 );
-  var lastName = nameParts.pop();
-  var lastInitials = bfun.initialHyphenName( lastName );
-  var middleInitials = '';
-  var middleNames = ' '; // middleNames has "surrounding" spaces.
-  for (var i = 0; i < nameParts.length; i++) {
-    middleInitials = middleInitials + nameParts[i].substring( 0,1 );
-    middleNames = middleNames + nameParts[i] + ' ';
-  }
-  var nameList = [];
-  nameList.push( firstName ); // First name (or initials of hyphenated name only)
-  nameList.push( firstName + ' ' + lastInitials ); // First name + last initial(s)
-  nameList.push( firstName + ' ' + lastName ); // First name + last name
-  nameList.push( firstName1 ); // Full hyphenated first name.
-  nameList.push( firstName1 + ' ' + lastName ); // Full hyphenated first name. Will be the same as firstName for most people?
-  if ( middleInitials.length > 0 ) {
-    nameList.push( firstName + ' ' + middleInitials + ' ' + lastName ); // First name + middle initial(s) + last name
-  } else {
-    nameList.push( firstName + ' ' + lastName); // This will cause another collision if all the players don't have middle names.
-  }
-  if ( middleInitials.length > 0 ) {
-    nameList.push( firstName1 + ' ' + middleInitials + ' ' + lastName ); // First name + middle initial(s) + last name
-  } else {
-    nameList.push( firstName1 + ' ' + lastName); // This will cause another collision if all the players don't have middle names.
-  }
-  if ( middleInitials.length > 0 ) { // If they have middle names, they will have middle initials
-    nameList.push( firstName + middleNames + lastName ); // First name + middle initial(s) + last name
-  } else {
-    nameList.push( firstName + ' ' + lastName); // This will cause another collision if all the players don't have middle names.
-  }
-  if ( middleInitials.length > 0 ) { // If they have middle names, they will have middle initials
-    nameList.push( firstName1 + middleNames + lastName ); // First name + middle initial(s) + last name
-  } else {
-    nameList.push( firstName1 + ' ' + lastName); // This will cause another collision if all the players don't have middle names.
-  }
-  if ( middleInitials.length > 0 ) { // Including player IDs will prevent all collisions.
-    nameList.push( firstName1 + middleNames + lastName + ' (' + playerID + ')' ); // First name + middle initial(s) + last name + ID
-  } else {
-    nameList.push( firstName1 + ' ' + lastName + ' (' + playerID + ')');
-  }
-  return nameList;
+  if (shortNamesOnly) { // Undefined is equivilant to false.
+    return playerList2;
+  };
+  return playerList;
 };
 
 function initDatabase() {

@@ -29,13 +29,16 @@ function addTab(customID) {
     rowIDList[tabID] = [];
   };
   // Make new tab-item
-  var newItem = '<li><a href="#tabs-' + tabID + '">Round ' + tabID + '</a></li>';
+  var newItem = '<li><a href="#tabs-' + tabID + '"><span style="font-weight:bold;">Round ' + tabID + '</span></a></li>';
   //$( '#tablist' ).val($( '#tablist' ).val() + newItem);
   tabs.find( '.ui-tabs-nav' ).append(newItem);
   //~ console.log( 'tablist.val() = ' + $( '#tablist' ).val());
   
   // Make tab contents
-  var newContents = '<div id="tabs-' + tabID + '">' + '<table id="tbl-' + tabID + '"><tbody><tr>' +
+  var newContents = '<div id="tabs-' + tabID + '">' +
+    //'<span class="pseudo-h">Round ' + tabID + '</span>' +
+    '<span style="font-size:initial">' +
+    '<table id="tbl-' + tabID + '"><tbody><tr>' +
     '<th style="text-align: left;">Player</th>' +
     '<th style="text-align: center;">Score</th>';
   for (var i = 0; i < tiebreaks.length; i++) {
@@ -43,7 +46,7 @@ function addTab(customID) {
     newContents += '<th style="text-align: center;">' + tiebreakName + '</th>';
   };
   newContents += '<th style="text-align: left;">Opponent</th>' +
-    '</tr></tbody></table></div>';
+    '</tr></tbody></table></span></div>';
   //$( '#tabcontents' ).val($( '#tabcontents' ).val() + newContents);
   tabs.append(newContents);
   //~ console.log( 'tabcontents.val() = ' + $( '#tabcontents' ).val());
@@ -63,15 +66,7 @@ function addPlayerRow(customID,tableID) {
   for (var i = 0; i < tiebreaks.length; i++) {
     tableRowContent += '<td style="text-align: center;"><input type="number" class="number-input" id="t' + tableID + 'tiebreak' + i + newID + '" /></td>';
   };
-  tableRowContent += '<td><input type="text" id="t' + tableID + 'opponent' + newID + '" /></td></tr>'
-  // id's of inputs: ['playerRow', 'stillPlaying', 'fullName', 'playerEmail', 'shortName', 'club', 'team'];
-  // playerRow
-  // stillPlaying
-  // fullName
-  // playerEmail
-  // shortName
-  // club
-  // team
+  tableRowContent += '<td><input type="text" class="shorttext-input" id="t' + tableID + 'opponent' + newID + '" /></td></tr>'
   
   $( '#tbl-' + tableID + ' tr:last' ).after(tableRowContent); // Append a new row.
   
@@ -103,9 +98,8 @@ function addPlayerRow(customID,tableID) {
 function tiebreakerEvents(tableID, tieID, newID) {
   $( '#t' + tableID + 'tiebreak' + tieID + newID).bind( 'focusout change', function() {
     var updateObject = {tKey:common.tournamentKey, id:newID, round:tableID};
-    updateObject.field = 'tiebreak';
-    updateObject.value = [];
-    updateObject.value[tieID] = $(this).val();
+    updateObject.field = 'tiebreak' + tieID;
+    updateObject.value = $(this).val();;
     socket.emit( 'playerDetailsChanged', updateObject, 'scores' );
     return false;
   });
@@ -122,7 +116,14 @@ socket.on( 'pushAllPlayerDetails', function(playerList, rounds) {
         addPlayerRow(id,tabID);
       };
       $( '#t' + tabID + 'shortName' + id).text(playerList[j].short_name);
-      // Add scores later.
+      $( '#t' + tabID + 'score' + id).val(playerList[j].score[i]);
+      
+      for (var k = 0; k < tiebreaks.length; k++) {
+        console.log(playerList[j]['tiebreak' + k][i]);
+        $( '#t' + tabID + 'tiebreak' + k + id)
+          .val(playerList[j]['tiebreak' + k][i]);
+      };
+      console.log(playerList[j].score);
       $( '#t' + tabID + 'opponent' + id).val(playerList[j].opponentnames[i]);
     };
   };

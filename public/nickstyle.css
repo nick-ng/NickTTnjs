@@ -21,14 +21,29 @@ h1, h2, h3, h4, .footer, .invis-t{
   text-align:center;
 }
 
+.pseudo-h{
+  text-align:center;
+  font-size:200%;
+}
+
 .mini-h{
   vertical-align:top;
   text-align:center;
 }
 
+.tabhack{
+  margin-left: auto;
+  margin-right: auto;
+  display: table;
+}
+
 .number-input {
   width: 3em;
   text-align: right;
+}
+
+.shorttext-input {
+  width: 10em;
 }
 
 table {
