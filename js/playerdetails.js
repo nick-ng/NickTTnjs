@@ -58,7 +58,7 @@ function addPlayerRow(customID) {
     updateObject.field = 'full_name';
     // updateObject.value - New value of field
     updateObject.value = value;
-    socket.emit( 'playerDetailsFocusout', updateObject );
+    socket.emit( 'playerDetailsChanged', updateObject );
     autoStillPlaying(updateObject.value, newID);
     return false;
   });
@@ -67,7 +67,7 @@ function addPlayerRow(customID) {
     var updateObject = {tKey:common.tournamentKey, id:newID};
     updateObject.field = 'email';
     updateObject.value = $(this).val();
-    socket.emit( 'playerDetailsFocusout', updateObject );
+    socket.emit( 'playerDetailsChanged', updateObject );
     return false;
   });
   
@@ -75,7 +75,7 @@ function addPlayerRow(customID) {
     var updateObject = {tKey:common.tournamentKey, id:newID};
     updateObject.field = 'short_name';
     updateObject.value = $(this).val();
-    socket.emit( 'playerDetailsFocusout', updateObject );
+    socket.emit( 'playerDetailsChanged', updateObject );
     return false;
   });
   
@@ -83,7 +83,7 @@ function addPlayerRow(customID) {
     var updateObject = {tKey:common.tournamentKey, id:newID};
     updateObject.field = 'stillplaying';
     updateObject.value = $(this).prop( 'checked' );
-    socket.emit( 'playerDetailsFocusout', updateObject );
+    socket.emit( 'playerDetailsChanged', updateObject );
     return false;
   });
   
@@ -91,7 +91,7 @@ function addPlayerRow(customID) {
     var updateObject = {tKey:common.tournamentKey, id:newID};
     updateObject.field = 'paid';
     updateObject.value = $(this).prop( 'checked' );
-    socket.emit( 'playerDetailsFocusout', updateObject );
+    socket.emit( 'playerDetailsChanged', updateObject );
     return false;
   });
   
@@ -99,7 +99,7 @@ function addPlayerRow(customID) {
     var updateObject = {tKey:common.tournamentKey, id:newID};
     updateObject.field = 'club';
     updateObject.value = $(this).val();
-    socket.emit( 'playerDetailsFocusout', updateObject );
+    socket.emit( 'playerDetailsChanged', updateObject );
     return false;
   });
   
@@ -107,7 +107,7 @@ function addPlayerRow(customID) {
     var updateObject = {tKey:common.tournamentKey, id:newID};
     updateObject.field = 'faction';
     updateObject.value = $(this).val();
-    socket.emit( 'playerDetailsFocusout', updateObject );
+    socket.emit( 'playerDetailsChanged', updateObject );
     return false;
   });
   
@@ -130,7 +130,7 @@ function autoStillPlaying(value, id) {
     updateObject.field = 'stillplaying';
     updateObject.value = true;
     $( '#stillPlaying' + id).prop( 'checked', true );
-    socket.emit( 'playerDetailsFocusout', updateObject );
+    socket.emit( 'playerDetailsChanged', updateObject );
   };
 };
 

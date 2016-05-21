@@ -26,6 +26,11 @@ h1, h2, h3, h4, .footer, .invis-t{
   text-align:center;
 }
 
+.number-input {
+  width: 3em;
+  text-align: right;
+}
+
 table {
   border: 1px solid black;
   border-collapse: collapse;

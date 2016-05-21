@@ -283,6 +283,18 @@ dbfun.updatePlayerDetails = function(updateObject, callback) {
       var field = bfun.sanitize(updateObject.field);
       var queryString = 'UPDATE ' + tSchema + '.playertable SET ' + field + ' = $2 WHERE id = $1;';
       var params = [id, updateObject.value]
+      if (updateObject.value.constructor === Array) { // handle arrays. Only update one value in an array at a time with this function.
+        for (var i = 0; i < updateObject.value.length; i++) {
+          if (updateObject.value[i] != null) {
+            pi = i + 1;
+            queryString = 'UPDATE ' + tSchema + '.playertable SET ' + field + '[' + pi + '] = $2 WHERE id = $1;';
+            params[1] = updateObject.value[i];
+            break;
+          }
+        }
+      }
+      //~ console.log('updateObject.value =');
+      //~ console.log(updateObject.value);
       //~ console.log('Sending ' + queryString + ' with:');
       //~ console.log(params);
       if (!isNaN(id)) {

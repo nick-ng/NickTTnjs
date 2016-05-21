@@ -62,7 +62,8 @@ io.on( 'connection', function( socket ) {
     io.emit( 'short_name change', playerList );
   });
   
-  socket.on( 'playerDetailsFocusout', function(updateObject) {
+  socket.on( 'playerDetailsChanged', function(updateObject, mode) {
+    mode = mode || 'playerdetails';
     dbfun.updatePlayerDetails(updateObject, function(result) {
       //console.log('Player details updated');
       // Update short names
