@@ -1,7 +1,7 @@
 var tabIDList = [0];
 var rowIDList = [[0]];
 var tabs;
-var tiebreaks = ['Goals','Body Count','Total VPs'];
+var tiebreaks = ['Goals','Body<br>Count','Total VPs'];
 
 // ==============
 // Document.Ready
@@ -45,7 +45,7 @@ function addTab(customID) {
     var tiebreakName = tiebreaks[i];
     newContents += '<th style="text-align: center;">' + tiebreakName + '</th>';
   };
-  newContents += '<th style="text-align: left;">Opponent</th>' +
+  newContents += '<th style="text-align: left;">Round ' + tabID + '<br>Opponent</th>' +
     '</tr></tbody></table></span></div>';
   //$( '#tabcontents' ).val($( '#tabcontents' ).val() + newContents);
   tabs.append(newContents);
@@ -124,7 +124,16 @@ socket.on( 'pushAllPlayerDetails', function(playerList, rounds) {
           .val(playerList[j]['tiebreak' + k][i]);
       };
       console.log(playerList[j].score);
-      $( '#t' + tabID + 'opponent' + id).val(playerList[j].opponentnames[i]);
+      // Convert opponent ids to values
+      if (playerList[j].opponentids && (playerList[j].opponentids[i] > 0)) {
+        oppID = playerList[j].opponentids[i];
+        playerList[j].opponentname = playerList[oppID].short_name;
+      } else if (playerList[j].opponentids && (playerList[j].opponentids[i] < 0)) {
+        playerList[j].opponentname = 'Ghost';
+      } else {
+        playerList[j].opponentname = 'Unassigned';
+      }
+      $( '#t' + tabID + 'opponent' + id).val(playerList[j].opponentname);
     };
   };
   $( '#outstream' ).html( '' );

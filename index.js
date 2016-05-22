@@ -99,7 +99,7 @@ io.on( 'connection', function( socket ) {
           rounds = 1;
           extraInfo = rounds; // rounds
           for (var j = 0; j < playerList.length; j++) {
-            playerList[j].opponentnames = [];
+            playerList[j].opponentnames = []; // Placeholder
             for (var i = 0; i < rounds; i++) {
               playerList[j].opponentnames[i] = '' + j + i;
             }
