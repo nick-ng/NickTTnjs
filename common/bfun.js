@@ -181,6 +181,17 @@ bfun.generateNewSchema = function generateNewSchema(keyLength, schemaList) {
   return false;
 };
 
+bfun.roundsStr2Int = function roundStr2Int(roundArray) {
+  var intArray = [];
+  for (var i = 0; i < roundArray.length; i++) {
+    var temp = parseInt(roundArray[i].replace(/round/g, '' ));
+    if (!isNaN(temp)) {
+      intArray.push(temp);
+    }
+  };
+  return intArray;
+};
+
 bfun.helloWorld = function () {
   console.log( 'Hello World' );
 };
