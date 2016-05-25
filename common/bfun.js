@@ -11,6 +11,22 @@ var csvOptions = {};
 // E.g. calling bfun.helloWorld() and bfun['helloWorld']() both work.
 var bfun = {};
 
+bfun.sumArray = function sumArray(someArray, useFloat) {
+  // Sums all values in an array which may be strings. If a value cannot be parsed, it's skipped
+  useFloat = useFloat || false;
+  return someArray.reduce(function(prev, curr) {
+    if (useFloat) {
+      curr = parseFloat(curr);
+    } else {
+      curr = parseInt(curr);
+    };
+    if (isNaN(curr)) {
+      curr = 0;
+    };
+    return prev + curr;
+  });
+};
+
 bfun.loadFile = function loadFile(somePath) {
   var fileOptions = 'utf8';
   var outString = fs.readFileSync(somePath, fileOptions);
@@ -191,6 +207,21 @@ bfun.roundsStr2Int = function roundStr2Int(roundArray) {
   };
   return intArray;
 };
+
+bfun.sortByKey = function sortByKey(array, key) {
+  return array.sort(function getDelta(a, b) {
+    var x = a[key];
+    var y = b[key];
+
+    if (typeof x == "string") {
+      x = x.toLowerCase();
+    }
+    if (typeof y == "string") {
+      y = y.toLowerCase();
+    }
+    return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+  });
+}
 
 bfun.helloWorld = function () {
   console.log( 'Hello World' );

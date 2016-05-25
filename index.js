@@ -105,6 +105,9 @@ io.on( 'connection', function( socket ) {
             }
           }
           break;
+        case 'rounddraw':
+          extraInfo = 0; // example
+          break;
         case 'finalstandings':
           extraInfo = 0; // example
           break;

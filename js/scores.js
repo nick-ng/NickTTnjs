@@ -126,11 +126,15 @@ socket.on( 'pushAllPlayerDetails', function(playerList, rounds) {
       console.log(playerList[j].score);
       // Convert opponent ids to values
       if (playerList[j].opponentids && (playerList[j].opponentids[i] > 0)) {
-        oppID = playerList[j].opponentids[i];
-        playerList[j].opponentname = playerList[oppID].short_name;
+        var oppID = playerList[j].opponentids[i]; // playerids start from 1.
+        var oppObj = playerList.find(function(player) {
+          return player.id == oppID;
+        });
+        playerList[j].opponentname = oppObj.short_name;
       } else if (playerList[j].opponentids && (playerList[j].opponentids[i] < 0)) {
         playerList[j].opponentname = 'Ghost';
       } else {
+        // This is if opponentids doesn't exist OR opponentids is 0.
         playerList[j].opponentname = 'Unassigned';
       }
       $( '#t' + tabID + 'opponent' + id).val(playerList[j].opponentname);
