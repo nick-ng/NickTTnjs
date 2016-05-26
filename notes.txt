@@ -59,7 +59,9 @@ When you switch to Bootstrap, you may need to replace .button().click(... with j
 A drop down that is always open is called a "select"
 
 // Round Draws
-SELECT * FROM information_schema.tables WHERE table_schema 'tournament00000000' AND table_name LIKE 'round_%';
+Tables that players put their game pieces on are called "maps". Tables that display tabular information are called "tables"
+A "pair"ed round is one where each player has been assigned an opponent.
+A "draw"n round is on where each player has been assigned an opponent and map (table).
 
 /* Pairing Algorithm Steps:
  * 0. The most wins a player can have is the previous round number.

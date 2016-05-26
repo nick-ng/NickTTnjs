@@ -11,7 +11,7 @@ common.setTournamentKey = function (tournamentKey) {
   $( '#tournamentKeyDisplay' ).text('Tournament-Key: ' + common.tournamentKey);
 };
 
-common.getTournamentKey = function (getOnly) {
+common.getTournamentKey = function getTournamentKey(getOnly) {
   getOnly = getOnly || false;
   common.tournamentKey = $.cookie( 'nicktt_currenttournament' );
   if (common.tournamentKey) {
@@ -22,8 +22,19 @@ common.getTournamentKey = function (getOnly) {
   };
 };
 
-common.removeWhiteSpace = function (someString) {
+common.removeWhiteSpace = function removeWhiteSpace(someString) {
   // Replace multiple spaces with one, REMOVE leading and trailing spaces.
   return someString.replace( /[\s\n\r]+/g, ' ' ).replace( /^\s|\s$/g, '' );
   // This matches leading and trailing spaces of any number /^\s+|\s+$/g
 };
+
+common.findInArray = function findInArray(array, searchValue, searchKey, returnKey) {
+  var returnObj = array.find(function(item) {
+    return item[searchKey] == searchValue;
+  });
+  if (returnKey != undefined) {
+    return returnObj[returnKey];
+  } else {
+    return returnObj;
+  };
+}
