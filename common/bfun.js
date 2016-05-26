@@ -174,7 +174,11 @@ bfun.randomString = function randomString(strLength, charSet) {
 }
 
 bfun.sanitize = function sanitize(anything) {
-  return anything.toString().replace(/[^a-zA-Z\d\_]/g, '' );
+  if (typeof anything !== "undefined") {
+    return anything.toString().replace(/[^a-zA-Z\d\_]/g, '' );
+  } else {
+    return '';
+  };
 };
 
 bfun.tKey2tSchema = function tKey2tSchema(tKey) {

@@ -105,8 +105,9 @@ function tiebreakerEvents(tableID, tieID, newID) {
   });
 };
 
-socket.on( 'pushAllPlayerDetails', function(playerList, rounds) {
+socket.on( 'pushAllPlayerDetails', function(playerList, warning) {
   //console.log(playerList);
+  var rounds = common.getDrawnRounds(playerList);
   for (var i = 0; i < rounds; i++) { // Remember that rounds start from 1.
     tabID = i + 1;
     addTab(tabID);
@@ -119,11 +120,11 @@ socket.on( 'pushAllPlayerDetails', function(playerList, rounds) {
       $( '#t' + tabID + 'score' + id).val(playerList[j].score[i]);
       
       for (var k = 0; k < tiebreaks.length; k++) {
-        console.log(playerList[j]['tiebreak' + k][i]);
+        //~ console.log(playerList[j]['tiebreak' + k][i]);
         $( '#t' + tabID + 'tiebreak' + k + id)
           .val(playerList[j]['tiebreak' + k][i]);
       };
-      console.log(playerList[j].score);
+      //~ console.log(playerList[j].score);
       // Convert opponent ids to values
       if (playerList[j].opponentids && (playerList[j].opponentids[i] > 0)) {
         var oppID = playerList[j].opponentids[i]; // playerids start from 1.

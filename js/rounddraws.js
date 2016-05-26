@@ -6,6 +6,7 @@ var maxTime = 4.8; // Unresponsive alert time.
 var randseed = [Math.random()]; // Initialise a random seed for the random function we call later.
 var playerList;
 var maxMaps;
+//var drawList = [];
 
 // ==============
 // Document.Ready
@@ -35,21 +36,41 @@ function addTab(customID) {
   // Make tab contents
   var newContents = '<div id="tabs-' + tabID + '">' +
     '<span style="font-size:initial">' +
-    '<p class="mini-h"><input id="drawbutton-' + tabID + '" value="Draw Round" type="button"></p>' +
+    '<p class="mini-h"><input id="drawbutton-' + tabID + '" value="Make Draw" type="button">' + 
+    '<input id="acceptdrawbutton-' + tabID + '" value="Accept Draw" type="button" disabled></p>' +
     '<table id="tbl-' + tabID + '"><tbody><tr>' +
-    '<th style="text-align: left;">Table</th>' +
-    '<th style="text-align: right;">Player 1</th>' +
+    '<th style="text-align: center;">Table</th>' +
+    '<th style="text-align: left;">Player 1</th>' +
     '<th style="text-align: left;">Player A</th>' +
     '</tr></tbody></table></span></div>';
   tabs.append(newContents);
   //~ console.log( 'tabcontents.val() = ' + $( '#tabcontents' ).val());
   
   tabs.tabs( 'refresh' );
-  $('#drawbutton-' + tabID).button().click(function() {
+  activateDrawControls(tabID);
+};
+
+function activateDrawControls(tabID) {
+  var drawList;
+  $( '#drawbutton-' + tabID).button().click(function() {
     // Draw a round.
     var pairList = pairRound(playerList, tabID);
-    var drawList = assignMaps(pairList, playerList);
+    drawList = assignMaps(pairList, playerList);
+    $( '#tbl-' + tabID).find("tr:gt(0)").remove();
     displayDraw(drawList, playerList, tabID);
+    // Enable accept button
+    $( '#acceptdrawbutton-' + tabID).button( 'enable' );
+  });
+  //$( '#acceptdrawbutton-' + tabID).button(); // Make acceptdrawbutton a button
+  $( '#acceptdrawbutton-' + tabID).button().click(function() {
+    var drawObject = {};
+    drawObject.drawList = drawList;
+    drawObject.round = tabID;
+    drawObject.tKey = common.tournamentKey;
+    console.log(drawObject);
+    socket.emit( 'pushRoundDraw', drawObject);
+    $( '#acceptdrawbutton-' + tabID).button( 'disable' );
+    $( '#drawbutton-' + tabID).button( 'disable' );
   });
 };
 
@@ -60,17 +81,17 @@ function addDrawRow(customID,tableID) {
   rowIDList[tableID].push(newID);
   // The row's contents
   var tableRowContent = '<tr id="t' + tableID + 'drawRow' + newID + '">' +
-    '<td style="text-align: left;" id="t' + tableID + 'map' + newID + '"></td>' + // Call the settings the players play on "maps" to avoid conflict with "tables".
-    '<td style="text-align: right; id="t' + tableID + 'player1' + newID + '"></td>' +
-    '<td style="text-align: right; id="t' + tableID + 'player2' + newID + '"></td>';
-  
+    '<td style="text-align: center;" id="t' + tableID + 'map' + newID + '"></td>' + // Call the settings the players play on "maps" to avoid conflict with "tables".
+    '<td style="text-align: left;" id="t' + tableID + 'player1' + newID + '"></td>' +
+    '<td style="text-align: left;" id="t' + tableID + 'player2' + newID + '"></td>';
+  //~ console.log(tableRowContent);
   $( '#tbl-' + tableID + ' tr:last' ).after(tableRowContent); // Append the new row.
   return 0;
 };
 
 // Do this on the client to reduce the load on the server.
 function pairRound(playerList, round, randomSeed) {
-  var prevRound = getDrawnRounds(playerList);
+  var prevRound = common.getDrawnRounds(playerList);
   var nextRound = round || prevRound + 1;
   randseed[0] = randomSeed || nextRound;
   // Pair players
@@ -109,14 +130,14 @@ function pairRound(playerList, round, randomSeed) {
     };
     sortByKey(tempPlayers, 'totalScore');
     tempPlayers.reverse();
-    console.log('Hello');
-    for (var i = 0; i < tempPlayers.length; i++) {
-      console.log(tempPlayers[i]);
-    };
+    //~ console.log('Hello');
+    //~ for (var i = 0; i < tempPlayers.length; i++) {
+      //~ console.log(tempPlayers[i]);
+    //~ };
     scoreBracket = Math.floor(tempPlayers[0].totalScore);
-    console.log('Paired so far:');
-    console.log(pairList);
-    console.log('New scoreBracket = ' + scoreBracket);
+    //~ console.log('Paired so far:');
+    //~ console.log(pairList);
+    //~ console.log('New scoreBracket = ' + scoreBracket);
     while (tempPlayers[0] && tempPlayers[0].totalScore >= scoreBracket) {
       player1 = tempPlayers.shift();
       player2 = tempPlayers.shift();
@@ -130,7 +151,11 @@ function pairRound(playerList, round, randomSeed) {
       };
     };
   };
-  console.log(pairList);
+  //~ console.log(pairList);
+  if (tempPlayers.length > 0) {
+    console.log( 'Couldn\'t pair players' );
+    $( '#outstream' ).html( '<h1>Couldn\'t pair players</h1><p>It may be impossible to avoid a player duplications</p>' );
+  };
   return pairList;
 };
 
@@ -147,9 +172,9 @@ function assignMaps(pairList, playerListIn) {
     for (var i = 0; i < pairList.length; i++) {
       var p1 = pairList[i][0];
       var p2 = pairList[i][1];
-      console.log('i = ' + i);
-      console.log('p1= ' + p1);
-      console.log('p2= ' + p2);
+      //~ console.log('i = ' + i);
+      //~ console.log('p1= ' + p1);
+      //~ console.log('p2= ' + p2);
       var p1Maps = common.findInArray(playerList, p1, 'id', 'tablenumbers');
       var p2Maps = common.findInArray(playerList, p2, 'id', 'tablenumbers');
       var playedMaps = merge(p1Maps, p2Maps);
@@ -162,7 +187,7 @@ function assignMaps(pairList, playerListIn) {
         assignedMap = randFromArray(availableMaps);
         conflicts++;
       };
-      currentDraw.push({mapNumber:assignedMap, players:pairList[i]});
+      currentDraw.push({map:assignedMap, players:pairList[i]});
       // Remove the map from available maps.
       availableMaps = removeFromArray(availableMaps, assignedMap);
     };
@@ -171,38 +196,22 @@ function assignMaps(pairList, playerListIn) {
       bestDraw.draw = currentDraw;
     };
   };
-  return sortByKey(bestDraw.draw, 'mapNumber');
+  console.log('Managed ' + bestDraw.conflicts + ' conflicts when assigning tables');
+  return sortByKey(bestDraw.draw, 'map');
 };
 
 function displayDraw(drawList, playerList, roundID) {
   for (var i = 0; i < drawList.length; i++) {
-    var mapNumber = drawList[i].mapNumber;
+    var map = drawList[i].map;
     var p1 = drawList[i].players[0];
     var p2 = drawList[i].players[1];
-    addDrawRow(mapNumber,roundID);
+    addDrawRow(map,roundID);
     // Put common.findInArray(array, searchValue, searchKey, returnKey) here.
-    console.log('findInArray = ' + common.findInArray(playerList, p1, 'id', 'short_name'));
-    $( '#t' + roundID + 'map' + mapNumber).text(mapNumber);
-    $( '#t' + roundID + 'player1' + mapNumber).text(common.findInArray(playerList, p1, 'id', 'short_name'));
-    $( '#t' + roundID + 'player2' + mapNumber).text(common.findInArray(playerList, p2, 'id', 'short_name'));
+    //~ console.log('findInArray = ' + common.findInArray(playerList, p1, 'id', 'short_name'));
+    $( '#t' + roundID + 'map' + map).text(map);
+    $( '#t' + roundID + 'player1' + map).text(common.findInArray(playerList, p1, 'id', 'short_name'));
+    $( '#t' + roundID + 'player2' + map).text(common.findInArray(playerList, p2, 'id', 'short_name'));
   };
-};
-
-function getDrawnRounds(playerList) {
-  //Actually returns the last drawn round.
-  var prevRound = 0;
-  // Determine the latest round and "condition" the playerList array.
-  for (var i = 0; i < playerList.length; i++) {
-    if (playerList[i].opponentids) {
-      // If there are opponentids, update what we think the last round is.
-      prevRound = Math.max(prevRound, playerList[i].opponentids.length);
-    } else {
-      // If there are no opponentids, put an empty array so the next part works.
-      playerList[i].opponentids = [];
-      console.log('Replaced undefined with empty array in playerList');
-    };
-  };
-  return prevRound;
 };
 
 function makeTempPlayerList(playerList) {
@@ -217,7 +226,25 @@ function makeTempPlayerList(playerList) {
   };
   return tempPlayers;
 };
-  
+
+function reconstructDrawList(playerList, roundID) {
+  var roundIndex = roundID - 1;
+  var drawList = [];
+  for (var i = 0; i < playerList.length; i++) {
+    var mapID = playerList[i].tablenumbers[roundIndex];
+    var mapIndex = mapID - 1;
+    if (!drawList[mapIndex]) {
+      drawList[mapIndex] = {map:mapID};
+    }
+    if (drawList[mapIndex].players) {
+      drawList[mapIndex].players.push(playerList[i].id);
+    } else {
+      drawList[mapIndex].players = [playerList[i].id];
+    };
+  };
+  return drawList;
+};
+
 function seededRand(generator) {
   // A seeded random number generator.
   generator = generator || 0;
@@ -231,7 +258,7 @@ function seededRand(generator) {
 function sumArray(someArray, useFloat) {
   // Sums all values in an array which may be strings. If a value cannot be parsed, it's skipped
   useFloat = useFloat || false;
-  if (someArray) {
+  if (someArray && (someArray.length > 0)) {
     return someArray.reduce(function(prev, curr) {
       if (useFloat) {
         curr = parseFloat(curr);
@@ -311,17 +338,26 @@ function removeFromArray(arrOriginal, elementToRemove) {
 };
 
 socket.on( 'pushAllPlayerDetails', function(playerListIn, extraInfo) {
+  $( '#outstream' ).html( '' );
   playerList = playerListIn;
   maxMaps = Math.ceil(playerList.length/2);
-  var prevRound = getDrawnRounds(playerList);
+  var prevRound = common.getDrawnRounds(playerList);
   // Put all the existing round information into tabs and tables.
   for (var i = 1; i <= prevRound; i++) {
-    addTab(i);
+    roundID = i;
+    addTab(roundID);
     // Add pairings to the tab.
+    drawList = reconstructDrawList(playerList, roundID);
+    displayDraw(drawList, playerList, roundID)
   };
   // Make a new tab for the next round.
-  console.log('Adding new tab');
+  //~ console.log('Adding new tab');
   addTab(prevRound + 1);
   //var newDraw = pairRound(playerList);
   tabs.tabs("option", "active", -1);
+});
+
+socket.on( 'drawAccepted', function(round) {
+  $( '#drawbutton-' + round).button( 'enable' );
+  $( '#acceptdrawbutton-' + round).button( 'disable' );
 });

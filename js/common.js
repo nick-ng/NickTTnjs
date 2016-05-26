@@ -5,6 +5,7 @@ common.bgLight = '#eee';
 common.bgDark = '#ccc';
 common.cookieExpiry = 100; // 100 days
 
+// Common functions
 common.setTournamentKey = function (tournamentKey) {
   common.tournamentKey = tournamentKey;
   $.cookie( 'nicktt_currenttournament', tournamentKey, { expires: common.cookieExpiry, path: '/' });
@@ -38,3 +39,20 @@ common.findInArray = function findInArray(array, searchValue, searchKey, returnK
     return returnObj;
   };
 }
+
+common.getDrawnRounds = function getDrawnRounds(playerList) {
+  //Actually returns the last drawn round.
+  var prevRound = 0;
+  // Determine the latest round and "condition" the playerList array.
+  for (var i = 0; i < playerList.length; i++) {
+    if (playerList[i].opponentids) {
+      // If there are opponentids, update what we think the last round is.
+      prevRound = Math.max(prevRound, playerList[i].opponentids.length);
+    } else {
+      // If there are no opponentids, put an empty array so the next part works.
+      playerList[i].opponentids = [];
+      //~ console.log('Replaced undefined with empty array in playerList');
+    };
+  };
+  return prevRound;
+};

@@ -265,10 +265,10 @@ dbfun.initialiseTournamentTables = function(tObject, callback) {
     'club text,' +
     'faction text,' +
     'opponentids smallint[],' +
-    'score int[] DEFAULT \'{0}\',';
+    'score int[] DEFAULT \'{}\',';
   for (var i = 0; i < 10; i++) {
     // A 2D array would be better but I can't figure out an easy way.
-    queryString2 += 'tiebreak' + i + ' int[] DEFAULT \'{0}\',';
+    queryString2 += 'tiebreak' + i + ' int[] DEFAULT \'{}\',';
   };
   queryString2 += 'tablenumbers smallint[]);';
   dbfun.ezQuery(queryString2, callback);
@@ -332,6 +332,40 @@ dbfun.getAllPlayerDetails = function(tournamentKey, callback) {
       console.log(tournamentKey + ' is not a valid tournament-key. Someone is messing with your web app.');
     }
   });
+};
+
+dbfun.roundDrawUpdate = function roundDrawUpdate(drawObject, callback) {
+  /* drawObject.drawList = drawList;
+   * drawObject.round = tabID;
+   * drawObject.tKey = common.tournamentKey;
+   */
+  var abort = false;
+  var tSchema = bfun.tKey2tSchema(drawObject.tKey);
+  var round = bfun.sanitize(drawObject.round);
+  var queryString = '';
+  if (drawObject.drawList && (drawObject.drawList.constructor === Array)) {
+    for (var i = 0; i < drawObject.drawList.length; i++) {
+      //{map:assignedMap, players:pairList[i]}
+      var map = parseInt(drawObject.drawList[i].map);
+      var players = drawObject.drawList[i].players;
+      var p1 = parseInt(players[0]);
+      var p2 = parseInt(players[1]);
+      if (round * map * p1 * p2) { // round, map, p1 and p2 must all be numbers greater than 0;
+      // player1
+        queryString += 'UPDATE ' + tSchema + '.playertable SET opponentids[' + round + '] = ' + p1 + ' WHERE id = ' + p2 + ';';
+        queryString += 'UPDATE ' + tSchema + '.playertable SET opponentids[' + round + '] = ' + p2 + ' WHERE id = ' + p1 + ';';
+        queryString += 'UPDATE ' + tSchema + '.playertable SET tablenumbers[' + round + '] = ' + map + ' WHERE id = ' + p2 + ';';
+        queryString += 'UPDATE ' + tSchema + '.playertable SET tablenumbers[' + round + '] = ' + map + ' WHERE id = ' + p1 + ';';
+      } else {
+        abort = true;
+      };
+    };
+  } else {
+    abort = true;
+  };
+  if (!abort) {
+    dbfun.ezQuery(queryString, callback);
+  };
 };
 
 module.exports = dbfun;

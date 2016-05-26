@@ -45,8 +45,8 @@ app.get( '/finalstandings', function( req, res ) {
 app.get( '/rounddraws', function( req, res ) {
   res.sendFile(PAGEDIR + '/rounddraws.html');
 });
-app.get( '/scores', function( req, res ) {
-  res.sendFile(PAGEDIR + '/scores.html');
+app.get( '/roundscores', function( req, res ) {
+  res.sendFile(PAGEDIR + '/roundscores.html');
 });
 app.get( '/options', function( req, res ) {
   res.sendFile(PAGEDIR + '/options.html');
@@ -96,14 +96,14 @@ io.on( 'connection', function( socket ) {
       // fix short names here.
       switch ( mode ) {
         case 'scores':
-          rounds = 1;
-          extraInfo = rounds; // rounds
-          for (var j = 0; j < playerList.length; j++) {
-            playerList[j].opponentnames = []; // Placeholder
-            for (var i = 0; i < rounds; i++) {
-              playerList[j].opponentnames[i] = '' + j + i;
-            }
-          }
+          //~ rounds = 1;
+          extraInfo = 0; // rounds
+          //~ for (var j = 0; j < playerList.length; j++) {
+            //~ playerList[j].opponentnames = []; // Placeholder
+            //~ for (var i = 0; i < rounds; i++) {
+              //~ playerList[j].opponentnames[i] = '' + j + i;
+            //~ }
+          //~ }
           break;
         case 'rounddraw':
           extraInfo = 0; // example
@@ -115,6 +115,13 @@ io.on( 'connection', function( socket ) {
           extraInfo = 'hello';
       }
       io.to(socket.id).emit( 'pushAllPlayerDetails', playerList, extraInfo);
+    });
+  });
+  
+  socket.on( 'pushRoundDraw', function(drawObject) {
+    dbfun.roundDrawUpdate(drawObject, function(result) {
+      //Put draw information on database
+      io.to(socket.id).emit( 'drawAccepted', drawObject.round);
     });
   });
   
@@ -416,8 +423,8 @@ function chooseShortNames(playerList, shortNamesOnly) {
       //playerList2[i].id = playerList[i].id;
       //playerList2[i].short_name = playerList[i].short_name;
     } else {
-      console.log( 'Full name = "' + playerList[i].full_name + '"' );
-      console.log( 'Short name = "' + playerList[i].short_name + '"' );
+      //~ console.log( 'Full name = "' + playerList[i].full_name + '"' );
+      //~ console.log( 'Short name = "' + playerList[i].short_name + '"' );
     };
   };
   if (shortNamesOnly) { // Undefined is equivilant to false.
