@@ -264,13 +264,13 @@ dbfun.initialiseTournamentTables = function(tObject, callback) {
     'paid boolean DEFAULT FALSE,' +
     'club text,' +
     'faction text,' +
-    'opponentids smallint[],' +
+    'opponentids smallint[] DEFAULT \'{}\',' +
     'score int[] DEFAULT \'{}\',';
   for (var i = 0; i < 10; i++) {
     // A 2D array would be better but I can't figure out an easy way.
     queryString2 += 'tiebreak' + i + ' int[] DEFAULT \'{}\',';
   };
-  queryString2 += 'tablenumbers smallint[]);';
+  queryString2 += 'tablenumbers smallint[] DEFAULT \'{}\');';
   dbfun.ezQuery(queryString2, callback);
 };
 

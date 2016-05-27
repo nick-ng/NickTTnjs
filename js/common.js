@@ -56,3 +56,23 @@ common.getDrawnRounds = function getDrawnRounds(playerList) {
   };
   return prevRound;
 };
+
+common.sumArray = function sumArray(someArray, useFloat) {
+  // Sums all values in an array which may be strings. If a value cannot be parsed, it's skipped
+  useFloat = useFloat || false;
+  if (someArray && (someArray.length > 0)) {
+    return someArray.reduce(function(prev, curr) {
+      if (useFloat) {
+        curr = parseFloat(curr);
+      } else {
+        curr = parseInt(curr);
+      };
+      if (isNaN(curr)) {
+        curr = 0;
+      };
+      return prev + curr;
+    });
+  } else {
+    return 0;
+  };
+};

@@ -46,12 +46,14 @@ function addTab(customID) {
     newContents += '<th style="text-align: center;">' + tiebreakName + '</th>';
   };
   newContents += '<th style="text-align: left;">Round ' + tabID + '<br>Opponent</th>' +
-    '</tr></tbody></table></span></div>';
+    '</tr></tbody></table></span>' +
+    '<div style="text-align: center; margin-top:0.5em;"><input type="button" id="dummybutton' + tabID + '" value="Submit"></div></div>';
   //$( '#tabcontents' ).val($( '#tabcontents' ).val() + newContents);
   tabs.append(newContents);
   //~ console.log( 'tabcontents.val() = ' + $( '#tabcontents' ).val());
   
   tabs.tabs( 'refresh' );
+  $( '#dummybutton' + tabID).button();
 };
 
 function addPlayerRow(customID,tableID) {
@@ -66,7 +68,8 @@ function addPlayerRow(customID,tableID) {
   for (var i = 0; i < tiebreaks.length; i++) {
     tableRowContent += '<td style="text-align: center;"><input type="number" class="number-input" id="t' + tableID + 'tiebreak' + i + newID + '" /></td>';
   };
-  tableRowContent += '<td><input type="text" class="shorttext-input" id="t' + tableID + 'opponent' + newID + '" /></td></tr>'
+  //tableRowContent += '<td><input type="text" class="shorttext-input" id="t' + tableID + 'opponent' + newID + '" /></td></tr>';
+  tableRowContent += '<td style="text-align: left;" id="t' + tableID + 'opponent' + newID + '"></td></tr>';
   
   $( '#tbl-' + tableID + ' tr:last' ).after(tableRowContent); // Append a new row.
   
@@ -138,7 +141,7 @@ socket.on( 'pushAllPlayerDetails', function(playerList, warning) {
         // This is if opponentids doesn't exist OR opponentids is 0.
         playerList[j].opponentname = 'Unassigned';
       }
-      $( '#t' + tabID + 'opponent' + id).val(playerList[j].opponentname);
+      $( '#t' + tabID + 'opponent' + id).text(playerList[j].opponentname);
     };
   };
   $( '#outstream' ).html( '' );

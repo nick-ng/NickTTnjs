@@ -125,7 +125,7 @@ function pairRound(playerList, round, randomSeed) {
       //Math.floor(tempPlayers[i].totalScore) +
       tempPlayers[i].totalScore = seededRand() / 10;
       if (honourScore) {
-        tempPlayers[i].totalScore += sumArray(tempPlayers[i].score);
+        tempPlayers[i].totalScore += common.sumArray(tempPlayers[i].score);
       };
     };
     sortByKey(tempPlayers, 'totalScore');
@@ -254,26 +254,6 @@ function seededRand(generator) {
   var x = Math.sin(randseed[generator]++) * 10000;
   return x - Math.floor(x);
 }
-
-function sumArray(someArray, useFloat) {
-  // Sums all values in an array which may be strings. If a value cannot be parsed, it's skipped
-  useFloat = useFloat || false;
-  if (someArray && (someArray.length > 0)) {
-    return someArray.reduce(function(prev, curr) {
-      if (useFloat) {
-        curr = parseFloat(curr);
-      } else {
-        curr = parseInt(curr);
-      };
-      if (isNaN(curr)) {
-        curr = 0;
-      };
-      return prev + curr;
-    });
-  } else {
-    return 0;
-  };
-};
 
 function sortByKey(array, key) {
   return array.sort(function getDelta(a, b) {
