@@ -28,6 +28,8 @@ schema: tournament00000000 // 'tournament' plus a unique 8 digit string between 
     column: tournament date - Automatically remove the oldest tournament once we approach the database limit.
     column: completed - Flag set by a control on the Final Standings page?
     column: rounds_played
+    column: left_image_url - URL of left image on display page
+    column: right_image_url - URL of right image on display page
   table: playertable
     column: id (int) (primary)
     column: full_name (text) - May as well use text type since it's supported by PostgreSQL
@@ -41,11 +43,6 @@ schema: tournament00000000 // 'tournament' plus a unique 8 digit string between 
     column: tablenumbers (int array)
     column: score (int[]) Primary score of the tournament
     column: tiebreak<0-9> (int[]) Tiebreakers. PostgreSQL will only automatically enlarge a 1D array and I haven't thought of a way to make this 
-  table: round<1-999> // 'round' + round_number, a number from 1 - 99999999 (potentially unlimited?) to hold the round data.
-    column: table (smallint) // This will be unique
-    column: player1 (int) - id. Retrieve full name from table before sending to Elo site.
-    column: player2 (int)
-    column: result (int) - 0: Unplayed, 1: Player 1 victory, 2: Player 2 victory, 3: Draw (For exporting to Elo site)
 
 // Cookies
 nicktt_currenttournament=12345678 : Current tournament-key (8 character alpha-numeric string). Expires 100 days

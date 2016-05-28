@@ -23,6 +23,10 @@ common.getTournamentKey = function getTournamentKey(getOnly) {
   };
 };
 
+common.joinWebSocketRoom = function joinWebSocketRoom(tournamentKey) {
+  
+}
+
 common.removeWhiteSpace = function removeWhiteSpace(someString) {
   // Replace multiple spaces with one, REMOVE leading and trailing spaces.
   return someString.replace( /[\s\n\r]+/g, ' ' ).replace( /^\s|\s$/g, '' );

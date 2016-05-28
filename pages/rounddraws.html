@@ -39,9 +39,22 @@
       </span>
       -->
     </div>
-    <div class="side-by-side ui-tab ui-widget ui-widget-content ui-corner-all" id="displaycontrols">
+    <div class="side-by-side ui-widget ui-widget-content ui-corner-all" id="displaycontrols">
       <span class="fix-font-size">
-        <p>Display control placeholder</p>
+        <div>
+          <button id="openDisplayButton">Open Display<br>In New Window</button>
+          <button id="updateDisplayButton">Update<br>Display</button>
+        </div>
+        <div>
+          Announcement (Optional):<br>
+          <input id="displayAnnouncement" type="text"><br>
+          <button id="clearAnnouncementButton">Clear</button>
+        </div>
+        <div>
+          Image URLs (Optional, Saved):<br>
+          <input id="displayLeftImageURL" type="text"> Left<br>
+          <input id="displayRightImageURL" type="text"> Right
+        </div>
       </span>
     </div>
   </main>

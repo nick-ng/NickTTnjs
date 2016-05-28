@@ -18,6 +18,7 @@ $(document).ready(function() {
     socket.emit( 'pullAllPlayerDetails', common.tournamentKey, 'rounddraw' );
   };
   tabs = $("#tabs").tabs();
+  activateDisplayControls()
 }); // $(document).ready(function() {
 
 function addTab(customID) {
@@ -48,6 +49,21 @@ function addTab(customID) {
   
   tabs.tabs( 'refresh' );
   activateDrawControls(tabID);
+};
+
+function activateDisplayControls() {
+  $( '#openDisplayButton' ).button().click(function() {
+    //Open webpage
+    window.open( './display', '_blank', 'toolbar=0,location=0,menubar=0' );
+  });
+  $( '#updateDisplayButton' ).button().click(function() {
+    //Do stuff
+    
+  });
+  $( '#clearAnnouncementButton' ).button().click(function() {
+    //Do stuff
+    
+  });
 };
 
 function activateDrawControls(tabID) {

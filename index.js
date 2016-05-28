@@ -51,6 +51,9 @@ app.get( '/roundscores', function( req, res ) {
 app.get( '/options', function( req, res ) {
   res.sendFile(PAGEDIR + '/options.html');
 });
+app.get( '/display', function( req, res ) {
+  res.sendFile(PAGEDIR + '/display.html');
+});
 
 // Socket.IO stuff
 io.on( 'connection', function( socket ) {

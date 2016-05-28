@@ -4,6 +4,10 @@ body, .invis-t {
   background-color: #fff;
 }
 
+input, button {
+  vertical-align: center;
+}
+
 .fix-font-size {
   font-size: initial;
 }
@@ -61,6 +65,11 @@ h1, h2, h3, h4, .footer, .invis-t{
   padding-left: 8px;
   padding-right: 8px;
   margin: 3px;
+}
+
+.side-by-side div {
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 
 .number-input {
