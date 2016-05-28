@@ -45,6 +45,14 @@ h1, h2, h3, h4, .footer, .invis-t{
   text-align:center;
 }
 
+.pp {
+  margin: 0;
+}
+
+.pp + .pp {
+  margin-top: 0.5em;
+}
+
 .pseudo-h{
   text-align:center;
   font-size:200%;
