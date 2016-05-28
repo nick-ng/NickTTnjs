@@ -4,6 +4,10 @@ body, .invis-t {
   background-color: #fff;
 }
 
+.fix-font-size {
+  font-size: initial;
+}
+
 .outstream {
   color: black;
 }
@@ -17,6 +21,12 @@ body, .invis-t {
   margin-right:12px;
   /* border-right: 1px solid #bbb */
 }
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+}
+
 h1, h2, h3, h4, .footer, .invis-t{
   text-align:center;
 }
@@ -35,6 +45,22 @@ h1, h2, h3, h4, .footer, .invis-t{
   margin-left: auto;
   margin-right: auto;
   display: table;
+}
+
+.tabhack-left{
+  margin-left: auto;
+  display: table;
+}
+
+.tabhack-right{
+  margin-right: auto;
+  display: table;
+}
+
+.side-by-side {
+  padding-left: 8px;
+  padding-right: 8px;
+  margin: 3px;
 }
 
 .number-input {

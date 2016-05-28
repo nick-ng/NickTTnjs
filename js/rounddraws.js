@@ -35,7 +35,7 @@ function addTab(customID) {
   
   // Make tab contents
   var newContents = '<div id="tabs-' + tabID + '">' +
-    '<span style="font-size:initial">' +
+    '<span class="fix-font-size">' +
     '<p class="mini-h"><input id="drawbutton-' + tabID + '" value="Make Draw" type="button">' + 
     '<input id="acceptdrawbutton-' + tabID + '" value="Accept Draw" type="button" disabled></p>' +
     '<table id="tbl-' + tabID + '"><tbody><tr>' +
