@@ -6,18 +6,26 @@ var maxTime = 4.8; // Unresponsive alert time.
 var randseed = [Math.random()]; // Initialise a random seed for the random function we call later.
 var playerList;
 var maxMaps;
+var activeTab;
 //var drawList = [];
 
 // ==============
 // Document.Ready
 // ==============
 $(document).ready(function() {
-  common.getTournamentKey()
+  common.getTournamentKey(false, true)
   if (common.tournamentKey) {
     $( '#outstream' ).html( 'Loading tournament information.' );
     socket.emit( 'pullAllPlayerDetails', common.tournamentKey, 'rounddraw' );
   };
-  tabs = $("#tabs").tabs();
+  tabs = $("#tabs").tabs({
+    activate: function( event, ui ) {
+      //console.log(ui.newPanel.selector);
+      //console.log(ui.newPanel.selector.replace( '#tabs-', '' ));
+      activeTab = parseInt(ui.newPanel.selector.replace( '#tabs-', '' ));
+      $( '#outstream' ).html( '' );
+    }
+  });
   activateDisplayControls()
 }); // $(document).ready(function() {
 
@@ -58,13 +66,29 @@ function activateDisplayControls() {
   });
   $( '#updateDisplayButton' ).button().click(function() {
     //Do stuff
-    
+    updateDisplay();
   });
   $( '#clearAnnouncementButton' ).button().click(function() {
     //Do stuff
-    
+    $( '#displayAnnouncement' ).val( '' );
+    var displayData = {};
+    displayData.room = common.tournamentKey;
+    displayData.announcement = '';
+    socket.emit('sendToDisplay', displayData);
   });
 };
+
+function updateDisplay() {
+  var displayData = {};
+  displayData.room = common.tournamentKey;
+  displayData.announcement = $( '#displayAnnouncement' ).val();
+  displayData.content = $( '#tbl-' + activeTab).html();
+  displayData.content = '<table>' + displayData.content + '</table>';
+  displayData.content = '<h2>Round ' + activeTab + ' Draw</h2>' + displayData.content;
+  displayData.leftURL = $( '#displayLeftImageURL' ).val();
+  displayData.rightURL = $( '#displayRightImageURL' ).val();
+  socket.emit('sendToDisplay', displayData);
+}
 
 function activateDrawControls(tabID) {
   var drawList;
@@ -87,6 +111,7 @@ function activateDrawControls(tabID) {
     socket.emit( 'pushRoundDraw', drawObject);
     $( '#acceptdrawbutton-' + tabID).button( 'disable' );
     $( '#drawbutton-' + tabID).button( 'disable' );
+    updateDisplay();
   });
 };
 

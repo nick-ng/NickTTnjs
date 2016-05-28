@@ -12,20 +12,21 @@ common.setTournamentKey = function (tournamentKey) {
   $( '#tournamentKeyDisplay' ).text('Tournament-Key: ' + common.tournamentKey);
 };
 
-common.getTournamentKey = function getTournamentKey(getOnly) {
+common.getTournamentKey = function getTournamentKey(getOnly, joinRoom) {
   getOnly = getOnly || false;
+  joinRoom = joinRoom || false;
   common.tournamentKey = $.cookie( 'nicktt_currenttournament' );
   if (common.tournamentKey) {
     // Refresh tournamentKey expiry and display.
     common.setTournamentKey(common.tournamentKey);
+    if (joinRoom) {
+      socket.emit( 'joinRoom', common.tournamentKey);
+    };
   } else if (!getOnly) {
-    socket.emit( 'pullTournamentKey', 'new' );
+    $( '#outstream' ).html( 'Please load or start a new tournament from the Home page.' );
+    //socket.emit( 'pullTournamentKey', 'new' );
   };
 };
-
-common.joinWebSocketRoom = function joinWebSocketRoom(tournamentKey) {
-  
-}
 
 common.removeWhiteSpace = function removeWhiteSpace(someString) {
   // Replace multiple spaces with one, REMOVE leading and trailing spaces.

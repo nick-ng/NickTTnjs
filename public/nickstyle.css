@@ -4,6 +4,16 @@ body, .invis-t {
   background-color: #fff;
 }
 
+.dark {
+  color: white;
+  background-color: #333;
+}
+
+.dark a {
+  color: white;
+  text-decoration: none;
+}
+
 input, button {
   vertical-align: center;
 }
@@ -59,6 +69,14 @@ h1, h2, h3, h4, .footer, .invis-t{
 .tabhack-right{
   margin-right: auto;
   display: table;
+}
+
+.side-by-sideb {
+  vertical-align: top;
+}
+
+.side-by-sideb + .side-by-sideb {
+  padding-left: 80px;
 }
 
 .side-by-side {

@@ -57,6 +57,17 @@ app.get( '/display', function( req, res ) {
 
 // Socket.IO stuff
 io.on( 'connection', function( socket ) {
+  socket.on( 'joinRoom', function(room) {
+    //console.log('Joined room');
+    socket.join(room);
+  });
+  
+  socket.on( 'sendToDisplay', function(displayData) {
+    if (displayData.room) {
+      io.to(displayData.room).emit( 'displayThisPlease', displayData);
+    };
+  });
+  
   socket.on( 'fullName focusout', function(player) {
     // This is one of the places where you access the database.
     player.short_names = nickifyNames( player.fullName, player.ID );
