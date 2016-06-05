@@ -9,6 +9,7 @@ $( document ).ready(function() {
     $( '#outstream' ).html( 'Loading players. Please wait.');
     socket.emit( 'pullAllPlayerDetails', common.tournamentKey );
   };
+  activateDisplayControls()
 }); // $( document ).ready(function() {
 
 function addPlayerRow(customID, equal) {
@@ -31,7 +32,9 @@ function addPlayerRow(customID, equal) {
     '<td style="text-align: left;" id="faction' + newID + '"></td>' +
     '<td style="text-align: right;" id="total_score' + newID + '"></td>' +
     '<td style="text-align: right;" id="total_vps' + newID + '"></td>' +
-    '<td style="text-align: right;" id="total_vp_diff' + newID + '"></td>';
+    '<td style="text-align: right;" id="total_vp_diff' + newID + '"></td>' +
+    '<td style="text-align: right;" id="total_goals' + newID + '"></td>' +
+    '<td style="text-align: right;" id="total_bodies' + newID + '"></td>';
   $( '#tbl-final tr:last' ).after( tableRowContent ); // Append a new row.
   
   return newID;
@@ -41,6 +44,8 @@ function calculateStandings(playerList) {
   for (var i = 0; i < playerList.length; i++) {
     playerList[i].totalScore = common.sumArray(playerList[i].score);
     playerList[i].totalVP = common.sumArray(playerList[i].tiebreak2);
+    playerList[i].totalGoals = common.sumArray(playerList[i].tiebreak0);
+    playerList[i].totalBodies = common.sumArray(playerList[i].tiebreak1);
     var totalVPDiff = 0;
     for (var j = 0; j < playerList[i].opponentids.length; j++) { // For each round,
       var roundVPScored = playerList[i].tiebreak2[j];
@@ -56,6 +61,27 @@ function calculateStandings(playerList) {
   };
   return playerList;
 };
+
+function activateDisplayControls() {
+  $( '#openDisplayButton' ).button().click(function() {
+    //Open webpage
+    window.open( './display', '_blank', 'toolbar=0,location=0,menubar=0' );
+  });
+  $( '#displayFinalButton' ).button().click(function() {
+    updateDisplay();
+  });
+};
+
+function updateDisplay() {
+  var displayData = {};
+  displayData.room = common.tournamentKey;
+  displayData.announcement = 'Final Standings';
+  displayData.content = $( '#tbl-final' ).html();
+  displayData.content = '<table>' + displayData.content + '</table>';
+  displayData.leftURL = '';
+  displayData.rightURL = '';
+  socket.emit('sendToDisplay', displayData);
+}  
 
 function sortStandings(playerList) {
   playerList = playerList.sort(function(a, b) {
@@ -86,12 +112,19 @@ function ordinal_suffix_of(i) {
     return i + "th";
 }
 
+// From http://stackoverflow.com/a/4020842
+function maxByKey(arr,keyName) {
+  return Math.max.apply(Math,arr.map(function(o){return o[keyName];}));
+}
+
 socket.on( 'pushAllPlayerDetails', function(playerList, instructions) {
   $( '#tbl-final').find("tr:gt(0)").remove();
   //console.log(playerList);
   playerList = calculateStandings(playerList);
   playerList = sortStandings(playerList);
   // Display
+  var maxGoals = maxByKey(playerList, 'totalGoals' );
+  var maxBodies = maxByKey(playerList, 'totalBodies' );
   for (var i = 0; i < playerList.length; i++) {
     var id = addPlayerRow();
     $( '#short_name' + id).text(playerList[i].short_name);
@@ -99,6 +132,14 @@ socket.on( 'pushAllPlayerDetails', function(playerList, instructions) {
     $( '#total_score' + id).text(playerList[i].totalScore);
     $( '#total_vps' + id).text(playerList[i].totalVP);
     $( '#total_vp_diff' + id).text(playerList[i].totalVPDiff);
+    $( '#total_goals' + id).text(playerList[i].totalGoals);
+    if (playerList[i].totalGoals == maxGoals) {
+      $( '#total_goals' + id).addClass('highlight-best');
+    }
+    $( '#total_bodies' + id).text(playerList[i].totalBodies);
+    if (playerList[i].totalBodies == maxBodies) {
+      $( '#total_bodies' + id).addClass('highlight-best');
+    }
   };
   $( '#outstream' ).html( '' );
 });

@@ -6,12 +6,16 @@ body, .invis-t {
 
 .dark {
   color: white;
-  background-color: #333;
+  background-color: #111;
 }
 
 .dark a {
   color: white;
   text-decoration: none;
+}
+
+.highlight-best {
+  background-color: #7f7;
 }
 
 input, button {
