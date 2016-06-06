@@ -1,56 +1,63 @@
 <!doctype html>
-<html>
+<html lang=en>
   <head>
+    <meta charset=utf-8>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Nick's Tournament Tool</title>
     <link rel="shortcut icon" href="narwhal-32.png" />
-    <link rel="stylesheet" type="text/css" href="nickstyle.css" />
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="extra.css" rel="stylesheet">
   </head>
   <body>
-  <ul class="navbar-ul">
-    <li class="navbar-li"><a class="navbar-a" href="./">Home</a></li>
-    <li class="navbar-li"><a class="navbar-a act" href="./playerdetails">Player Details</a></li>
-    <li class="navbar-li"><a class="navbar-a" href="./rounddraws">Round Draws</a></li>
-    <li class="navbar-li"><a class="navbar-a" href="./roundscores">Round Scores</a></li>
-    <li class="navbar-li"><a class="navbar-a" href="./finalstandings">Final Standings</a></li>
-    <li class="navbar-tk" id="tournamentKeyDisplay"></li>
-    <li class="navbar-li" style="float:right"><a class="navbar-a" href="./options">Options</a></li>
-  </ul> 
-<div style="margin-top:50px;">
-  <hr />
-  <p class="mini-h">
-    <input id="addPlayerButton" type="button" value="Add Player" />
-    <input id="hideEmptyButton" type="button" value="Hide Empty Rows" />
-    <input id="showEmptyButton" type="button" value="Show Empty Rows" />
-  </p>
-  <table id="tbl">
-    <tbody>
-      <tr>
-        <th style="text-align: right;">ID</th>
-        <th style="text-align: left;">Full Name</th>
-        <th style="text-align: left;">E-mail</th>
-        <th style="text-align: left;">Short Name</th>
-        <th style="text-align: center;">Still<br /> Playing</th>
-        <th style="text-align: center;">Paid</th>
-        <th style="text-align: left;">Club</th>
-        <th id="FactionHeader" style="text-align: left;">Guild</th>
-      </tr>
-    </tbody>
-  </table>    
-</div>
-<div class="mini-h" id="outstream"></div>
-<hr />
-    <footer class="footer">&copy; <a href="http://nick-ng.com" target="_blank">Nick Ng</a>, 2016 <a href="https://github.com/nick-ng/NickTTnjs">GitHub</a></footer>
+    <!-- Nav bar start -->
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <ul class="nav navbar-nav">
+          <li><a href="./">Home</a></li>
+          <li class="active"><a href="./playerdetails">Player Details</a></li>
+          <li><a href="./rounddraws">Round Draws</a></li>
+          <li><a href="./roundscores">Round Scores</a></li>
+          <li><a href="./finalstandings">Final Standings</a></li>
+          <li><p class="navbar-text" id="tournamentKeyDisplay"></p></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="./options">Options</a></li>
+        </ul>
+      </div>
+    </nav>
+    <!-- Nav bar end -->
+    <!-- Start of main content -->
+    <div class="col-md-12">
+      <p class="text-center">
+        <input id="addPlayerButton" class="btn btn-default" type="button" value="Add Player" />
+        <input id="hideEmptyButton" class="btn btn-default" type="button" value="Hide Empty Rows" />
+        <input id="showEmptyButton" class="btn btn-default" type="button" value="Show Empty Rows" />
+      </p>
+      <table id="tbl" class="table table-hover table-stripe">
+        <thead>
+          <tr>
+            <th class="text-right">ID</th>
+            <th class="text-left">Full Name</th>
+            <th class="text-left">E-mail</th>
+            <th class="text-left">Short Name</th>
+            <th class="text-center">Still<br /> Playing</th>
+            <th class="text-center">Paid</th>
+            <th class="text-left">Club</th>
+            <th id="FactionHeader" class="text-left">Guild</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <p class="text-center" id="outstream"></p>
+      <hr />
+    </div>
+    <footer class="text-center">&copy; <a href="http://nick-ng.com" target="_blank">Nick Ng</a>, 2016 <a href="https://github.com/nick-ng/NickTTnjs">GitHub</a></footer>
+    <!-- End of main content -->
     
-    <!-- use "local" libraries -->
     <script type="text/javascript" src="socket.io-1.4.5.js"></script>
     <script type="text/javascript" src="jquery-2.2.3.min.js"></script>
-    <!-- -->
-    <!-- use online CDN for libraries.
-    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
-    <!-- -->
-    <link rel="stylesheet" href="jquery-ui.min.css">
-    <script type="text/javascript" src="jquery-ui.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="jquery.cookie.js"></script>
     <script type="text/javascript" src="common.js"></script>
     <script type="text/javascript" src="playerdetails.js"></script>

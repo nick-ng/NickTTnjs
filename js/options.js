@@ -140,11 +140,11 @@ socket.on( 'pushShortenedNames', function( shortenedNames, parent ) {
     // clear bulk box
   };
   // Remove existing table rows
-  $( '#shortenedNamesTable' ).find('tr:gt(0)').remove();
+  $( '#shortenedNamesTable tbody tr' ).remove();
   for ( var i = 0; i < shortenedNames.length; i++ ) {
     var tableRowContent = '<tr><td>' + shortenedNames[i]['long_name'] + '</td>' +
     '<td>' + shortenedNames[i]['shortened_name'] + '</td></tr>';
-    $( '#shortenedNamesTable tr:last' ).after( tableRowContent ); // Append a new row.
+    $( '#shortenedNamesTable tbody' ).append( tableRowContent ); // Append a new row.
   };
 });
 socket.on( 'shortenedNamesTableLocked', function() {
@@ -173,11 +173,11 @@ socket.on( 'pushNicknames', function( nicknames, parent ) {
     // clear bulk box
   };
   // Remove existing table rows
-  $( '#nicknamesTable' ).find('tr:gt(0)').remove();
+  $( '#nicknamesTable tbody tr' ).remove();
   for ( var i = 0; i < nicknames.length; i++ ) {
     var tableRowContent = '<tr><td>' + nicknames[i]['real_name'] + '</td>' +
     '<td>' + nicknames[i]['nickname'] + '</td></tr>';
-    $( '#nicknamesTable tr:last' ).after( tableRowContent ); // Append a new row.
+    $( '#nicknamesTable tbody' ).append( tableRowContent ); // Append a new row.
   };
 });
 socket.on( 'nicknamesTableLocked', function() {

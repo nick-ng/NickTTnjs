@@ -109,7 +109,6 @@ io.on( 'connection', function( socket ) {
       // sort out short names
       playerList = chooseShortNames(playerList);
       var extraInfo;
-      // fix short names here.
       switch ( mode ) {
         case 'scores':
           //~ rounds = 1;
