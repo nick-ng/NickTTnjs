@@ -10,10 +10,17 @@ $( document ).ready(function() {
   socket.emit( 'pullShortenedNames', 'optionsReady' );
   socket.emit( 'pullNicknames', 'optionsReady' );
   common.getTournamentKey(true)
+  //setBulkTextAreaHints();
 }); // $( document ).ready(function() {
 
+function setBulkTextAreaHints() {
+  var nickHint = 'Enter names in bulk as follows:\n"real name 1","nickname 1"\n"real name 2","nickname 2"\nwith a new pair on each line.';
+  var shortHint = 'Enter names in bulk as follows:\n"long name 1","short name 1"\n"long name 2","short name 2"\nwith a new pair on each line.';
+  $( '#nicknamesText' ).val
+}
+
 // Nickname controls
-$('#nicknamesSingleButton').button().click(function () {
+$('#nicknamesSingleForm').submit(function () {
   var newNickname = {};
   newNickname.real_name = $( '#nickRealName' ).val();
   newNickname.nickname = $( '#nickNickname' ).val();
@@ -21,9 +28,10 @@ $('#nicknamesSingleButton').button().click(function () {
   $('#nicknamesButton').prop( 'disabled', true );
   $('#nicknamesSingleButton').prop( 'disabled', true );
   socket.emit( 'addOneNickname', newNickname );
+  return false;
 });
 // Nickname bulk controls
-$('#nicknamesButton').button().click(function() {
+$('#nicknamesBulkForm').submit(function() {
   // Disable all buttons so the previous request doesn't get interrupted
   // Main script also blocks table access if table is being accessed by
   // another user or if two pages are open.
@@ -44,6 +52,7 @@ $('#nicknamesButton').button().click(function() {
     //$( '#nicknamesTable' ).find('tr:gt(0)').remove();
     socket.emit( 'resetNicknames' );
   }
+  return false;
 });
 $( "input[name=nicknamesRadio]:radio" ).change( function() {
   getNicknameRadioVal();
@@ -52,22 +61,22 @@ function getNicknameRadioVal() {
   nicknameButtonFunction = $( "input[name=nicknamesRadio]:checked" ).val();
   switch ( nicknameButtonFunction ) {
     case 'append':
-      $( '#nicknamesButton' ).val( 'Append' );
+      $( '#nicknamesButton' ).text( 'Append' );
       break;
     case 'replace':
-      $( '#nicknamesButton' ).val( 'Replace' );
+      $( '#nicknamesButton' ).text( 'Replace' );
       break;
     case 'reset':
-      $( '#nicknamesButton' ).val( 'Reset' );
+      $( '#nicknamesButton' ).text( 'Reset' );
       break;
     default:
-      $( '#nicknamesButton' ).val( '???' );
+      $( '#nicknamesButton' ).text( '???' );
       $( '#nicknamesOutstream' ).text( 'Something went wrong' );
   }
 };
 
 // Shortened name controls
-$('#shortenedNamesSingleButton').button().click(function () {
+$('#shortenedNamesSingleForm').submit(function () {
   var newShortenedName = {};
   newShortenedName.long_name = $( '#shortenedLongName' ).val();
   newShortenedName.shortened_name = $( '#shortenedShortName' ).val();
@@ -75,9 +84,10 @@ $('#shortenedNamesSingleButton').button().click(function () {
   $('#shortenedNamesButton').prop( 'disabled', true );
   $('#shortenedNamesSingleButton').prop( 'disabled', true );
   socket.emit( 'addOneShortenedName', newShortenedName );
+  return false;
 });
 // Shortened name bulk controls
-$('#shortenedNamesButton').button().click(function() {
+$('#shortenedNamesForm').submit(function() {
   $('#shortenedNamesButton').prop( 'disabled', true );
   $('#shortenedNamesSingleButton').prop( 'disabled', true );
   var tempText = $( '#shortenedNamesText' ).val();
@@ -93,6 +103,7 @@ $('#shortenedNamesButton').button().click(function() {
     $( '#shortenedNamesOutstream' ).text( 'Resetting shortened names' );
     socket.emit( 'resetShortenedNames' );
   }
+  return false;
 });
 $( "input[name=shortenedNamesRadio]:radio" ).change( function() {
   getShortenNameRadioVal();
