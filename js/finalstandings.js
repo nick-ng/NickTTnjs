@@ -74,7 +74,11 @@ function updateDisplay() {
   displayData.room = common.tournamentKey;
   displayData.announcement = 'Final Standings';
   displayData.content = $( '#tbl-final' ).html();
-  displayData.content = '<table>' + displayData.content + '</table>';
+  var tableClasses = 'table table-striped';
+  if (rowIDList.length > 16) {
+    tableClasses = 'table table-striped table-condensed';
+  }
+  displayData.content = '<table class="' + tableClasses + '">' + displayData.content + '</table>';
   displayData.leftURL = '';
   displayData.rightURL = '';
   socket.emit('sendToDisplay', displayData);
