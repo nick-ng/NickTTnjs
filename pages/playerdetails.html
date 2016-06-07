@@ -4,7 +4,7 @@
     <meta charset=utf-8>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Nick's Tournament Tool</title>
+    <title>Player Details &mdash; Nick's Tournament Tool</title>
     <link rel="shortcut icon" href="narwhal-32.png" />
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="extra.css" rel="stylesheet">
@@ -28,31 +28,37 @@
     </nav>
     <!-- Nav bar end -->
     <!-- Start of main content -->
-    <div class="col-md-12">
-      <p class="text-center">
-        <input id="addPlayerButton" class="btn btn-default" type="button" value="Add Player" />
-        <input id="hideEmptyButton" class="btn btn-default" type="button" value="Hide Empty Rows" />
-        <input id="showEmptyButton" class="btn btn-default" type="button" value="Show Empty Rows" />
-      </p>
-      <table id="tbl" class="table table-hover table-stripe">
-        <thead>
-          <tr>
-            <th class="text-right">ID</th>
-            <th class="text-left">Full Name</th>
-            <th class="text-left">E-mail</th>
-            <th class="text-left">Short Name</th>
-            <th class="text-center">Still<br /> Playing</th>
-            <th class="text-center">Paid</th>
-            <th class="text-left">Club</th>
-            <th id="FactionHeader" class="text-left">Guild</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <p class="text-center" id="outstream"></p>
-      <hr />
+    <div class="row">
+      <div class="col-md-12">
+        <h1 class="text-center" id="outstream"></h1>
+        <p class="text-center">
+          <input id="addPlayerButton" class="btn btn-default" type="button" value="Add Player" />
+          <input id="hideEmptyButton" class="btn btn-default" type="button" value="Hide Empty Rows" />
+          <input id="showEmptyButton" class="btn btn-default" type="button" value="Show Empty Rows" />
+        </p>
+        <table id="tbl" class="table table-hover table-stripe">
+          <thead>
+            <tr>
+              <th class="text-right">ID</th>
+              <th class="text-left">Full Name</th>
+              <th class="text-left">E-mail</th>
+              <th class="text-left">Short Name</th>
+              <th class="text-center">Still<br /> Playing</th>
+              <th class="text-center">Paid</th>
+              <th class="text-left">Club</th>
+              <th id="FactionHeader" class="text-left">Guild</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
-    <footer class="text-center">&copy; <a href="http://nick-ng.com" target="_blank">Nick Ng</a>, 2016 <a href="https://github.com/nick-ng/NickTTnjs">GitHub</a></footer>
+    <div class="row">
+      <div class="col-md-12">
+        <hr />
+        <footer class="text-center">&copy; <a href="http://nick-ng.com" target="_blank">Nick Ng</a>, 2016 <a href="https://github.com/nick-ng/NickTTnjs">GitHub</a></footer>
+      </div>
+    </div>
     <!-- End of main content -->
     
     <script type="text/javascript" src="socket.io-1.4.5.js"></script>

@@ -17,10 +17,6 @@ $('#addPlayerButton').click(function() {
 });
   
 function addPlayerRow(customID, source) {
-  //Get number of rows already in the table.
-  var rowProperties = $('#tbl').prop('rows');
-  //var rowCount = rowProperties.length; // Can be combined into one line but having it like this so I know later.
-  //var newID = customID || rowCount; // There will be one more row than there are players because of the header row.
   var autoID = Math.max(...rowIDList) + 1;
   var newID = customID || autoID;
   rowIDList.push(newID);
@@ -30,8 +26,8 @@ function addPlayerRow(customID, source) {
     '<td class="v-mid"><input type="text" id="fullName' + newID + '" class="form-control" /></td>' +
     '<td class="v-mid"><input type="text" id="playerEmail' + newID + '" class="form-control" /></td>' +
     '<td class="v-mid"><input type="text" id="shortName' + newID + '" class="form-control" /><span class="hidden" id="shortNameHide' + newID + '"></span></td>' +
-    '<td class="text-center v-mid"><input type="checkbox" unchecked id="stillPlaying' + newID + '" class="form-control" /></td>' +
-    '<td class="text-center v-mid"><input type="checkbox" unchecked id="paid' + newID + '" class="form-control" /></td>' +
+    '<td class="text-center v-mid"><input type="checkbox" unchecked id="stillPlaying' + newID + '" class="checkbox h-mid" /></td>' +
+    '<td class="text-center v-mid"><input type="checkbox" unchecked id="paid' + newID + '" class="checkbox h-mid" /></td>' +
     '<td class="v-mid"><input type="text" id="club' + newID + '" class="form-control" /></td>' +
     '<td class="v-mid"><input type="text" id="faction' + newID + '" class="form-control" /></td></tr>'
   // id's of inputs: ['playerRow', 'stillPlaying', 'fullName', 'playerEmail', 'shortName', 'club', 'team'];
@@ -43,10 +39,10 @@ function addPlayerRow(customID, source) {
   // club
   // team
   
-  $( '#tbl tbody' ).append( tableRowContent ); // Append a new row.
+  $( '#tbl tbody' ).append(tableRowContent); // Append a new row.
   
   // Set up events for cells.
-  $( '#fullName' + newID ).focusout( function() {
+  $( '#fullName' + newID).focusout( function() {
     //var fullName = $( '#fullName' + newID ).val();
     var value = $(this).val();
     var updateObject = {};
@@ -133,12 +129,6 @@ function addPlayerRow(customID, source) {
     //set focus
     $( '#fullName' + newID ).focus();
   };
-  // Count rows / players
-  //rowCount = rowProperties = $('#tbl').prop('rows').length;
-  //$('#outstream').text('There are ' + rowCount + ' rows');
-  
-  //var playerCount = rowCount - 1;
-  //return playerCount; // Return player count in case we need it later.
   return 0;
 };
 

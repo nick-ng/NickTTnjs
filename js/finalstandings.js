@@ -15,9 +15,6 @@ $( document ).ready(function() {
 function addPlayerRow(customID, equal) {
   //Get number of rows already in the table.
   equal = equal || false;
-  var rowProperties = $('#tbl-final').prop('rows');
-  //var rowCount = rowProperties.length; // Can be combined into one line but having it like this so I know later.
-  //var newID = customID || rowCount; // There will be one more row than there are players because of the header row.
   var autoID = Math.max(...rowIDList) + 1;
   var newID = customID || autoID;
   var placeStr = ordinal_suffix_of(newID);
@@ -27,15 +24,15 @@ function addPlayerRow(customID, equal) {
   rowIDList.push(newID);
   // The row's contents
   var tableRowContent = '<tr id="playerRow' + newID + '">' +
-    '<td style="text-align: right;">' + placeStr + '</td>' +
-    '<td style="text-align: left;" id="short_name' + newID + '"></td>' +
-    '<td style="text-align: left;" id="faction' + newID + '"></td>' +
-    '<td style="text-align: right;" id="total_score' + newID + '"></td>' +
-    '<td style="text-align: right;" id="total_vps' + newID + '"></td>' +
-    '<td style="text-align: right;" id="total_vp_diff' + newID + '"></td>' +
-    '<td style="text-align: right;" id="total_goals' + newID + '"></td>' +
-    '<td style="text-align: right;" id="total_bodies' + newID + '"></td>';
-  $( '#tbl-final tr:last' ).after( tableRowContent ); // Append a new row.
+    '<td class="text-center">' + placeStr + '</td>' +
+    '<td id="short_name' + newID + '"></td>' +
+    '<td id="faction' + newID + '"></td>' +
+    '<td class="text-right" id="total_score' + newID + '"></td>' +
+    '<td class="text-right" id="total_vps' + newID + '"></td>' +
+    '<td class="text-right" id="total_vp_diff' + newID + '"></td>' +
+    '<td class="text-right" id="total_goals' + newID + '"></td>' +
+    '<td class="text-right" id="total_bodies' + newID + '"></td>';
+  $( '#tbl-final tbody' ).append(tableRowContent); // Append a new row.
   
   return newID;
 };
@@ -63,11 +60,11 @@ function calculateStandings(playerList) {
 };
 
 function activateDisplayControls() {
-  $( '#openDisplayButton' ).button().click(function() {
+  $( '#openDisplayButton' ).click(function() {
     //Open webpage
     window.open( './display', '_blank', 'toolbar=0,location=0,menubar=0' );
   });
-  $( '#displayFinalButton' ).button().click(function() {
+  $( '#displayFinalButton' ).click(function() {
     updateDisplay();
   });
 };
@@ -118,7 +115,7 @@ function maxByKey(arr,keyName) {
 }
 
 socket.on( 'pushAllPlayerDetails', function(playerList, instructions) {
-  $( '#tbl-final').find("tr:gt(0)").remove();
+  $( '#tbl-final tbody tr' ).remove();
   //console.log(playerList);
   playerList = calculateStandings(playerList);
   playerList = sortStandings(playerList);
@@ -134,11 +131,11 @@ socket.on( 'pushAllPlayerDetails', function(playerList, instructions) {
     $( '#total_vp_diff' + id).text(playerList[i].totalVPDiff);
     $( '#total_goals' + id).text(playerList[i].totalGoals);
     if (playerList[i].totalGoals == maxGoals) {
-      $( '#total_goals' + id).addClass('highlight-best');
+      $( '#total_goals' + id).addClass('bg-success');
     }
     $( '#total_bodies' + id).text(playerList[i].totalBodies);
     if (playerList[i].totalBodies == maxBodies) {
-      $( '#total_bodies' + id).addClass('highlight-best');
+      $( '#total_bodies' + id).addClass('bg-success');
     }
   };
   $( '#outstream' ).html( '' );

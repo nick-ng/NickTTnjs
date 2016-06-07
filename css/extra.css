@@ -7,3 +7,8 @@
 .v-mid {
   vertical-align:middle !important;
 }
+
+.h-mid {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
