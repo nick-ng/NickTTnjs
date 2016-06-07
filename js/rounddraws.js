@@ -18,14 +18,7 @@ $(document).ready(function() {
     $( '#outstream' ).html( 'Loading tournament information.' );
     socket.emit( 'pullAllPlayerDetails', common.tournamentKey, 'rounddraw' );
   };
-  tabs = $("#tabs").tabs({
-    activate: function( event, ui ) {
-      //console.log(ui.newPanel.selector);
-      //console.log(ui.newPanel.selector.replace( '#tabs-', '' ));
-      activeTab = parseInt(ui.newPanel.selector.replace( '#tabs-', '' ));
-      $( '#outstream' ).html( '' );
-    }
-  });
+  
   activateDisplayControls()
 }); // $(document).ready(function() {
 
@@ -36,39 +29,37 @@ function addTab(customID) {
   if (!rowIDList[tabID]) {
     rowIDList[tabID] = [];
   };
+  
   // Make new tab-item
-  var newItem = '<li><a href="#tabs-' + tabID + '"><span style="font-weight:bold;">Round ' + tabID + '</span></a></li>';
-  //$( '#tablist' ).val($( '#tablist' ).val() + newItem);
-  tabs.find( '.ui-tabs-nav' ).append(newItem);
-  //~ console.log( 'tablist.val() = ' + $( '#tablist' ).val());
+  var newItem = '<li role="presentation">' +
+    '<a href="#tabcontents-' + tabID + '" aria-controls="round-' + tabID + '" role="tab" data-toggle="tab">Round ' + tabID + '</a></li>';
+  $( '#tablist' ).append(newItem);
   
   // Make tab contents
-  var newContents = '<div id="tabs-' + tabID + '">' +
-    '<span class="fix-font-size">' +
-    '<p class="mini-h"><input id="drawbutton-' + tabID + '" value="Make Draw" type="button">' + 
-    '<input id="acceptdrawbutton-' + tabID + '" value="Accept Draw" type="button" disabled></p>' +
-    '<table id="tbl-' + tabID + '"><tbody><tr>' +
-    '<th style="text-align: center;">Table</th>' +
-    '<th style="text-align: left;">Player 1</th>' +
-    '<th style="text-align: left;">Player A</th>' +
-    '</tr></tbody></table></span></div>';
-  tabs.append(newContents);
-  //~ console.log( 'tabcontents.val() = ' + $( '#tabcontents' ).val());
+  var newContents = '<div id="tabcontents-' + tabID + '" role="tabpanel" class="tab-pane">' +
+    '<h6 class="text-center"><input id="drawbutton-' + tabID + '" class="btn btn-default" value="Make Draw" type="button"> ' + 
+    '<input id="acceptdrawbutton-' + tabID + '" class="btn btn-default" value="Accept Draw" type="button" disabled></h6>' +
+    '<table id="tbl-' + tabID + '" class="table"><thead><tr>' +
+    '<th class="text-center">Table</th>' +
+    '<th class="text-left">Player 1</th>' +
+    '<th class="text-left">Player A</th>' +
+    '</tr></thead><tbody></tbody></table></div>';
+  $( '#tabcontents' ).append(newContents);
   
-  tabs.tabs( 'refresh' );
+  $( '#tablist a:last' ).tab('show');
   activateDrawControls(tabID);
 };
 
 function activateDisplayControls() {
-  $( '#openDisplayButton' ).button().click(function() {
+  $( '#openDisplayButton' ).click(function() {
     //Open webpage
     window.open( './display', '_blank', 'toolbar=0,location=0,menubar=0' );
   });
-  $( '#updateDisplayButton' ).button().click(function() {
+  $( '#updateDisplayButton' ).click(function() {
     //Do stuff
     updateDisplay();
   });
-  $( '#clearAnnouncementButton' ).button().click(function() {
+  $( '#clearAnnouncementButton' ).click(function() {
     //Do stuff
     $( '#displayAnnouncement' ).val( '' );
     var displayData = {};
@@ -92,7 +83,7 @@ function updateDisplay() {
 
 function activateDrawControls(tabID) {
   var drawList;
-  $( '#drawbutton-' + tabID).button().click(function() {
+  $( '#drawbutton-' + tabID).click(function() {
     // Draw a round.
     var pairList = pairRound(playerList, tabID);
     drawList = assignMaps(pairList, playerList);
@@ -101,8 +92,8 @@ function activateDrawControls(tabID) {
     // Enable accept button
     $( '#acceptdrawbutton-' + tabID).button( 'enable' );
   });
-  //$( '#acceptdrawbutton-' + tabID).button(); // Make acceptdrawbutton a button
-  $( '#acceptdrawbutton-' + tabID).button().click(function() {
+  //$( '#acceptdrawbutton-' + tabID); // Make acceptdrawbutton a button
+  $( '#acceptdrawbutton-' + tabID).click(function() {
     var drawObject = {};
     drawObject.drawList = drawList;
     drawObject.round = tabID;
@@ -375,7 +366,7 @@ socket.on( 'pushAllPlayerDetails', function(playerListIn, extraInfo) {
   //~ console.log('Adding new tab');
   addTab(prevRound + 1);
   //var newDraw = pairRound(playerList);
-  tabs.tabs("option", "active", -1);
+  //tabs.tabs("option", "active", -1);
 });
 
 socket.on( 'drawAccepted', function(round) {

@@ -1,49 +1,84 @@
 <!doctype html>
-<html>
+<html lang=en>
   <head>
+    <meta charset=utf-8>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Round Draws &mdash; Nick's Tournament Tool</title>
     <link rel="shortcut icon" href="narwhal-32.png" />
-    <link rel="stylesheet" type="text/css" href="nickstyle.css" />
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="extra.css" rel="stylesheet">
   </head>
   <body>
-  <ul class="navbar-ul">
-    <li class="navbar-li"><a class="navbar-a" href="./">Home</a></li>
-    <li class="navbar-li"><a class="navbar-a" href="./playerdetails">Player Details</a></li>
-    <li class="navbar-li"><a class="navbar-a act" href="./rounddraws">Round Draws</a></li>
-    <li class="navbar-li"><a class="navbar-a" href="./roundscores">Round Scores</a></li>
-    <li class="navbar-li"><a class="navbar-a" href="./finalstandings">Final Standings</a></li>
-    <li class="navbar-tk" id="tournamentKeyDisplay"></li>
-    <li class="navbar-li" style="float:right"><a class="navbar-a" href="./options">Options</a></li>
-  </ul> 
-<div style="margin-top:50px;">
-  <hr />
-  <main class="flex-center">
-    <div class="side-by-side" id="tabs">
-      <ul id="tablist">
-        <!-- <li><a href="#tabs-1">Round 1</a></li> -->
-      </ul>
-      <!--
-      <span id="tabcontents">
-        <div id="tabs-1">
-          <table id="tbl-1"><tbody><tr>
-            <th style="text-align: right;">ID</th>
-            <th style="text-align: left;">Player</th>
-            <th style="text-align: center;">Score</th>
-            <th style="text-align: center;">Goals</th>
-            <th style="text-align: center;">Body Count</th>
-            <th style="text-align: center;">Total VPs</th>
-            <th style="text-align: left;">Opponent</th>
-            </tr></tbody>
-          </table>
-        </div>
-      </span>
-      -->
+    <!-- Nav bar start -->
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <ul class="nav navbar-nav">
+          <li><a href="./">Home</a></li>
+          <li><a href="./playerdetails">Player Details</a></li>
+          <li class="active"><a href="./rounddraws">Round Draws</a></li>
+          <li><a href="./roundscores">Round Scores</a></li>
+          <li><a href="./finalstandings">Final Standings</a></li>
+          <li><p class="navbar-text" id="tournamentKeyDisplay"></p></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="./options">Options</a></li>
+        </ul>
+      </div>
+    </nav>
+    <!-- Nav bar end -->
+    <!-- Start of main content -->
+    <div class="row">
+      <div class="col-md-12">
+        <h1 class="text-center" id="outstream"></h1>
+      </div>
     </div>
+    <div class="row">
+      <div class="col-md-2"></div>
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <!-- Round draw tabs -->
+            <ul id="tablist" class="nav nav-tabs" role="tablist">
+              
+            </ul>
+            <div id="tabcontents" class="tab-content">
+              
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <!-- Display controls -->
+            <form id="updateDisplayForm">
+              <p class="text-center">
+                <button id="openDisplayButton" class="btn btn-default" type="button">Open Display In New Window</button>
+                <button id="updateDisplayButton" class="btn btn-default" type="submit">Update Display</button>
+              </p>
+              <div class="input-group">
+                <input id="displayAnnouncement" class="form-control" type="text" placeholder="Announcement (optional)">
+                <span class="input-group-btn">
+                  <button id="clearAnnouncementButton" class="btn btn-default">Clear</button>
+                </span>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2"></div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <hr />
+        <footer class="text-center">&copy; <a href="http://nick-ng.com" target="_blank">Nick Ng</a>, 2016 <a href="https://github.com/nick-ng/NickTTnjs">GitHub</a></footer>
+      </div>
+    </div>
+    <!-- End of main content -->
     <div class="side-by-side ui-widget ui-widget-content ui-corner-all" id="displaycontrols">
       <span class="fix-font-size">
         <div>
-          <button id="openDisplayButton" type="button">Open Display<br>In New Window</button>
-          <button id="updateDisplayButton" type="button">Update<br>Display</button>
         </div>
         <div>
           Announcement (Optional):<br>
@@ -75,8 +110,7 @@
     
     <script type="text/javascript" src="socket.io-1.4.5.js"></script>
     <script type="text/javascript" src="jquery-2.2.3.min.js"></script>
-    <link rel="stylesheet" href="jquery-ui.min.css">
-    <script type="text/javascript" src="jquery-ui.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="jquery.cookie.js"></script>
     <script type="text/javascript" src="common.js"></script>
     <script type="text/javascript" src="rounddraws.js"></script>
