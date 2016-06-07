@@ -21,7 +21,7 @@ socket.on( 'displayThisPlease', function(displayData) {
   //console.log(displayData.leftURL);
   if (typeof displayData.leftURL != 'undefined') {
     if (displayData.leftURL.length > 1) {
-      $( '#leftImageDiv' ).html( '<img src="' + displayData.leftURL + '" class="img-responsive">' );
+      $( '#leftImageDiv' ).html( '<img src="' + displayData.leftURL + '" class="img-responsive pull-right">' );
     } else {
       $( '#leftImageDiv' ).html( '' );
     };
@@ -30,7 +30,7 @@ socket.on( 'displayThisPlease', function(displayData) {
   //console.log('right = ' + rightURL);
   if (typeof rightURL != 'undefined') {
     if (rightURL.length > 1) {
-      $( '#rightImageDiv' ).html( '<img src="' + rightURL + '" class="img-responsive">' );
+      $( '#rightImageDiv' ).html( '<img src="' + rightURL + '" class="img-responsive pull-left">' );
     } else {
       $( '#rightImageDiv' ).html( '' );
     };

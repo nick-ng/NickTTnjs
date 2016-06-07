@@ -28,158 +28,162 @@
     </nav>
     <!-- Nav bar end -->
     <!-- Start of main content -->
-    <div class="col-md-12">
-      <!-- Options accordion start -->
-      <div class="panel-group" id="optionsAccordion" role="tablist" aria-multiselectable="true">
-        <!-- Nicknames accordion panel start -->
-        <div class="panel panel-default">
-          <div class="panel-heading" role="tab" id="nicknameHeading">
-            <h1 class="panel-title">
-              <a role="button" data-toggle="collapse" data-parent="#optionsAccordion" href="#collapseNicknames" aria-expanded="true" aria-controls="collapseNicknames">
-                Nicknames
-              </a>
-            </h1>
-          </div>
-          <div id="collapseNicknames" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="nicknameHeading">
-            <div class="panel-body">
-              <div class="row">
-                <div class="col-xs-12 col-sm-6 col-md-4"><!-- Left -->
-                  <table class="table table-striped table-condensed" id="nicknamesTable">
-                    <thead>
-                      <tr>
-                        <th>Real Name</th>
-                        <th>Nickname</th>
-                      </tr>
-                    </thead>
-                    <tbody></tbody>
-                  </table>
-                  <hr/>
-                  <p id="nicknamesOutstream">
-                    Enter names in bulk as follows with a new pair on each line:<br/>
-                    &quot;real name 1&quot;,&quot;nickname 1&quot;<br/>
-                    &quot;real name 2&quot;,&quot;nickname 2&quot;<br/>
-                  </p>
-                </div>
-                <div class="col-xs-12 col-sm-6 col-md-6"><!-- Right -->
-                  <h4>Add/change nicknames</h4>
-                  <form id="nicknamesSingleForm">
-                    <div class="form-group">
-                      <label for="nickRealName">Real Name</label>
-                      <input class="form-control" id="nickRealName" type="text" placeholder="Real Name">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-12">
+          <!-- Options accordion start -->
+          <div class="panel-group" id="optionsAccordion" role="tablist" aria-multiselectable="true">
+            <!-- Nicknames accordion panel start -->
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab" id="nicknameHeading">
+                <h1 class="panel-title">
+                  <a role="button" data-toggle="collapse" data-parent="#optionsAccordion" href="#collapseNicknames" aria-expanded="true" aria-controls="collapseNicknames">
+                    Nicknames
+                  </a>
+                </h1>
+              </div>
+              <div id="collapseNicknames" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="nicknameHeading">
+                <div class="panel-body">
+                  <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-4"><!-- Left -->
+                      <table class="table table-striped table-condensed" id="nicknamesTable">
+                        <thead>
+                          <tr>
+                            <th>Real Name</th>
+                            <th>Nickname</th>
+                          </tr>
+                        </thead>
+                        <tbody></tbody>
+                      </table>
+                      <hr/>
+                      <p id="nicknamesOutstream">
+                        Enter names in bulk as follows with a new pair on each line:<br/>
+                        &quot;real name 1&quot;,&quot;nickname 1&quot;<br/>
+                        &quot;real name 2&quot;,&quot;nickname 2&quot;<br/>
+                      </p>
                     </div>
-                    <div class="form-group">
-                      <label for="nickRealName">Nickname</label>
-                      <input class="form-control" id="nickNickname" type="text" placeholder="Nickname">
+                    <div class="col-xs-12 col-sm-6 col-md-6"><!-- Right -->
+                      <h4>Add/change nicknames</h4>
+                      <form id="nicknamesSingleForm">
+                        <div class="form-group">
+                          <label for="nickRealName">Real Name</label>
+                          <input class="form-control" id="nickRealName" type="text" placeholder="Real Name">
+                        </div>
+                        <div class="form-group">
+                          <label for="nickRealName">Nickname</label>
+                          <input class="form-control" id="nickNickname" type="text" placeholder="Nickname">
+                        </div>
+                        <button id="nicknamesSingleButton" type="submit" class="btn btn-default">Submit</button>
+                      </form>
+                      <hr/>
+                      <form id="nicknamesBulkForm">
+                        <h4>Bulk nicknames</h4>
+                        <div class="radio">
+                          <label class="radio-inline">
+                            <input id="nicknamesRadioAppend" type="radio" name="nicknamesRadio" value="append" checked="checked" /> Append
+                          </label>
+                          <label class="radio-inline">
+                            <input id="nicknamesRadioReplace" type="radio" name="nicknamesRadio" value="replace" /> Replace
+                          </label>
+                          <label class="radio-inline">
+                            <input id="nicknamesRadioReset" type="radio" name="nicknamesRadio" value="reset" /> Reset
+                          </label>
+                        </div>
+                        <div class="form-group">
+                          <textarea class="form-control" id="nicknamesText" rows="5" type="text" placeholder=""></textarea>
+                        </div>
+                        <div class="form-group">
+                          <button id="nicknamesButton" type="submit" class="btn btn-default">Submit</button>
+                        </div>
+                      </form>
                     </div>
-                    <button id="nicknamesSingleButton" type="submit" class="btn btn-default">Submit</button>
-                  </form>
-                  <hr/>
-                  <form id="nicknamesBulkForm">
-                    <h4>Bulk nicknames</h4>
-                    <div class="radio">
-                      <label class="radio-inline">
-                        <input id="nicknamesRadioAppend" type="radio" name="nicknamesRadio" value="append" checked="checked" /> Append
-                      </label>
-                      <label class="radio-inline">
-                        <input id="nicknamesRadioReplace" type="radio" name="nicknamesRadio" value="replace" /> Replace
-                      </label>
-                      <label class="radio-inline">
-                        <input id="nicknamesRadioReset" type="radio" name="nicknamesRadio" value="reset" /> Reset
-                      </label>
-                    </div>
-                    <div class="form-group">
-                      <textarea class="form-control" id="nicknamesText" rows="5" type="text" placeholder=""></textarea>
-                    </div>
-                    <div class="form-group">
-                      <button id="nicknamesButton" type="submit" class="btn btn-default">Submit</button>
-                    </div>
-                  </form>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-        <!-- Nicknames accordion panel end -->
-        <!-- Shortened names accordion panel start -->
-        <div class="panel panel-default">
-          <div class="panel-heading" role="tab" id="shortenednameHeading">
-            <h1 class="panel-title">
-              <a role="button" data-toggle="collapse" data-parent="#optionsAccordion" href="#collapseShortenedNames" aria-expanded="false" aria-controls="collapseShortenedNames">
-                Shortened Names
-              </a>
-            </h1>
-          </div>
-          <div id="collapseShortenedNames" class="panel-collapse collapse" role="tabpanel" aria-labelledby="shortenednameHeading">
-            <div class="panel-body">
-              <div class="row">
-                <div class="col-xs-12 col-sm-6 col-md-4"><!-- Left -->
-                  <table class="table table-striped table-condensed" id="shortenedNamesTable">
-                    <thead>
-                      <tr>
-                        <th>Long Name</th>
-                        <th>Shortened Name</th>
-                      </tr>
-                    </thead>
-                    <tbody></tbody>
-                  </table>
-                  <hr/>
-                  <p id="shortenedNamesOutstream">
-                    Enter names in bulk as follows with a new pair on each line:<br/>
-                    &quot;long name 1&quot;,&quot;short name 1&quot;<br/>
-                    &quot;long name 2&quot;,&quot;short name 2&quot;<br/>
-                  </p>
-                </div>
-                <div class="col-xs-12 col-sm-6 col-md-6"><!-- Right -->
-                  <h4>Add/change shortened names</h4>
-                  <form id="shortenedNamesSingleForm">
-                    <div class="form-group">
-                      <label for="shortenedLongName">Long Name</label>
-                      <input class="form-control" id="shortenedLongName" type="text" placeholder="Long Name">
+            <!-- Nicknames accordion panel end -->
+            <!-- Shortened names accordion panel start -->
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab" id="shortenednameHeading">
+                <h1 class="panel-title">
+                  <a role="button" data-toggle="collapse" data-parent="#optionsAccordion" href="#collapseShortenedNames" aria-expanded="false" aria-controls="collapseShortenedNames">
+                    Shortened Names
+                  </a>
+                </h1>
+              </div>
+              <div id="collapseShortenedNames" class="panel-collapse collapse" role="tabpanel" aria-labelledby="shortenednameHeading">
+                <div class="panel-body">
+                  <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-4"><!-- Left -->
+                      <table class="table table-striped table-condensed" id="shortenedNamesTable">
+                        <thead>
+                          <tr>
+                            <th>Long Name</th>
+                            <th>Shortened Name</th>
+                          </tr>
+                        </thead>
+                        <tbody></tbody>
+                      </table>
+                      <hr/>
+                      <p id="shortenedNamesOutstream">
+                        Enter names in bulk as follows with a new pair on each line:<br/>
+                        &quot;long name 1&quot;,&quot;short name 1&quot;<br/>
+                        &quot;long name 2&quot;,&quot;short name 2&quot;<br/>
+                      </p>
                     </div>
-                    <div class="form-group">
-                      <label for="shortenedShortName">Shortened Name</label>
-                      <input class="form-control" id="shortenedShortName" type="text" placeholder="Shortened Name">
+                    <div class="col-xs-12 col-sm-6 col-md-6"><!-- Right -->
+                      <h4>Add/change shortened names</h4>
+                      <form id="shortenedNamesSingleForm">
+                        <div class="form-group">
+                          <label for="shortenedLongName">Long Name</label>
+                          <input class="form-control" id="shortenedLongName" type="text" placeholder="Long Name">
+                        </div>
+                        <div class="form-group">
+                          <label for="shortenedShortName">Shortened Name</label>
+                          <input class="form-control" id="shortenedShortName" type="text" placeholder="Shortened Name">
+                        </div>
+                        <button id="shortenedNamesSingleButton" type="submit" class="btn btn-default">Submit</button>
+                      </form>
+                      <hr/>
+                      <form id="shortenedNamesBulkForm">
+                        <h4>Bulk shortened names</h4>
+                        <div class="radio">
+                          <label class="radio-inline">
+                            <input id="shortenedNamesRadioAppend" type="radio" name="shortenedNamesRadio" value="append" checked="checked" /> Append
+                          </label>
+                          <label class="radio-inline">
+                            <input id="shortenedNamesRadioReplace" type="radio" name="shortenedNamesRadio" value="replace" /> Replace
+                          </label>
+                          <label class="radio-inline">
+                            <input id="shortenedNamesRadioReset" type="radio" name="shortenedNamesRadio" value="reset" /> Reset
+                          </label>
+                        </div>
+                        <div class="form-group">
+                          <textarea class="form-control" id="shortenedNamesText" rows="5" type="text" placeholder=""></textarea>
+                        </div>
+                        <div class="form-group">
+                          <button id="shortenedNamesButton" type="submit" class="btn btn-default">Submit</button>
+                        </div>
+                      </form>
                     </div>
-                    <button id="shortenedNamesSingleButton" type="submit" class="btn btn-default">Submit</button>
-                  </form>
-                  <hr/>
-                  <form id="shortenedNamesBulkForm">
-                    <h4>Bulk shortened names</h4>
-                    <div class="radio">
-                      <label class="radio-inline">
-                        <input id="shortenedNamesRadioAppend" type="radio" name="shortenedNamesRadio" value="append" checked="checked" /> Append
-                      </label>
-                      <label class="radio-inline">
-                        <input id="shortenedNamesRadioReplace" type="radio" name="shortenedNamesRadio" value="replace" /> Replace
-                      </label>
-                      <label class="radio-inline">
-                        <input id="shortenedNamesRadioReset" type="radio" name="shortenedNamesRadio" value="reset" /> Reset
-                      </label>
-                    </div>
-                    <div class="form-group">
-                      <textarea class="form-control" id="shortenedNamesText" rows="5" type="text" placeholder=""></textarea>
-                    </div>
-                    <div class="form-group">
-                      <button id="shortenedNamesButton" type="submit" class="btn btn-default">Submit</button>
-                    </div>
-                  </form>
+                  </div>
                 </div>
               </div>
             </div>
+            <!-- Shortened names accordion panel start -->
+          </div>
+          <!-- Options accordion end -->
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <p class="text-center" id="outstream"></p>
           </div>
         </div>
-        <!-- Shortened names accordion panel start -->
-      </div>
-      <!-- Options accordion end -->
-    </div>
-    <div class="row">
-      <div class="col-md-12">
-        <p class="text-center" id="outstream"></p>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12">
-        <footer class="text-center">&copy; <a href="http://nick-ng.com" target="_blank">Nick Ng</a>, 2016 <a href="https://github.com/nick-ng/NickTTnjs">GitHub</a></footer>
+        <div class="row">
+          <div class="col-md-12">
+            <footer class="text-center">&copy; <a href="http://nick-ng.com" target="_blank">Nick Ng</a>, 2016 <a href="https://github.com/nick-ng/NickTTnjs">GitHub</a></footer>
+          </div>
+        </div>
       </div>
     </div>
     

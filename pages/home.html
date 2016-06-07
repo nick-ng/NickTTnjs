@@ -28,134 +28,136 @@
     </nav>
     <!-- Nav bar end -->
     <!-- Start of main content -->
-    <div class="row">
-      <div class="col-md-12">
-        <h1 class="text-center" id="outstream"></h1>
-        <h1 class="text-center">Nick&rsquo;s Tournament Tool<h1>
-        <h2 class="text-center">This website uses&nbsp;cookies</h2>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-12">
+          <h1 class="text-center" id="outstream"></h1>
+          <h1 class="text-center">Nick&rsquo;s Tournament Tool<h1>
+          <h2 class="text-center">This website uses&nbsp;cookies</h2>
+        </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-md-4"> </div>
-      <div class="col-md-4">
-        <p>It stores the cookie &ldquo;nicktt_currenttournament&rdquo; that lasts for 100&nbsp;days when you click on the &ldquo;New&nbsp;Tournament&rdquo;&nbsp;button.</p>
-        <p>It also stores the same cookie when you click on the &ldquo;Load&nbsp;Tournament&rdquo;&nbsp;button.</p>
-        <p>This cookie is used to determine which tournament the website should&nbsp;display.</p>
-        <p class="text-center" id="currentTournamentInfo"></p>
+      <div class="row">
+        <div class="col-md-4"> </div>
+        <div class="col-md-4">
+          <p>It stores the cookie &ldquo;nicktt_currenttournament&rdquo; that lasts for 100&nbsp;days when you click on the &ldquo;New&nbsp;Tournament&rdquo;&nbsp;button.</p>
+          <p>It also stores the same cookie when you click on the &ldquo;Load&nbsp;Tournament&rdquo;&nbsp;button.</p>
+          <p>This cookie is used to determine which tournament the website should&nbsp;display.</p>
+          <p class="text-center" id="currentTournamentInfo"></p>
+        </div>
+        <div class="col-md-4"> </div>
       </div>
-      <div class="col-md-4"> </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12">
-        <p class="text-center">
-          <button class="btn btn-default" type="button" data-toggle="modal" data-target="#newTournamentDialog">New Tournament</button>
-          <button class="btn btn-default" type="button" data-toggle="modal" data-target="#loadTournamentDialog">Load Tournament</button>
-          <input id="demoTournamentButton" class="btn btn-default hidden" type="button" value="Demonstration" />
-        </p>
+      <div class="row">
+        <div class="col-md-12">
+          <p class="text-center">
+            <button class="btn btn-default" type="button" data-toggle="modal" data-target="#newTournamentDialog">New Tournament</button>
+            <button class="btn btn-default" type="button" data-toggle="modal" data-target="#loadTournamentDialog">Load Tournament</button>
+            <input id="demoTournamentButton" class="btn btn-default hidden" type="button" value="Demonstration" />
+          </p>
+        </div>
       </div>
-    </div>
-    <!-- End of main content -->
+      <!-- End of main content -->
 
-    <!-- Modal dialogs -->
-    <!-- New modal -->
-    <div id="newTournamentDialog" class="modal" tabindex="-1" role="dialog" aria-labelledby="newTournamentDialogLabel">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 id="newTournamentDialogTitle" class="modal-title">Create new tournament</h4>
-          </div>
-          <div id="newTournamentDialogBody" class="modal-body">
-            <p>Clicking &ldquo;New&rdquo; will clear the current tournament and generate a new tournament-key.</p>
-            <p>Your previous tournaments can be accessed by clicking on the "Load Tournament" button and entering their tournament-key.</p>
-          </div>
-          <div class="modal-footer">
-            <button id="createNewTournamentButton" type="button" class="btn btn-primary">New</button>
-            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      <!-- Modal dialogs -->
+      <!-- New modal -->
+      <div id="newTournamentDialog" class="modal" tabindex="-1" role="dialog" aria-labelledby="newTournamentDialogLabel">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 id="newTournamentDialogTitle" class="modal-title">Create new tournament</h4>
+            </div>
+            <div id="newTournamentDialogBody" class="modal-body">
+              <p>Clicking &ldquo;New&rdquo; will clear the current tournament and generate a new tournament-key.</p>
+              <p>Your previous tournaments can be accessed by clicking on the "Load Tournament" button and entering their tournament-key.</p>
+            </div>
+            <div class="modal-footer">
+              <button id="createNewTournamentButton" type="button" class="btn btn-primary">New</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Load modal -->
-    <div id="loadTournamentDialog" class="modal" tabindex="-1" role="dialog" aria-labelledby="loadTournamentDialogLabel">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 id="loadTournamentDialogTitle" class="modal-title">Load tournament</h4>
-          </div>
-          <div id="loadTournamentDialogBody" class="modal-body">
-            <p>Enter a tournament key or select a recent tournament:</p>
-            <p>
-              <form id="loadTournamentForm" class="form-inline">
-                <div class="form-group">
-                  <label class="sr-only" for="loadTournamentKey">Tournament-key</label>
-                  <input id="loadTournamentKey" class="form-control" type="text" placeholder="Tournament-key">
-                </div>
-                <button type="submit" class="btn btn-default">Load</button>
-              </form>
-            </p>
-            <p>
-              <select id="loadSelect" class="form-control">
-                <option>Recent tournaments...</option>
-                <option>Key 1, Name 1, Date 1</option>
-                <option>Key 2, Name 2, Date 2</option>
-                <option>Key 3, Name 3, Date 3</option>
-                <option>Key 4, Name 4, Date 4</option>
-                <option>Key 5, Name 5, Date 5</option>
-              </select>
-            </p>
-          </div>
-          <div class="modal-footer">
-            <button id="loadTournamentButton" type="button" class="btn btn-primary">Load</button>
-            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      <!-- Load modal -->
+      <div id="loadTournamentDialog" class="modal" tabindex="-1" role="dialog" aria-labelledby="loadTournamentDialogLabel">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 id="loadTournamentDialogTitle" class="modal-title">Load tournament</h4>
+            </div>
+            <div id="loadTournamentDialogBody" class="modal-body">
+              <p>Enter a tournament key or select a recent tournament:</p>
+              <p>
+                <form id="loadTournamentForm" class="form-inline">
+                  <div class="form-group">
+                    <label class="sr-only" for="loadTournamentKey">Tournament-key</label>
+                    <input id="loadTournamentKey" class="form-control" type="text" placeholder="Tournament-key">
+                  </div>
+                  <button type="submit" class="btn btn-default">Load</button>
+                </form>
+              </p>
+              <p>
+                <select id="loadSelect" class="form-control">
+                  <option>Recent tournaments...</option>
+                  <option>Key 1, Name 1, Date 1</option>
+                  <option>Key 2, Name 2, Date 2</option>
+                  <option>Key 3, Name 3, Date 3</option>
+                  <option>Key 4, Name 4, Date 4</option>
+                  <option>Key 5, Name 5, Date 5</option>
+                </select>
+              </p>
+            </div>
+            <div class="modal-footer">
+              <button id="loadTournamentButton" type="button" class="btn btn-primary">Load</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Demo modal -->
-    <div id="demoTournamentDialog" class="modal" tabindex="-1" role="dialog" aria-labelledby="demoTournamentDialogLabel">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 id="demoTournamentDialogTitle" class="modal-title">Load tournament</h4>
-          </div>
-          <div id="demoTournamentDialogBody" class="modal-body">
-            <p>Choose a demo to load:</p>
-            <div class="radio">
-              <label>
-                <input id="demo0" type="radio" name="demoRadio" value="demo0000" checked="checked" />
-                Before the tournament
-              </label>
+      <!-- Demo modal -->
+      <div id="demoTournamentDialog" class="modal" tabindex="-1" role="dialog" aria-labelledby="demoTournamentDialogLabel">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 id="demoTournamentDialogTitle" class="modal-title">Load tournament</h4>
             </div>
-            <div class="radio">
-              <label>
-                <input id="demo1" type="radio" name="demoRadio" value="demo0001" />
-                Midway through the tournament
-              </label>
+            <div id="demoTournamentDialogBody" class="modal-body">
+              <p>Choose a demo to load:</p>
+              <div class="radio">
+                <label>
+                  <input id="demo0" type="radio" name="demoRadio" value="demo0000" checked="checked" />
+                  Before the tournament
+                </label>
+              </div>
+              <div class="radio">
+                <label>
+                  <input id="demo1" type="radio" name="demoRadio" value="demo0001" />
+                  Midway through the tournament
+                </label>
+              </div>
+              <div class="radio">
+                <label>
+                  <input id="demo2" type="radio" name="demoRadio" value="demo0002" />
+                  After the tournament
+                </label>
+              </div>
             </div>
-            <div class="radio">
-              <label>
-                <input id="demo2" type="radio" name="demoRadio" value="demo0002" />
-                After the tournament
-              </label>
+            <div class="modal-footer">
+              <button id="demoTournamentButton" type="button" class="btn btn-primary">Load</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
             </div>
-          </div>
-          <div class="modal-footer">
-            <button id="demoTournamentButton" type="button" class="btn btn-primary">Load</button>
-            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
           </div>
         </div>
       </div>
-    </div>
-    
-    <div class="row">
-      <div class="col-md-12">
-        <hr />
-        <footer class="text-center">&copy; <a href="http://nick-ng.com" target="_blank">Nick Ng</a>, 2016 <a href="https://github.com/nick-ng/NickTTnjs">GitHub</a></footer>
+      
+      <div class="row">
+        <div class="col-md-12">
+          <hr />
+          <footer class="text-center">&copy; <a href="http://nick-ng.com" target="_blank">Nick Ng</a>, 2016 <a href="https://github.com/nick-ng/NickTTnjs">GitHub</a></footer>
+        </div>
       </div>
     </div>
     <!-- End of main content -->
