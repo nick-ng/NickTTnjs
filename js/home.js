@@ -7,12 +7,18 @@ $(document).ready(function() {
   };
 }); // $( document ).ready(function() {
 
-$( '#createNewTournamentButton' ).click(function() {
+$( '#createNewTournamentForm' ).submit(function() {
   console.log('Getting a new tournament-key');
-  socket.emit( 'pullTournamentKey', 'new' );
+  var tournamentObj = {};
+  tournamentObj.tournamentName = $( '#newTournamentName' ).val();
+  //console.log('Tournament Name ' + newTournamentName);
+  tournamentObj.tournamentDate = $( '#newTournamentDate' ).val();
+  //console.log('Tournament Date ' + newTournamentDate);
+  socket.emit( 'pullTournamentKey', 'new', tournamentObj);
   //<div id="newTournamentDialog" title="Create a new tournament?">
   $( '#newTournamentDialogTitle' ).text( 'Creating new tournament...' );
   $( '#newTournamentDialogBody' ).html( '<p>Please wait.</p>' );
+  return false;
 });
 
 function handleLoadTournament() {
@@ -39,6 +45,14 @@ $( '#demoTournamentButton' ).click(function() {
 
 $( '#dialogLoadButton' ).click(function() {
   homeLoadTournament();
+});
+
+$( '#newTournamentDate' ).datepicker({
+    format: "d-M-yyyy",
+    startDate: "today",
+    todayBtn: true,
+    language: "en-GB",
+    autoclose: true
 });
 
 function homeLoadTournament(tournamentKey) {

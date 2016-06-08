@@ -15,6 +15,11 @@ player.faction = string; What in-game faction (guild, race, country etc.) the pl
 // I'm already using PostgreSQL despite my concerns of keeping the app
 // easily portable to MySQL.
 SQL structure (layout?)
+table: quicktournaments SELECT table_name FROM information_schema.tables WHERE table_name = 'quicktournaments';
+  column: key (text) (primary)
+  column: players_key (text)
+  column: date (date default CURRENT_DATE)
+  column: autodelete (boolean default TRUE)
 schema: nameschema
   table: shortenednames
     column: long_names (primary)
@@ -23,11 +28,11 @@ schema: nameschema
     column: real_name (primary)
     column: nickname
 schema: tournament00000000 // 'tournament' plus a unique 8 digit string between 00000000 and zzzzzzzz - 18 characters total
-  table: infotable(?)
-    column: tournament name
-    column: tournament date - Automatically remove the oldest tournament once we approach the database limit.
-    column: completed - Flag set by a control on the Final Standings page?
-    column: rounds_played
+  table: infotable
+    column: players_key (text) 
+    column: name (text)
+    column: date (date default CURRENT_DATE) - Automatically remove the oldest tournament once we approach the database limit.
+    column: completed (boolean default FALSE)- Flag set by a control on the Final Standings page?
     column: left_image_url - URL of left image on display page
     column: right_image_url - URL of right image on display page
   table: playertable
@@ -42,7 +47,8 @@ schema: tournament00000000 // 'tournament' plus a unique 8 digit string between 
     column: opponentids (int array)
     column: tablenumbers (int array)
     column: score (int[]) Primary score of the tournament
-    column: tiebreak<0-9> (int[]) Tiebreakers. PostgreSQL will only automatically enlarge a 1D array and I haven't thought of a way to make this 
+    column: tiebreak<0-5> (int[]) Tiebreakers. PostgreSQL will only automatically enlarge a 1D array and I haven't thought of a way to make this 
+    column: softscores<0-5> (int[]) Painting, Sportsmanship, etc.
 
 // Cookies
 nicktt_currenttournament=12345678 : Current tournament-key (8 character alpha-numeric string). Expires 100 days

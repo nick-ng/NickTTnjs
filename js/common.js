@@ -24,7 +24,6 @@ common.getTournamentKey = function getTournamentKey(getOnly, joinRoom) {
     };
   } else if (!getOnly) {
     $( '#outstream' ).html( 'Please load or start a new tournament from the Home page.' );
-    //socket.emit( 'pullTournamentKey', 'new' );
   };
 };
 

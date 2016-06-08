@@ -339,7 +339,8 @@ io.on( 'connection', function( socket ) {
    * = Tournament-Key events =
    * ========================= */
   // Respond to the different buttons
-  socket.on( 'pullTournamentKey', function (mode) {
+  socket.on( 'pullTournamentKey', function (mode, tournamentObj) {
+    tournamentObj = tournamentObj || {};
     if (mode == 'new') {
       dbfun.getTournaments(function(tournamentList) {
         //~ console.log(tournamentList);
@@ -347,9 +348,9 @@ io.on( 'connection', function( socket ) {
         if (newSchema) {
           // We got a new unique key so make a tournament schema
           dbfun.ezQuery( 'CREATE SCHEMA ' + newSchema + ';', function(result) {
-            var tournamentObj = {};
             tournamentObj.key = bfun.tSchema2tKey(newSchema);
             // Create tournament information and functions so a user can add player details while protecting us from SQLi
+            // dbfun.initialiseTournamentTables expects a players key -- one that players can use to access the tournament.
             dbfun.initialiseTournamentTables(tournamentObj, function(outObj) {
               // Let client know when we've created the tournament.
               io.to(socket.id).emit( 'pushTournamentKey', tournamentObj.key);

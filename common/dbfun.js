@@ -245,17 +245,19 @@ dbfun.checkTournament = function(tKey, callback) {
   });
 };
 
-dbfun.initialiseTournamentTables = function(tObject, callback) {
+dbfun.initialiseTournamentTables = function initialiseTournamentTables(tObject, callback) {
   var tSchema = bfun.tKey2tSchema(tObject.key);
-  /* Create infotable here
-  var queryString0 = ''
-  * dbfun.ezQuery(queryString0); // No callback is probably fine.
-  */
-  /* Create pairingtable here
-  var queryString1 = ''
-  * dbfun.ezQuery(queryString1);
-  */
-  var queryString2 = 'CREATE TABLE ' + tSchema + '.playertable (' +
+  // Create infotable
+  var infoQuery = 'CREATE TABLE ' + tSchema + '.infotable (' +
+    'id smallint PRIMARY KEY,' + // This table only has 1 row so this is to allow updating one value at a time.
+    'players_key text,' +
+    'name text,' +
+    'date date DEFAULT CURRENT_DATE,' +
+    'completed boolean DEFAULT FALSE,' +
+    'left_image_url text,' +
+    'right_image_url text);';
+  // Create playertable
+  var playerQuery = 'CREATE TABLE ' + tSchema + '.playertable (' +
     'id smallint PRIMARY KEY,' +
     'full_name text,' +
     'email text,' +
@@ -266,12 +268,58 @@ dbfun.initialiseTournamentTables = function(tObject, callback) {
     'faction text,' +
     'opponentids smallint[] DEFAULT \'{}\',' +
     'score int[] DEFAULT \'{}\',';
-  for (var i = 0; i < 10; i++) {
-    // A 2D array would be better but I can't figure out an easy way.
-    queryString2 += 'tiebreak' + i + ' int[] DEFAULT \'{}\',';
+  for (var i = 0; i <= 5; i++) {
+    // A 2D array would be better but I can't figure out an easy way to change its size.
+    playerQuery += 'tiebreak' + i + ' int[] DEFAULT \'{}\',';
   };
-  queryString2 += 'tablenumbers smallint[] DEFAULT \'{}\');';
-  dbfun.ezQuery(queryString2, callback);
+  for (var i = 0; i <= 5; i++) {
+    // A 2D array would be better but I can't figure out an easy way to change its size.
+    playerQuery += 'softscore' + i + ' int[] DEFAULT \'{}\',';
+  };
+  playerQuery += 'tablenumbers smallint[] DEFAULT \'{}\');';
+  
+  dbfun.ezQuery(infoQuery, function(result) {
+    dbfun.ezQuery( 'INSERT INTO ' + tSchema + '.infotable (id) VALUES (1);', function(result) {
+      dbfun.updateTournamentInfo( 'name', tSchema, tObject.tournamentName);
+      dbfun.updateTournamentInfo( 'date', tSchema, tObject.tournamentDate);
+      dbfun.updateTournamentInfo( 'players_key', tSchema, tObject.playersKey);
+    });
+    dbfun.ezQuery(playerQuery, callback);
+  });
+  return;
+};
+
+dbfun.updateTournamentInfo = function updateTournamentName( property, tSchema, propVal ) {
+  if (tSchema) {
+    tSchema = bfun.sanitize(tSchema);
+    qProp = false;
+    if (property == 'name') {qProp = 'name';}
+    else if (property == 'players_key') {qProp = 'players_key';}
+    else if (property == 'date') {qProp = 'date';}
+    else if (property == 'left_image') {qProp = 'left_image_url';}
+    else if (property == 'right_image') {qProp = 'right_image_url';}
+    else if (property == 'completed') {
+      if (propVal) {
+        dbfun.ezQuery( 'UPDATE ' + tSchema + '.infotable SET completed = TRUE WHERE id = 1;' );
+      } else {
+        dbfun.ezQuery( 'UPDATE ' + tSchema + '.infotable SET completed = FALSE WHERE id = 1;' );
+      }
+      return;
+    }
+    if (qProp && propVal) {
+      var nameQuery = 'UPDATE ' + tSchema + '.infotable SET ' + qProp + ' = $1 WHERE id = 1;';
+      dbfun.ezQuery( nameQuery, [propVal]);
+    }
+  }
+  return;
+};
+
+dbfun.updateTournamentDate = function updateTournamentDate( tSchema, tournamentDate ) {
+  if (tournamentDate && tSchema) {
+    tSchema = bfun.sanitize(tSchema);
+    var dateQuery = 'UPDATE ' + tSchema + '.infotable SET tournament_date = $1 WHERE id = 1;';
+    dbfun.ezQuery(dateQuery, [tournamentDate]);
+  }
 };
 
 dbfun.updatePlayerDetails = function(updateObject, callback) {
