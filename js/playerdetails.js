@@ -5,7 +5,7 @@ var rowIDList = [0];
 // ==============
 $( document ).ready(function() {
   addPlayerRow();
-  common.getTournamentKey();
+  common.getTournamentKey(false, false);
   if (common.tournamentKey) {
     $( '#outstream' ).html( 'Loading players. Please wait.');
     socket.emit( 'pullAllPlayerDetails', common.tournamentKey );

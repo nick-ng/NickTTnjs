@@ -9,7 +9,7 @@ $( document ).ready(function() {
   getNicknameRadioVal();
   socket.emit( 'pullShortenedNames', 'optionsReady' );
   socket.emit( 'pullNicknames', 'optionsReady' );
-  common.getTournamentKey(true)
+  common.getTournamentKey(true, false)
   //setBulkTextAreaHints();
 }); // $( document ).ready(function() {
 

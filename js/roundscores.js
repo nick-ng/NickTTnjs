@@ -1,25 +1,17 @@
 var tabIDList = [0];
 var rowIDList = [[0]];
-var tabs;
 var tiebreaks = ['Goals','Body<br>Count','Total VPs'];
 
 // ==============
 // Document.Ready
 // ==============
 $(document).ready(function() {
-  common.getTournamentKey()
+  common.getTournamentKey(false, false)
   if (common.tournamentKey) {
     $( '#outstream' ).html( 'Loading tournament information.' );
     socket.emit( 'pullAllPlayerDetails', common.tournamentKey, 'scores' );
   };
-  tabs = $("#tabs").tabs();
 }); // $(document).ready(function() {
-
-/*
-$( '#test' ).button().click(function() {
-  addTab();
-});
-*/
 
 function addTab(customID) {
   var autoID = Math.max(...tabIDList) + 1;
@@ -29,31 +21,25 @@ function addTab(customID) {
     rowIDList[tabID] = [];
   };
   // Make new tab-item
-  var newItem = '<li><a href="#tabs-' + tabID + '"><span style="font-weight:bold;">Round ' + tabID + '</span></a></li>';
-  //$( '#tablist' ).val($( '#tablist' ).val() + newItem);
-  tabs.find( '.ui-tabs-nav' ).append(newItem);
-  //~ console.log( 'tablist.val() = ' + $( '#tablist' ).val());
+  var newItem = '<li role="presentation">' +
+    '<a href="#tabcontents-' + tabID + '" aria-controls="round-' + tabID + '" role="tab" data-toggle="tab">Round ' + tabID + '</a></li>';
+  $( '#tablist' ).append(newItem);
   
   // Make tab contents
-  var newContents = '<div id="tabs-' + tabID + '">' +
-    //'<span class="pseudo-h">Round ' + tabID + '</span>' +
-    '<span style="font-size:initial">' +
-    '<table id="tbl-' + tabID + '"><tbody><tr>' +
-    '<th style="text-align: left;">Player</th>' +
-    '<th style="text-align: center;">Score</th>';
+  var newContents = '<div id="tabcontents-' + tabID + '" role="tabpanel" class="tab-pane">' +
+    '<table id="tbl-' + tabID + '" class="table table-striped table-condensed"><thead><tr>' +
+    '<th class="text-left">Player</th>' +
+    '<th class="text-center col-xs-2 col-md-1">Score</th>';
   for (var i = 0; i < tiebreaks.length; i++) {
     var tiebreakName = tiebreaks[i];
-    newContents += '<th style="text-align: center;">' + tiebreakName + '</th>';
+    newContents += '<th class="text-center col-xs-2 col-md-1">' + tiebreakName + '</th>';
   };
-  newContents += '<th style="text-align: left;">Round ' + tabID + '<br>Opponent</th>' +
-    '</tr></tbody></table></span>' +
-    '<div style="text-align: center; margin-top:0.5em;"><input type="button" id="dummybutton' + tabID + '" value="Submit"></div></div>';
-  //$( '#tabcontents' ).val($( '#tabcontents' ).val() + newContents);
-  tabs.append(newContents);
-  //~ console.log( 'tabcontents.val() = ' + $( '#tabcontents' ).val());
+  newContents += '<th class="text-left">Round ' + tabID + '<br>Opponent</th>' +
+    '</tr></thead><tbody></tbody></table>' +
+    '<p class="text-center"><input type="button" id="dummybutton' + tabID + '" class="btn btn-default" value="Submit"></p></div>';
   
-  tabs.tabs( 'refresh' );
-  $( '#dummybutton' + tabID).button();
+  $( '#tabcontents' ).append(newContents);
+  $( '#tablist a:last' ).tab('show');
 };
 
 function addPlayerRow(customID,tableID) {
@@ -63,15 +49,15 @@ function addPlayerRow(customID,tableID) {
   rowIDList[tableID].push(newID);
   // The row's contents
   var tableRowContent = '<tr id="t' + tableID + 'playerRow' + newID + '">' +
-    '<td style="text-align: left;" id="t' + tableID + 'shortName' + newID + '"></td>' +
-    '<td style="text-align: center;"><input type="number" class="number-input" id="t' + tableID + 'score' + newID + '" /></td>';
+    '<td class="text-left v-mid" id="t' + tableID + 'shortName' + newID + '"></td>' +
+    '<td class="text-right v-mid"><input type="number" class="form-control text-right" id="t' + tableID + 'score' + newID + '" /></td>';
   for (var i = 0; i < tiebreaks.length; i++) {
-    tableRowContent += '<td style="text-align: center;"><input type="number" class="number-input" id="t' + tableID + 'tiebreak' + i + newID + '" /></td>';
+    tableRowContent += '<td class="text-right v-mid"><input type="number" class="form-control text-right" id="t' + tableID + 'tiebreak' + i + newID + '" /></td>';
   };
   //tableRowContent += '<td><input type="text" class="shorttext-input" id="t' + tableID + 'opponent' + newID + '" /></td></tr>';
-  tableRowContent += '<td style="text-align: left;" id="t' + tableID + 'opponent' + newID + '"></td></tr>';
+  tableRowContent += '<td class="text-left v-mid" id="t' + tableID + 'opponent' + newID + '"></td></tr>';
   
-  $( '#tbl-' + tableID + ' tr:last' ).after(tableRowContent); // Append a new row.
+  $( '#tbl-' + tableID + ' tbody' ).append(tableRowContent); // Append a new row.
   
   // Set up events for cells.
   $( '#t' + tableID + 'score' + newID).bind( 'focusout change', function() {
@@ -145,5 +131,4 @@ socket.on( 'pushAllPlayerDetails', function(playerList, warning) {
     };
   };
   $( '#outstream' ).html( '' );
-  tabs.tabs("option", "active", -1);
 });

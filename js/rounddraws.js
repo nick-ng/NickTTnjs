@@ -1,6 +1,5 @@
 var tabIDList = [0];
 var rowIDList = [[0]];
-var tabs;
 var maxTries = [100,1000,5000]; // How many times to try before going to a different routine.
 var maxTime = 4.8; // Unresponsive alert time.
 var randseed = [Math.random()]; // Initialise a random seed for the random function we call later.
