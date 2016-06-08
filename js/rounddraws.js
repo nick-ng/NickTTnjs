@@ -1,6 +1,5 @@
 var tabIDList = [0];
 var rowIDList = [[0]];
-var tabs;
 var maxTries = [100,1000,5000]; // How many times to try before going to a different routine.
 var maxTime = 4.8; // Unresponsive alert time.
 var randseed = [Math.random()]; // Initialise a random seed for the random function we call later.
@@ -18,14 +17,7 @@ $(document).ready(function() {
     $( '#outstream' ).html( 'Loading tournament information.' );
     socket.emit( 'pullAllPlayerDetails', common.tournamentKey, 'rounddraw' );
   };
-  tabs = $("#tabs").tabs({
-    activate: function( event, ui ) {
-      //console.log(ui.newPanel.selector);
-      //console.log(ui.newPanel.selector.replace( '#tabs-', '' ));
-      activeTab = parseInt(ui.newPanel.selector.replace( '#tabs-', '' ));
-      $( '#outstream' ).html( '' );
-    }
-  });
+  
   activateDisplayControls()
 }); // $(document).ready(function() {
 
@@ -36,39 +28,45 @@ function addTab(customID) {
   if (!rowIDList[tabID]) {
     rowIDList[tabID] = [];
   };
+  
   // Make new tab-item
-  var newItem = '<li><a href="#tabs-' + tabID + '"><span style="font-weight:bold;">Round ' + tabID + '</span></a></li>';
-  //$( '#tablist' ).val($( '#tablist' ).val() + newItem);
-  tabs.find( '.ui-tabs-nav' ).append(newItem);
-  //~ console.log( 'tablist.val() = ' + $( '#tablist' ).val());
+  var newItem = '<li role="presentation">' +
+    '<a href="#tabcontents-' + tabID + '" aria-controls="round-' + tabID + '" role="tab" data-toggle="tab">Round ' + tabID + '</a></li>';
+  $( '#tablist' ).append(newItem);
   
   // Make tab contents
-  var newContents = '<div id="tabs-' + tabID + '">' +
-    '<span class="fix-font-size">' +
-    '<p class="mini-h"><input id="drawbutton-' + tabID + '" value="Make Draw" type="button">' + 
-    '<input id="acceptdrawbutton-' + tabID + '" value="Accept Draw" type="button" disabled></p>' +
-    '<table id="tbl-' + tabID + '"><tbody><tr>' +
-    '<th style="text-align: center;">Table</th>' +
-    '<th style="text-align: left;">Player 1</th>' +
-    '<th style="text-align: left;">Player A</th>' +
-    '</tr></tbody></table></span></div>';
-  tabs.append(newContents);
-  //~ console.log( 'tabcontents.val() = ' + $( '#tabcontents' ).val());
+  var newContents = '<div id="tabcontents-' + tabID + '" role="tabpanel" class="tab-pane">' +
+    '<h6 class="text-center"><input id="drawbutton-' + tabID + '" class="btn btn-default" value="Make Draw" type="button"> ' + 
+    '<input id="acceptdrawbutton-' + tabID + '" class="btn btn-default" value="Accept Draw" type="button" disabled></h6>' +
+    '<table id="tbl-' + tabID + '" class="table table-striped"><thead><tr>' +
+    '<th class="text-center">Table</th>' +
+    '<th class="text-left">Player 1</th>' +
+    '<th class="text-left">Player A</th>' +
+    '</tr></thead><tbody></tbody></table></div>';
+  $( '#tabcontents' ).append(newContents);
   
-  tabs.tabs( 'refresh' );
+  $( '#tablist a:last' ).tab('show');
+  activeTab = tabID;
   activateDrawControls(tabID);
+  // Set tab switching events.
+  $('a[data-toggle="tab"]').unbind( 'shown.bs.tab' );
+  $('a[data-toggle="tab"]').on( 'shown.bs.tab', function (e) {
+    var currentTab = $(e.target).text();
+    activeTab = parseInt(currentTab.match(/\d/g)[0]);
+  });
 };
 
 function activateDisplayControls() {
-  $( '#openDisplayButton' ).button().click(function() {
+  $( '#openDisplayButton' ).click(function() {
     //Open webpage
     window.open( './display', '_blank', 'toolbar=0,location=0,menubar=0' );
   });
-  $( '#updateDisplayButton' ).button().click(function() {
+  $( '#updateDisplayForm' ).submit(function() {
     //Do stuff
     updateDisplay();
+    return false;
   });
-  $( '#clearAnnouncementButton' ).button().click(function() {
+  $( '#clearAnnouncementButton' ).click(function() {
     //Do stuff
     $( '#displayAnnouncement' ).val( '' );
     var displayData = {};
@@ -83,8 +81,8 @@ function updateDisplay() {
   displayData.room = common.tournamentKey;
   displayData.announcement = $( '#displayAnnouncement' ).val();
   displayData.content = $( '#tbl-' + activeTab).html();
-  displayData.content = '<table>' + displayData.content + '</table>';
-  displayData.content = '<h2>Round ' + activeTab + ' Draw</h2>' + displayData.content;
+  displayData.content = '<table class="table table-striped">' + displayData.content + '</table>';
+  displayData.content = '<h2 class="text-center">Round ' + activeTab + ' Draw</h2>' + displayData.content;
   displayData.leftURL = $( '#displayLeftImageURL' ).val();
   displayData.rightURL = $( '#displayRightImageURL' ).val();
   socket.emit('sendToDisplay', displayData);
@@ -92,7 +90,7 @@ function updateDisplay() {
 
 function activateDrawControls(tabID) {
   var drawList;
-  $( '#drawbutton-' + tabID).button().click(function() {
+  $( '#drawbutton-' + tabID).click(function() {
     // Draw a round.
     var pairList = pairRound(playerList, tabID);
     drawList = assignMaps(pairList, playerList);
@@ -101,8 +99,8 @@ function activateDrawControls(tabID) {
     // Enable accept button
     $( '#acceptdrawbutton-' + tabID).button( 'enable' );
   });
-  //$( '#acceptdrawbutton-' + tabID).button(); // Make acceptdrawbutton a button
-  $( '#acceptdrawbutton-' + tabID).button().click(function() {
+  //$( '#acceptdrawbutton-' + tabID); // Make acceptdrawbutton a button
+  $( '#acceptdrawbutton-' + tabID).click(function() {
     var drawObject = {};
     drawObject.drawList = drawList;
     drawObject.round = tabID;
@@ -122,11 +120,11 @@ function addDrawRow(customID,tableID) {
   rowIDList[tableID].push(newID);
   // The row's contents
   var tableRowContent = '<tr id="t' + tableID + 'drawRow' + newID + '">' +
-    '<td style="text-align: center;" id="t' + tableID + 'map' + newID + '"></td>' + // Call the settings the players play on "maps" to avoid conflict with "tables".
-    '<td style="text-align: left;" id="t' + tableID + 'player1' + newID + '"></td>' +
-    '<td style="text-align: left;" id="t' + tableID + 'player2' + newID + '"></td>';
+    '<td class="text-center" id="t' + tableID + 'map' + newID + '"></td>' + // Call the settings the players play on "maps" to avoid conflict with "tables".
+    '<td class="text-left" id="t' + tableID + 'player1' + newID + '"></td>' +
+    '<td class="text-left" id="t' + tableID + 'player2' + newID + '"></td>';
   //~ console.log(tableRowContent);
-  $( '#tbl-' + tableID + ' tr:last' ).after(tableRowContent); // Append the new row.
+  $( '#tbl-' + tableID + ' tbody' ).append(tableRowContent); // Append the new row.
   return 0;
 };
 
@@ -375,7 +373,7 @@ socket.on( 'pushAllPlayerDetails', function(playerListIn, extraInfo) {
   //~ console.log('Adding new tab');
   addTab(prevRound + 1);
   //var newDraw = pairRound(playerList);
-  tabs.tabs("option", "active", -1);
+  //tabs.tabs("option", "active", -1);
 });
 
 socket.on( 'drawAccepted', function(round) {

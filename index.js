@@ -27,6 +27,8 @@ app.set( 'views', __dirname + '/public' );
 
 app.use( express.static( __dirname + '/public' ) );
 app.use( express.static( __dirname + '/js' ) );
+app.use( express.static( __dirname + '/css' ) );
+app.use( express.static( __dirname + '/bootstrap' ) );
 //app.use( express.static( DICTDIR ) );
 
 // PostgreSQL
@@ -107,7 +109,6 @@ io.on( 'connection', function( socket ) {
       // sort out short names
       playerList = chooseShortNames(playerList);
       var extraInfo;
-      // fix short names here.
       switch ( mode ) {
         case 'scores':
           //~ rounds = 1;
