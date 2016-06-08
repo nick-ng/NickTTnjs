@@ -13,12 +13,6 @@
   margin-right: auto !important;
 }
 
-.display-dark {
-  color: white;
-  background-color: #111;
-}
-
-.display-dark a {
-  color: white;
-  text-decoration: none;
+.manual-bg-accent {
+  background-color: #f9f9f9; /* This should match @table-bg-accent or .table-striped > tbody > tr:nth-of-type(odd) */
 }

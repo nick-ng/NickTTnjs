@@ -27,14 +27,14 @@ function addTab(customID) {
   
   // Make tab contents
   var newContents = '<div id="tabcontents-' + tabID + '" role="tabpanel" class="tab-pane">' +
-    '<table id="tbl-' + tabID + '" class="table table-striped table-condensed"><thead><tr>' +
-    '<th class="text-left">Player</th>' +
+    '<table id="tbl-' + tabID + '" class="table"><thead><tr>' +
+    '<th class="text-left col-xs-2 col-md-1">Player</th>' +
     '<th class="text-center col-xs-2 col-md-1">Score</th>';
   for (var i = 0; i < tiebreaks.length; i++) {
     var tiebreakName = tiebreaks[i];
     newContents += '<th class="text-center col-xs-2 col-md-1">' + tiebreakName + '</th>';
   };
-  newContents += '<th class="text-left">Round ' + tabID + '<br>Opponent</th>' +
+  newContents += '<th class="text-left col-xs-2 col-md-1">Round ' + tabID + '<br>Opponent</th>' +
     '</tr></thead><tbody></tbody></table>' +
     '<p class="text-center"><input type="button" id="dummybutton' + tabID + '" class="btn btn-default" value="Submit"></p></div>';
   
@@ -94,12 +94,29 @@ function tiebreakerEvents(tableID, tieID, newID) {
   });
 };
 
+// From http://stackoverflow.com/a/2998822
+function zeroPad(num, size) {
+    var s = num+"";
+    while (s.length < size) s = "0" + s;
+    return s;
+}
+
+function sortByTablesThenNames(array, index) {
+  return array.sort(function getDelta(a, b) {
+    var x = zeroPad(a.tablenumbers[index], 9) + a.short_name.toUpperCase();
+    var y = zeroPad(b.tablenumbers[index], 9) + b.short_name.toUpperCase();
+
+    return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+  });
+};
+
 socket.on( 'pushAllPlayerDetails', function(playerList, warning) {
   //console.log(playerList);
   var rounds = common.getDrawnRounds(playerList);
   for (var i = 0; i < rounds; i++) { // Remember that rounds start from 1.
     tabID = i + 1;
     addTab(tabID);
+    playerList = sortByTablesThenNames(playerList, i);
     for (var j = 0; j < playerList.length; j++) {
       var id = playerList[j].id
       if (rowIDList[tabID].indexOf(id) == -1) {
@@ -128,6 +145,9 @@ socket.on( 'pushAllPlayerDetails', function(playerList, warning) {
         playerList[j].opponentname = 'Unassigned';
       }
       $( '#t' + tabID + 'opponent' + id).text(playerList[j].opponentname);
+      if (playerList[j].tablenumbers[i] % 2) {
+        $( '#t' + tabID + 'playerRow' + id).addClass( 'manual-bg-accent' );
+      }
     };
   };
   $( '#outstream' ).html( '' );

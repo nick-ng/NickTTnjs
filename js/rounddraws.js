@@ -39,9 +39,9 @@ function addTab(customID) {
     '<h6 class="text-center"><input id="drawbutton-' + tabID + '" class="btn btn-default" value="Make Draw" type="button"> ' + 
     '<input id="acceptdrawbutton-' + tabID + '" class="btn btn-default" value="Accept Draw" type="button" disabled></h6>' +
     '<table id="tbl-' + tabID + '" class="table table-striped"><thead><tr>' +
-    '<th class="text-center">Table</th>' +
-    '<th class="text-left">Player 1</th>' +
-    '<th class="text-left">Player A</th>' +
+    '<th class="text-center col-xs-1 col-sm-1 col-md-1 col-lg-1">Table</th>' +
+    '<th class="text-left col-xs-2 col-sm-2 col-md-2 col-lg-2">Player 1</th>' +
+    '<th class="text-left col-xs-2 col-sm-2 col-md-2 col-lg-2">Player A</th>' +
     '</tr></thead><tbody></tbody></table></div>';
   $( '#tabcontents' ).append(newContents);
   
