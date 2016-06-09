@@ -591,3 +591,9 @@ function getNicknamesFromDB( parent ) {
     io.emit( 'nicknamesTableLocked' );
   };
 };
+
+/*
+var newObject = {};
+newObject.announcement = 'Hello';
+dbfun.updateTournamentJSON( 'display_json', 'tournamentcoh9csfx', newObject );
+*/

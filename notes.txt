@@ -33,8 +33,13 @@ schema: tournament00000000 // 'tournament' plus a unique 8 digit string between 
     column: name (text)
     column: date (date default CURRENT_DATE) - Automatically remove the oldest tournament once we approach the database limit.
     column: completed (boolean default FALSE)- Flag set by a control on the Final Standings page?
-    column: left_image_url - URL of left image on display page
-    column: right_image_url - URL of right image on display page
+    column: display_json (text) - Collection of objects as a json string required for the display page.
+      announcement: string
+      content: string
+      left_image_url: string
+      right_image_url: string
+    column: players_json (text) - Stuff to show to players.
+      stuff
   table: playertable
     column: id (int) (primary)
     column: full_name (text) - May as well use text type since it's supported by PostgreSQL

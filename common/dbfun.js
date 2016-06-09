@@ -5,6 +5,9 @@ var pg = require('pg');
 // Global Variables
 var dbfun = {};
 var stringLikeTypes = ['char','text','date'];
+var JSON_KEYS = {};
+JSON_KEYS.display_json = ['announcement', 'content', 'left_image_url', 'right_image_url'];
+JSON_KEYS.players_json = [];
 var PG_DATABASE_URL = process.env.DATABASE_URL;
 
 // PostgreSQL Client
@@ -249,13 +252,13 @@ dbfun.initialiseTournamentTables = function initialiseTournamentTables(tObject, 
   var tSchema = bfun.tKey2tSchema(tObject.key);
   // Create infotable
   var infoQuery = 'CREATE TABLE ' + tSchema + '.infotable (' +
-    'id smallint PRIMARY KEY,' + // This table only has 1 row so this is to allow updating one value at a time.
+    'id smallint PRIMARY KEY,' + // This table only has 1 row. This is to allow updating one value at a time.
     'players_key text,' +
     'name text,' +
     'date date DEFAULT CURRENT_DATE,' +
     'completed boolean DEFAULT FALSE,' +
-    'left_image_url text,' +
-    'right_image_url text);';
+    'display_json text DEFAULT \'{}\',' +
+    'players_json text DEFAULT \'{}\');';
   // Create playertable
   var playerQuery = 'CREATE TABLE ' + tSchema + '.playertable (' +
     'id smallint PRIMARY KEY,' +
@@ -289,7 +292,7 @@ dbfun.initialiseTournamentTables = function initialiseTournamentTables(tObject, 
   return;
 };
 
-dbfun.updateTournamentInfo = function updateTournamentName( property, tSchema, propVal ) {
+dbfun.updateTournamentInfo = function updateTournamentInfo( property, tSchema, propVal ) {
   if (tSchema) {
     tSchema = bfun.sanitize(tSchema);
     qProp = false;
@@ -314,12 +317,41 @@ dbfun.updateTournamentInfo = function updateTournamentName( property, tSchema, p
   return;
 };
 
-dbfun.updateTournamentDate = function updateTournamentDate( tSchema, tournamentDate ) {
-  if (tournamentDate && tSchema) {
-    tSchema = bfun.sanitize(tSchema);
-    var dateQuery = 'UPDATE ' + tSchema + '.infotable SET tournament_date = $1 WHERE id = 1;';
-    dbfun.ezQuery(dateQuery, [tournamentDate]);
+dbfun.updateTournamentJSON = function updateTournamentJSON( targetJSON, tSchema, newObject ) {
+  if ((!targetJSON) || (!tSchema) || (!newObject)) { // If any of these are undefined, don't do anything.
+    console.log('!!targetJSON: ' + !!targetJSON);
+    console.log('!!tSchema: ' + !!tSchema);
+    console.log('!!newObject: ' + !!newObject);
+    return;
   }
+  tSchema = bfun.sanitize(tSchema);
+  var valid_jsons = Object.keys(JSON_KEYS);
+  var I = valid_jsons.indexOf(targetJSON);
+  if (I >= 0) {
+    targetJSON = bfun.sanitize(valid_jsons[I]); // The paranoia is real.
+    dbfun.ezQuery( 'SELECT ' + targetJSON + ' FROM ' + tSchema + '.infotable WHERE id = 1;', function(result) {
+      //console.log(result);
+      jsonString = result.rows[0][targetJSON];
+      //[targetJSON]
+      //console.log('[(' + jsonString + ')]');
+      retrievedObject = JSON.parse(jsonString);
+      //console.log(retrievedObject);
+      //JSON.stringify()
+      var cleanObject = {};
+      for (var i = 0; i < JSON_KEYS[targetJSON].length; i++) {
+        var keyName = JSON_KEYS[targetJSON][i]
+        if (newObject[keyName] != undefined) {
+          cleanObject[keyName] = newObject[keyName];
+        } else {
+          cleanObject[keyName] = retrievedObject[keyName];
+        }
+      }
+      var cleanJsonString = JSON.stringify(cleanObject);
+      var nameQuery = 'UPDATE ' + tSchema + '.infotable SET ' + targetJSON + ' = $1 WHERE id = 1;';
+      dbfun.ezQuery( nameQuery, [cleanJsonString]);
+    });
+  };
+  return;
 };
 
 dbfun.updatePlayerDetails = function(updateObject, callback) {
