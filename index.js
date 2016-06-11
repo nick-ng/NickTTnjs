@@ -20,8 +20,9 @@ var NICKNAMES = [];
 var NICKNAMES_TABLE_LOCKED = false;
 var SHORTENEDNAMES_TABLE_LOCKED = false;
 var TOURNAMENT_KEY_LENGTH = 8;
+var PLAYERS_KEY_LENGTH = 5;
 
-app.set( 'port', ( process.env.PORT || 3434 ) );
+app.set( 'port', ( process.env.PORT || 3434 ));
 app.set( 'views', __dirname + '/public' );
 //app.set('view engine', 'ejs');
 
@@ -55,6 +56,10 @@ app.get( '/options', function( req, res ) {
 });
 app.get( '/display', function( req, res ) {
   res.sendFile(PAGEDIR + '/display.html');
+});
+app.get( '/test', function( req, res ) {
+  var url = process.env.TEST || '/home.html';
+  res.sendFile(PAGEDIR + url);
 });
 
 // Socket.IO stuff
@@ -343,23 +348,28 @@ io.on( 'connection', function( socket ) {
     tournamentObj = tournamentObj || {};
     if (mode == 'new') {
       dbfun.getTournaments(function(tournamentList) {
-        //~ console.log(tournamentList);
-        var newSchema = bfun.generateNewSchema(TOURNAMENT_KEY_LENGTH, tournamentList);
-        if (newSchema) {
-          // We got a new unique key so make a tournament schema
-          dbfun.ezQuery( 'CREATE SCHEMA ' + newSchema + ';', function(result) {
-            tournamentObj.key = bfun.tSchema2tKey(newSchema);
-            // Create tournament information and functions so a user can add player details while protecting us from SQLi
-            // dbfun.initialiseTournamentTables expects a players key -- one that players can use to access the tournament.
-            dbfun.initialiseTournamentTables(tournamentObj, function(outObj) {
-              // Let client know when we've created the tournament.
-              io.to(socket.id).emit( 'pushTournamentKey', tournamentObj.key);
-            });
-          });
-        } else {
-          var errorMsg = 'Couldn\'t generate a new tournament-key in time. Something went wrong.';
-          io.to(socket.id).emit( 'homeError', errorMsg);
+        for (var i = 0; i < tournamentList.length; i++) {
+          tournamentList[i] = bfun.tSchema2tKey(tournamentList[i]);
         };
+        dbfun.getPlayersKeys(function(playersKeyList) {
+          //~ console.log(tournamentList);
+          tournamentObj.key = bfun.generateNewKey(TOURNAMENT_KEY_LENGTH, tournamentList);
+          tournamentObj.playersKey = bfun.generateNewKey(PLAYERS_KEY_LENGTH, playersKeyList);
+          if (tournamentObj.key) {
+            // We got a new unique key so make a tournament schema
+            dbfun.ezQuery( 'CREATE SCHEMA ' + bfun.tKey2tSchema(tournamentObj.key) + ';', function(result) {
+              // Create tournament information and functions so a user can add player details while protecting us from SQLi
+              // dbfun.initialiseTournamentTables expects a players key -- one that players can use to access the tournament.
+              dbfun.initialiseTournamentTables(tournamentObj, function(outObj) {
+                // Let client know when we've created the tournament.
+                io.to(socket.id).emit( 'pushTournamentKey', tournamentObj.key);
+              });
+            });
+          } else {
+            var errorMsg = 'Couldn\'t generate a new tournament-key in time. Something went wrong.';
+            io.to(socket.id).emit( 'homeError', errorMsg);
+          };
+        });
       });
     };
   });
@@ -380,6 +390,13 @@ io.on( 'connection', function( socket ) {
     //reset the appropriate tournament
     // then push demo key via callback (place holder pushes directly)
     io.to(socket.id).emit( 'pushTournamentKey', demoKey);
+  });
+  
+  // Test functions
+  socket.on( 'testA', function (testObj) {
+    console.log('testA socket received');
+    dbfun.createQuickTable();
+    io.to(socket.id).emit( 'testB', 'hello' );
   });
   
   // end of io.on( 'connection', callback() );
@@ -450,6 +467,8 @@ function chooseShortNames(playerList, shortNamesOnly) {
 };
 
 function initDatabase() {
+  // Sort out quick table
+  //dbfun.createQuickTable()
   // Check if nameschema exists
   var queryString = 'SELECT exists(SELECT schema_name FROM information_schema.schemata WHERE schema_name = \'nameschema\');';
   dbfun.ezQuery( queryString, function(result) {

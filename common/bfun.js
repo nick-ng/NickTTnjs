@@ -189,6 +189,17 @@ bfun.tSchema2tKey = function tSchema2tKey(tSchema) {
   return tSchema.substring(10, tSchema.length).toLowerCase();
 };
 
+bfun.generateNewKey = function generateNewKey(keyLength, keyList) {
+  var maxAttempts = Math.pow(36, keyLength);
+  while (maxAttempts--) { // This should complete very quickly.
+    var newKey = bfun.randomString(keyLength).toLowerCase();
+    if (keyList.indexOf(newKey) == -1) {
+      return newKey;
+    };
+  };
+  return false;
+};
+
 bfun.generateNewSchema = function generateNewSchema(keyLength, schemaList) {
   var maxAttempts = Math.pow(36, keyLength);
   while (maxAttempts--) { // This should complete very quickly.

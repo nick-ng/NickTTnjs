@@ -5,7 +5,9 @@ var pg = require('pg');
 // Global Variables
 var dbfun = {};
 var stringLikeTypes = ['char','text','date'];
+var quickCols = ['players_key', 'date'];
 var JSON_KEYS = {};
+JSON_KEYS.system_json = ['sys_name','sys_tiebreaks','sys_faction'];
 JSON_KEYS.display_json = ['announcement', 'content', 'left_image_url', 'right_image_url'];
 JSON_KEYS.players_json = [];
 var PG_DATABASE_URL = process.env.DATABASE_URL;
@@ -132,6 +134,23 @@ funcObj.funcQuery = 'CREATE OR REPLACE FUNCTION ' +
   'LANGUAGE plpgsql;';
 funcList.push(funcObj);
 // insert_id_to_playertable End
+// insert_key_to_quicktournaments Start
+var funcObj = {};
+funcObj.funcName = 'insert_key_to_quicktournaments()';
+funcObj.funcQuery = 'CREATE OR REPLACE FUNCTION ' +
+  'insert_key_to_quicktournaments(_key text) RETURNS VOID AS '+
+  '$$ ' +
+  'BEGIN ' +
+    'BEGIN ' +
+        'INSERT INTO quicktournaments(key) VALUES (_key); ' +
+        'RETURN; ' +
+    'EXCEPTION WHEN unique_violation THEN ' +
+    'END; ' +
+  'END; ' +
+  '$$ ' +
+  'LANGUAGE plpgsql;';
+funcList.push(funcObj);
+// insert_key_to_quicktournaments End
 //console.log(funcList.length);
 
 makeClient = function(name) {
@@ -227,7 +246,7 @@ dbfun.upsertShortenedName = function(longName, shortenedName, callback) {
   });
 };
 
-dbfun.getTournaments = function(callback) {
+dbfun.getTournaments = function getTournaments(callback) {
   var queryString = 'SELECT schema_name FROM information_schema.schemata WHERE schema_name LIKE \'tournament_\%\';';
   //console.log(queryString);
   dbfun.ezQuery( queryString, function(result) {
@@ -236,6 +255,17 @@ dbfun.getTournaments = function(callback) {
       tournamentList.push(result.rows[i].schema_name);
     };
     callback(tournamentList);
+  });
+};
+
+dbfun.getPlayersKeys = function getPlayersKeys(callback) {
+  var queryStr = 'SELECT players_key FROM quicktournaments;';
+  dbfun.ezQuery( queryStr, function(result) {
+    var playersKeyList = [];
+    for (var i = 0; i < result.rows.length; i++) {
+      playersKeyList.push(result.rows[i].players_key);
+    }
+    callback(playersKeyList);
   });
 };
 
@@ -257,6 +287,7 @@ dbfun.initialiseTournamentTables = function initialiseTournamentTables(tObject, 
     'name text,' +
     'date date DEFAULT CURRENT_DATE,' +
     'completed boolean DEFAULT FALSE,' +
+    'system_json text DEFAULT \'{}\',' +
     'display_json text DEFAULT \'{}\',' +
     'players_json text DEFAULT \'{}\');';
   // Create playertable
@@ -283,9 +314,11 @@ dbfun.initialiseTournamentTables = function initialiseTournamentTables(tObject, 
   
   dbfun.ezQuery(infoQuery, function(result) {
     dbfun.ezQuery( 'INSERT INTO ' + tSchema + '.infotable (id) VALUES (1);', function(result) {
-      dbfun.updateTournamentInfo( 'name', tSchema, tObject.tournamentName);
-      dbfun.updateTournamentInfo( 'date', tSchema, tObject.tournamentDate);
-      dbfun.updateTournamentInfo( 'players_key', tSchema, tObject.playersKey);
+      dbfun.ezQuery( 'SELECT insert_key_to_quicktournaments($1)', [bfun.tSchema2tKey(tSchema)], function() {
+        dbfun.updateTournamentInfo( 'name', tSchema, tObject.tournamentName);
+        dbfun.updateTournamentInfo( 'date', tSchema, tObject.tournamentDate);
+        dbfun.updateTournamentInfo( 'players_key', tSchema, tObject.playersKey);
+      });
     });
     dbfun.ezQuery(playerQuery, callback);
   });
@@ -296,6 +329,7 @@ dbfun.updateTournamentInfo = function updateTournamentInfo( property, tSchema, p
   if (tSchema) {
     tSchema = bfun.sanitize(tSchema);
     qProp = false;
+    quickUpdate = false;
     if (property == 'name') {qProp = 'name';}
     else if (property == 'players_key') {qProp = 'players_key';}
     else if (property == 'date') {qProp = 'date';}
@@ -312,6 +346,11 @@ dbfun.updateTournamentInfo = function updateTournamentInfo( property, tSchema, p
     if (qProp && propVal) {
       var nameQuery = 'UPDATE ' + tSchema + '.infotable SET ' + qProp + ' = $1 WHERE id = 1;';
       dbfun.ezQuery( nameQuery, [propVal]);
+      if (quickCols.indexOf(qProp) >= 0) {
+        var updatePart = 'UPDATE quicktournaments SET ';
+        var wherePart = ' WHERE key=\'' + bfun.tSchema2tKey(tSchema) + '\';' ;
+        dbfun.ezQuery(updatePart + qProp + '=$1' + wherePart, [propVal]);
+      };
     }
   }
   return;
@@ -446,6 +485,71 @@ dbfun.roundDrawUpdate = function roundDrawUpdate(drawObject, callback) {
   if (!abort) {
     dbfun.ezQuery(queryString, callback);
   };
+};
+
+dbfun.createQuickTable = function createQuickTable() {
+  var sQueryString = 'SELECT exists(SELECT table_name FROM information_schema.tables WHERE table_name=\'quicktournaments\');';
+  dbfun.ezQuery(sQueryString, function(result) {
+    if (!result.rows[0].exists) { // If it doesn't exist make table.
+      var sQueryString = 'CREATE TABLE quicktournaments (' +
+    'key text PRIMARY KEY,' + // This table only has 1 row. This is to allow updating one value at a time.
+    'players_key text,' +
+    'date date DEFAULT CURRENT_DATE,' +
+    'autodelete boolean DEFAULT TRUE);';
+      dbfun.ezQuery(sQueryString, function(result) {
+        // Sort out existing tournaments.
+        dbfun.checkQuickTables();
+      });
+    } else { // Check table
+      dbfun.checkQuickTables();
+    };
+  });
+};
+
+dbfun.checkQuickTables = function checkQuickTables() {
+  dbfun.ezQuery( 'SELECT * FROM quicktournaments;', function(resultQuick) {
+    dbfun.getTournaments(function(tournamentList) {
+      if (resultQuick.rows.length < tournamentList.length) {
+        for (var i = 0; i < tournamentList.length; i++) {
+          dbfun.syncQuickTables(tournamentList[i]);
+        };
+      };
+    });
+  });
+};
+
+dbfun.syncQuickTables = function syncQuickTables(tSchema) {
+  var queryStr = 'SELECT table_name FROM information_schema.tables WHERE table_schema=\'' + tSchema + '\' AND table_name=\'infotable\';';
+  dbfun.ezQuery(queryStr, function(result) {
+    console.log(result.rows);
+    if (result.rows.length == 0) {
+      dbfun.ezQuery( 'DROP SCHEMA ' + tSchema + ' CASCADE;' );
+    } else {
+      dbfun.syncQuickTables2(tSchema);
+    };
+  });
+};
+
+dbfun.syncQuickTables2 = function syncQuickTables2(tSchema) {
+  var tKey = bfun.tSchema2tKey(tSchema);
+  dbfun.ezQuery( 'SELECT * FROM ' + tSchema + '.infotable;', function(result) {
+    var infoObj = result.rows[0];
+    if (infoObj.date == undefined) {
+      // If date is undefined, Remove the tournament and exit the function.
+      dbfun.ezQuery( 'DROP SCHEMA ' + tSchema + ' CASCADE;' );
+      return;
+    }
+    // Upsert tournamentKey
+    dbfun.ezQuery( 'SELECT insert_key_to_quicktournaments($1)', [tKey], function() {
+      // Update all other tournament information.
+      var updatePart = 'UPDATE quicktournaments SET ';
+      var wherePart = ' WHERE key=\'' + tKey + '\';' ;
+      for (var i = 0; i < quickCols.length; i++) {
+        colName = quickCols[i];
+        dbfun.ezQuery(updatePart + colName + '=$1' + wherePart, [infoObj[colName]]);
+      };
+    });
+  });
 };
 
 module.exports = dbfun;
