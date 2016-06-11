@@ -97,7 +97,7 @@ function activateDrawControls(tabID) {
     $( '#tbl-' + tabID).find("tr:gt(0)").remove();
     displayDraw(drawList, playerList, tabID);
     // Enable accept button
-    $( '#acceptdrawbutton-' + tabID).button( 'enable' );
+    $( '#acceptdrawbutton-' + tabID).prop( 'disabled', false );
   });
   //$( '#acceptdrawbutton-' + tabID); // Make acceptdrawbutton a button
   $( '#acceptdrawbutton-' + tabID).click(function() {
@@ -107,8 +107,8 @@ function activateDrawControls(tabID) {
     drawObject.tKey = common.tournamentKey;
     console.log(drawObject);
     socket.emit( 'pushRoundDraw', drawObject);
-    $( '#acceptdrawbutton-' + tabID).button( 'disable' );
-    $( '#drawbutton-' + tabID).button( 'disable' );
+    $( '#acceptdrawbutton-' + tabID).prop( 'disabled', true );
+    $( '#drawbutton-' + tabID).prop( 'disabled', true );
     updateDisplay();
   });
 };
@@ -377,6 +377,6 @@ socket.on( 'pushAllPlayerDetails', function(playerListIn, extraInfo) {
 });
 
 socket.on( 'drawAccepted', function(round) {
-  $( '#drawbutton-' + round).button( 'enable' );
-  $( '#acceptdrawbutton-' + round).button( 'disable' );
+  $( '#drawbutton-' + round).prop( 'disabled', false );
+  $( '#acceptdrawbutton-' + round).prop( 'disabled', true );
 });

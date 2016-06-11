@@ -1,6 +1,6 @@
 {
   "name": "NickTTnjs",
-  "version": "1.0.0",
+  "version": "0.9.0",
   "description": "Tournament tool written in node.js and socket.io. A deliberately over engineered learning exercise.",
   "main": "index.js",
   "scripts": {
@@ -11,8 +11,8 @@
     "url": "git+https://github.com/nick-ng/NickTTnjs.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "nick-ng",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/nick-ng/NickTTnjs/issues"
   },
