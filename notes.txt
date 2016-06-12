@@ -33,7 +33,11 @@ schema: tournament00000000 // 'tournament' plus a unique 8 digit string between 
     column: name (text)
     column: date (date default CURRENT_DATE) - Automatically remove the oldest tournament once we approach the database limit.
     column: completed (boolean default FALSE)- Flag set by a control on the Final Standings page?
-    column: system (text)
+    column: system_json (text)
+      name
+      tiebreaks
+      faction_name
+      slug
     column: display_json (text) - Collection of objects as a json string required for the display page.
       announcement: string
       content: string

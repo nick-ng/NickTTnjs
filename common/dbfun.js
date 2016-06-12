@@ -7,7 +7,7 @@ var dbfun = {};
 var stringLikeTypes = ['char','text','date'];
 var quickCols = ['players_key', 'date'];
 var JSON_KEYS = {};
-JSON_KEYS.system_json = ['sys_name','sys_tiebreaks','sys_faction'];
+JSON_KEYS.system_json = ['name', 'tiebreaks', 'faction_name', 'slug'];
 JSON_KEYS.display_json = ['announcement', 'content', 'left_image_url', 'right_image_url'];
 JSON_KEYS.players_json = [];
 var PG_DATABASE_URL = process.env.DATABASE_URL;
@@ -318,6 +318,7 @@ dbfun.initialiseTournamentTables = function initialiseTournamentTables(tObject, 
         dbfun.updateTournamentInfo( 'name', tSchema, tObject.tournamentName);
         dbfun.updateTournamentInfo( 'date', tSchema, tObject.tournamentDate);
         dbfun.updateTournamentInfo( 'players_key', tSchema, tObject.playersKey);
+        dbfun.updateTournamentJSON( 'system_json', tSchema, tObject.sytemObj);
       });
     });
     dbfun.ezQuery(playerQuery, callback);
@@ -450,6 +451,16 @@ dbfun.getAllPlayerDetails = function(tournamentKey, callback) {
     } else {
       console.log(tournamentKey + ' is not a valid tournament-key. Someone is messing with your web app.');
     }
+  });
+};
+
+dbfun.getAllTournamentInfo = function getAllTournamentInfo(tournamentKey, callback) {
+  dbfun.getAllPlayerDetails(tournamentKey, function(playerList) {
+    var tSchema = bfun.tKey2tSchema(tournamentKey);
+    var queryString = 'SELECT * FROM ' + tSchema + '.infotable;';
+    dbfun.ezQuery(queryString, function(infoResult) {
+      callback(playerList, infoResult.rows[0]);
+    });
   });
 };
 

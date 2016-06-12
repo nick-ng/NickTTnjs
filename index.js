@@ -108,6 +108,17 @@ io.on( 'connection', function( socket ) {
     });
   });
   
+  socket.on( 'pullAllTournamentInfo', function(tKey, mode) {
+    mode = mode || 'nothing';
+    dbfun.getAllTournamentInfo(tKey, function(playerList, infoTable) {
+      var instructions;
+      if (mode == 'extra special') {
+        instructions = 'special';
+      };
+      io.to(socket.id).emit( 'pushAllTournamentInfo', playerList, infoTable, instructions);
+    });
+  });
+  
   socket.on( 'pullAllPlayerDetails',  function(tKey, mode) {
     mode = mode || 'playerdetails';
     dbfun.getAllPlayerDetails(tKey, function(playerList) {

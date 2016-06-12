@@ -1,4 +1,5 @@
 var rowIDList = [0];
+var systemObj = {};
 
 // ==============
 // Document.Ready
@@ -8,7 +9,7 @@ $( document ).ready(function() {
   common.getTournamentKey(false, false);
   if (common.tournamentKey) {
     $( '#outstream' ).html( 'Loading players. Please wait.');
-    socket.emit( 'pullAllPlayerDetails', common.tournamentKey );
+    socket.emit( 'pullAllTournamentInfo', common.tournamentKey );
   };
 }); // $( document ).ready(function() {
 
@@ -22,7 +23,7 @@ function addPlayerRow(customID, source) {
   rowIDList.push(newID);
   // The row's contents
   var tableRowContent = '<tr id="playerRow' + newID + '">' +
-    '<td class="text-right v-mid">' + newID + '</td>' +
+    //'<td class="text-right v-mid">' + newID + '</td>' +
     '<td class="v-mid"><input type="text" id="fullName' + newID + '" class="form-control" /></td>' +
     '<td class="v-mid"><input type="text" id="playerEmail' + newID + '" class="form-control" /></td>' +
     '<td class="v-mid"><input type="text" id="shortName' + newID + '" class="form-control" /><span class="hidden" id="shortNameHide' + newID + '"></span></td>' +
@@ -211,7 +212,7 @@ socket.on( 'shortName change', function(playerList) {
 });
 */
 
-socket.on( 'pushAllPlayerDetails', function(playerList, instructions) {
+function processPlayerList(playerList, instructions) {
   //console.log(playerList);
   for (var i = 0; i < playerList.length; i++) {
     var id = playerList[i].id;
@@ -231,4 +232,16 @@ socket.on( 'pushAllPlayerDetails', function(playerList, instructions) {
     $( '#shortNameHide' + id).text(playerList[i].short_name);
   };
   $( '#outstream' ).html( '' );
+};
+
+socket.on( 'pushAllPlayerDetails', function(playerList, instructions) {
+  processPlayerList(playerList, instructions);
+});
+
+socket.on( 'pushAllTournamentInfo', function(playerList, infoTable, instructions) {
+  if (instructions != 'shortNamesOnly' ) {
+    systemObj = JSON.parse(infoTable.system_json);
+    $( '#factionHeader' ).text(systemObj.faction_name);
+  };
+  processPlayerList(playerList, instructions);
 });

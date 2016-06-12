@@ -1,3 +1,17 @@
+var GAME_SYSTEM_OBJECTS = {};
+// Guild Ball
+var guildBallObj = {};
+guildBallObj.name = 'Guild Ball';
+guildBallObj.tiebreaks = ['Goals','Body<br>Count','Total VPs'];
+guildBallObj.faction_name = 'Guild';
+guildBallObj.slug = 'guildball';
+GAME_SYSTEM_OBJECTS[guildBallObj.slug] = guildBallObj;
+var otherSystemObj = {};
+otherSystemObj.name = 'Other';
+otherSystemObj.faction_name = 'Faction';
+otherSystemObj.slug = 'other';
+GAME_SYSTEM_OBJECTS[otherSystemObj.slug] = otherSystemObj;
+
 // home.js
 $(document).ready(function() {
   // Other stuff
@@ -14,12 +28,21 @@ $( '#createNewTournamentForm' ).submit(function() {
   //console.log('Tournament Name ' + newTournamentName);
   tournamentObj.tournamentDate = $( '#newTournamentDate' ).val();
   //console.log('Tournament Date ' + newTournamentDate);
+  tournamentObj.sytemObj = chooseSystemObject($( '#newTournamentSystem' ).val());
   socket.emit( 'pullTournamentKey', 'new', tournamentObj);
   //<div id="newTournamentDialog" title="Create a new tournament?">
   $( '#newTournamentDialogTitle' ).text( 'Creating new tournament...' );
   $( '#newTournamentDialogBody' ).html( '<p>Please wait.</p>' );
   return false;
 });
+
+function chooseSystemObject(selectString) {
+  if (selectString == 'Guild Ball') {
+    return GAME_SYSTEM_OBJECTS.guildball;
+  } else {
+    return GAME_SYSTEM_OBJECTS.other;
+  }
+};
 
 function handleLoadTournament() {
   homeLoadTournament();
