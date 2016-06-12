@@ -1,6 +1,6 @@
 var tabIDList = [0];
 var rowIDList = [[0]];
-var tiebreaks = ['Goals','Body<br>Count','Total VPs'];
+var systemObj;
 
 // ==============
 // Document.Ready
@@ -9,7 +9,7 @@ $(document).ready(function() {
   common.getTournamentKey(false, false)
   if (common.tournamentKey) {
     $( '#outstream' ).html( 'Loading tournament information.' );
-    socket.emit( 'pullAllPlayerDetails', common.tournamentKey, 'scores' );
+    socket.emit( 'pullAllTournamentInfo', common.tournamentKey, 'scores' );
   };
 }); // $(document).ready(function() {
 
@@ -30,8 +30,8 @@ function addTab(customID) {
     '<table id="tbl-' + tabID + '" class="table"><thead><tr>' +
     '<th class="text-left col-xs-2 col-md-1">Player</th>' +
     '<th class="text-center col-xs-2 col-md-1">Score</th>';
-  for (var i = 0; i < tiebreaks.length; i++) {
-    var tiebreakName = tiebreaks[i];
+  for (var i = 0; i < systemObj.tiebreaks.length; i++) {
+    var tiebreakName = systemObj.tiebreaks[i];
     newContents += '<th class="text-center col-xs-2 col-md-1">' + tiebreakName + '</th>';
   };
   newContents += '<th class="text-left col-xs-2 col-md-1">Round ' + tabID + '<br>Opponent</th>' +
@@ -51,7 +51,7 @@ function addPlayerRow(customID,tableID) {
   var tableRowContent = '<tr id="t' + tableID + 'playerRow' + newID + '">' +
     '<td class="text-left v-mid" id="t' + tableID + 'shortName' + newID + '"></td>' +
     '<td class="text-right v-mid"><input type="number" class="form-control text-right" id="t' + tableID + 'score' + newID + '" /></td>';
-  for (var i = 0; i < tiebreaks.length; i++) {
+  for (var i = 0; i < systemObj.tiebreaks.length; i++) {
     tableRowContent += '<td class="text-right v-mid"><input type="number" class="form-control text-right" id="t' + tableID + 'tiebreak' + i + newID + '" /></td>';
   };
   //tableRowContent += '<td><input type="text" class="shorttext-input" id="t' + tableID + 'opponent' + newID + '" /></td></tr>';
@@ -64,11 +64,11 @@ function addPlayerRow(customID,tableID) {
     var updateObject = {tKey:common.tournamentKey, id:newID, round:tableID};
     updateObject.field = 'score';
     updateObject.value = $(this).val();
-    socket.emit( 'playerDetailsChanged', updateObject,'scores' );
+    socket.emit( 'playerDetailsChanged', updateObject, 'scores' );
     return false;
   });
   
-  for (var i = 0; i < tiebreaks.length; i++) {
+  for (var i = 0; i < systemObj.tiebreaks.length; i++) {
     //It's your old mate, variable scope? If you don't do this, tieID is just the largest value i gets to.
     tiebreakerEvents(tableID, i, newID); // end of anonymous function.
   };
@@ -110,45 +110,49 @@ function sortByTablesThenNames(array, index) {
   });
 };
 
-socket.on( 'pushAllPlayerDetails', function(playerList, warning) {
-  //console.log(playerList);
-  var rounds = common.getDrawnRounds(playerList);
-  for (var i = 0; i < rounds; i++) { // Remember that rounds start from 1.
-    tabID = i + 1;
-    addTab(tabID);
-    playerList = sortByTablesThenNames(playerList, i);
-    for (var j = 0; j < playerList.length; j++) {
-      var id = playerList[j].id
-      if (rowIDList[tabID].indexOf(id) == -1) {
-        addPlayerRow(id,tabID);
+//socket.on( 'pushAllPlayerDetails', function(playerList, warning) {
+socket.on( 'pushAllTournamentInfo', function(playerList, infoTable, instructions) {
+  if (instructions != 'shortNamesOnly' ) {
+    systemObj = JSON.parse(infoTable.system_json);
+    //console.log(playerList);
+    var rounds = common.getDrawnRounds(playerList);
+    for (var i = 0; i < rounds; i++) { // Remember that rounds start from 1.
+      tabID = i + 1;
+      addTab(tabID);
+      playerList = sortByTablesThenNames(playerList, i);
+      for (var j = 0; j < playerList.length; j++) {
+        var id = playerList[j].id
+        if (rowIDList[tabID].indexOf(id) == -1) {
+          addPlayerRow(id,tabID);
+        };
+        $( '#t' + tabID + 'shortName' + id).text(playerList[j].short_name);
+        $( '#t' + tabID + 'score' + id).val(playerList[j].score[i]);
+        
+        for (var k = 0; k < systemObj.tiebreaks.length; k++) {
+          //~ console.log(playerList[j]['tiebreak' + k][i]);
+          $( '#t' + tabID + 'tiebreak' + k + id)
+            .val(playerList[j]['tiebreak' + k][i]);
+        };
+        //~ console.log(playerList[j].score);
+        // Convert opponent ids to values
+        if (playerList[j].opponentids && (playerList[j].opponentids[i] > 0)) {
+          var oppID = playerList[j].opponentids[i]; // playerids start from 1.
+          var oppObj = playerList.find(function(player) {
+            return player.id == oppID;
+          });
+          playerList[j].opponentname = oppObj.short_name;
+        } else if (playerList[j].opponentids && (playerList[j].opponentids[i] < 0)) {
+          playerList[j].opponentname = 'Ghost';
+        } else {
+          // This is if opponentids doesn't exist OR opponentids is 0.
+          playerList[j].opponentname = 'Unassigned';
+        }
+        $( '#t' + tabID + 'opponent' + id).text(playerList[j].opponentname);
+        if (playerList[j].tablenumbers[i] % 2) {
+          $( '#t' + tabID + 'playerRow' + id).addClass( 'manual-bg-accent' );
+        }
       };
-      $( '#t' + tabID + 'shortName' + id).text(playerList[j].short_name);
-      $( '#t' + tabID + 'score' + id).val(playerList[j].score[i]);
-      
-      for (var k = 0; k < tiebreaks.length; k++) {
-        //~ console.log(playerList[j]['tiebreak' + k][i]);
-        $( '#t' + tabID + 'tiebreak' + k + id)
-          .val(playerList[j]['tiebreak' + k][i]);
-      };
-      //~ console.log(playerList[j].score);
-      // Convert opponent ids to values
-      if (playerList[j].opponentids && (playerList[j].opponentids[i] > 0)) {
-        var oppID = playerList[j].opponentids[i]; // playerids start from 1.
-        var oppObj = playerList.find(function(player) {
-          return player.id == oppID;
-        });
-        playerList[j].opponentname = oppObj.short_name;
-      } else if (playerList[j].opponentids && (playerList[j].opponentids[i] < 0)) {
-        playerList[j].opponentname = 'Ghost';
-      } else {
-        // This is if opponentids doesn't exist OR opponentids is 0.
-        playerList[j].opponentname = 'Unassigned';
-      }
-      $( '#t' + tabID + 'opponent' + id).text(playerList[j].opponentname);
-      if (playerList[j].tablenumbers[i] % 2) {
-        $( '#t' + tabID + 'playerRow' + id).addClass( 'manual-bg-accent' );
-      }
     };
+    $( '#outstream' ).html( '' );
   };
-  $( '#outstream' ).html( '' );
 });

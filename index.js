@@ -111,6 +111,7 @@ io.on( 'connection', function( socket ) {
   socket.on( 'pullAllTournamentInfo', function(tKey, mode) {
     mode = mode || 'nothing';
     dbfun.getAllTournamentInfo(tKey, function(playerList, infoTable) {
+      playerList = chooseShortNames(playerList);
       var instructions;
       if (mode == 'extra special') {
         instructions = 'special';

@@ -411,11 +411,17 @@ dbfun.updatePlayerDetails = function(updateObject, callback) {
       if (updateObject.value.constructor === Array) { // handle arrays. Only update one value in an array at a time with this function.
         for (var i = 0; i < updateObject.value.length; i++) {
           if (updateObject.value[i] != null) {
-            pi = i + 1;
+            var pi = i + 1;
             field += '[' + pi + ']';
             params[1] = updateObject.value[i];
             break;
           }
+        }
+      }
+      // Handle submitting non-numbers to score and tiebreak#
+      if (field.match(/(score)|(tiebreak)/g)) {
+        if (isNaN(parseInt(params[1]))) {
+          params[1] = null;
         }
       }
       var queryString = 'UPDATE ' + tSchema + '.playertable SET ' + field + ' = $2 WHERE id = $1;';
