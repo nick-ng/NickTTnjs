@@ -1,4 +1,6 @@
 var rowIDList = [0];
+var systemObj;
+var playerList;
 
 // ==============
 // Document.Ready
@@ -7,7 +9,7 @@ $( document ).ready(function() {
   common.getTournamentKey(false, true);
   if (common.tournamentKey) {
     $( '#outstream' ).html( 'Loading players. Please wait.');
-    socket.emit( 'pullAllPlayerDetails', common.tournamentKey );
+    socket.emit( 'pullAllTournamentInfo', common.tournamentKey, 'finalstandings' );
   };
   activateDisplayControls()
 }); // $( document ).ready(function() {
@@ -23,39 +25,46 @@ function addPlayerRow(customID, equal) {
   };
   rowIDList.push(newID);
   // The row's contents
-  var tableRowContent = '<tr id="playerRow' + newID + '">' +
-    '<td class="text-center">' + placeStr + '</td>' +
-    '<td id="short_name' + newID + '"></td>' +
-    '<td id="faction' + newID + '"></td>' +
-    '<td class="text-right" id="total_score' + newID + '"></td>' +
-    '<td class="text-right" id="total_vps' + newID + '"></td>' +
-    '<td class="text-right" id="total_vp_diff' + newID + '"></td>' +
-    '<td class="text-right" id="total_goals' + newID + '"></td>' +
-    '<td class="text-right" id="total_bodies' + newID + '"></td>';
-  $( '#tbl-final tbody' ).append(tableRowContent); // Append a new row.
-  
+  makeTableRow(newID, placeStr);
   return newID;
 };
 
 function calculateStandings(playerList) {
   for (var i = 0; i < playerList.length; i++) {
-    playerList[i].totalScore = common.sumArray(playerList[i].score);
-    playerList[i].totalVP = common.sumArray(playerList[i].tiebreak2);
-    playerList[i].totalGoals = common.sumArray(playerList[i].tiebreak0);
-    playerList[i].totalBodies = common.sumArray(playerList[i].tiebreak1);
-    var totalVPDiff = 0;
+    if (systemObj.slug == 'guildball') {
+      playerList[i].totalScore = common.sumArray(playerList[i].score);
+      playerList[i].totalVP = common.sumArray(playerList[i].tiebreak2);
+      playerList[i].totalGoals = common.sumArray(playerList[i].tiebreak0);
+      playerList[i].totalBodies = common.sumArray(playerList[i].tiebreak1);
+      var totalVPDiff = 0;
+      for (var j = 0; j < playerList[i].opponentids.length; j++) { // For each round,
+        var roundVPScored = playerList[i].tiebreak2[j];
+        
+        console.log(roundVPScored);
+        var roundOpponent = playerList.find(function(player) {
+          return player.id == playerList[i].opponentids[j];
+        });
+        var roundVPConceed = roundOpponent.tiebreak2[j];
+        totalVPDiff += roundVPScored - roundVPConceed;
+      };
+      playerList[i].totalVPDiff = totalVPDiff;
+    } else if (systemObj.slug == 'other') {
+      playerList[i].totalScore = common.sumArray(playerList[i].score)
+    }
+  };
+  return playerList;
+};
+
+function calculateStrengthOfSchedule(playerList, sosKey) { // usually have sosKey = 'totalScore';
+  for (var i = 0; i < playerList.length; i++) {
+    playerList[i].sos = 0;
     for (var j = 0; j < playerList[i].opponentids.length; j++) { // For each round,
-      var roundVPScored = playerList[i].tiebreak2[j];
-      
-      console.log(roundVPScored);
       var roundOpponent = playerList.find(function(player) {
         return player.id == playerList[i].opponentids[j];
       });
-      var roundVPConceed = roundOpponent.tiebreak2[j];
-      totalVPDiff += roundVPScored - roundVPConceed;
-    };
-    playerList[i].totalVPDiff = totalVPDiff;
-  };
+      playerList[i].sos += roundOpponent[sosKey];
+    }
+  }
   return playerList;
 };
 
@@ -85,15 +94,7 @@ function updateDisplay() {
 }  
 
 function sortStandings(playerList) {
-  playerList = playerList.sort(function(a, b) {
-    if (a.totalScore != b.totalScore) {
-      return a.totalScore - b.totalScore;
-    } else if (a.totalVP != b.totalVP) {
-      return a.totalVP - b.totalVP;
-    } else {
-      return a.totalVPDiff - b.totalVPDiff;
-    }
-  });
+  playerList = playerList.sort(sortDeltaFunction);
   return playerList.reverse();
 };
 
@@ -118,29 +119,119 @@ function maxByKey(arr,keyName) {
   return Math.max.apply(Math,arr.map(function(o){return o[keyName];}));
 }
 
-socket.on( 'pushAllPlayerDetails', function(playerList, instructions) {
-  $( '#tbl-final tbody tr' ).remove();
-  //console.log(playerList);
-  playerList = calculateStandings(playerList);
-  playerList = sortStandings(playerList);
-  // Display
-  var maxGoals = maxByKey(playerList, 'totalGoals' );
-  var maxBodies = maxByKey(playerList, 'totalBodies' );
-  for (var i = 0; i < playerList.length; i++) {
-    var id = addPlayerRow();
-    $( '#short_name' + id).text(playerList[i].short_name);
-    $( '#faction' + id).text(playerList[i].faction);
-    $( '#total_score' + id).text(playerList[i].totalScore);
-    $( '#total_vps' + id).text(playerList[i].totalVP);
-    $( '#total_vp_diff' + id).text(playerList[i].totalVPDiff);
-    $( '#total_goals' + id).text(playerList[i].totalGoals);
-    if (playerList[i].totalGoals == maxGoals) {
+socket.on( 'pushAllTournamentInfo', function(playerListIn, infoTable, instructions) {
+  if (instructions != 'shortNamesOnly' ) {
+    systemObj = JSON.parse(infoTable.system_json);
+    playerList = playerListIn;
+    makeTableHead();
+    $( '#tbl-final tbody tr' ).remove();
+    //console.log(playerList);
+    playerList = calculateStandings(playerList);
+    var sosKey = 'totalScore';
+    if (systemObj.slug == 'weirdGame') { // Guild Ball
+      sosKey = 'faction';
+    }
+    playerList = calculateStrengthOfSchedule(playerList, sosKey);
+    playerList = sortStandings(playerList);
+    // Display
+    for (var i = 0; i < playerList.length; i++) {
+      var id = addPlayerRow();
+      populateTableRow(id, playerList[i]);
+    };
+    $( '#outstream' ).html( '' );
+  };
+});
+
+/* ==============================
+ * Game system specific functions
+ * ==============================
+ * Different game systems display different scores and handle tiebreaks
+ * differently. The following functions change according to:
+ * systemObj.slug
+ */
+function makeTableHead() {
+  var tableHeadContent = '';
+  if (systemObj.slug == 'guildball') { // Guild Ball
+    tableHeadContent += '<th class="text-center">Place</th>' +
+      '<th>Player</th>' +
+      '<th>' + systemObj.faction_name + '</th>' +
+      '<th class="text-right">Total Score</th>' +
+      '<th class="text-right">Total VPs</th>' +
+      '<th class="text-right">Total VP<br/>Difference</th>' +
+      '<th class="text-right">Total<br/>Goals</th>' +
+      '<th class="text-right">Total<br/>Body<br/>Count</th>';
+  } else if (systemObj.slug == 'other') { // Other
+    tableHeadContent += '<tr id="playerRow' + newID + '">' +
+    '<td class="text-center">' + placeStr + '</td>' +
+    '<td id="short_name' + newID + '"></td>' +
+    '<td id="faction' + newID + '"></td>' +
+    '<td class="text-right" id="total_score' + newID + '"></td>';
+  }
+  $( '#tbl-final > thead > tr' ).html(tableHeadContent);
+};
+
+function makeTableRow(newID, placeStr) {
+  var tableRowContent = '';
+  if (systemObj.slug == 'guildball') { // Guild Ball
+    tableRowContent += '<tr id="playerRow' + newID + '">' +
+      '<td class="text-center">' + placeStr + '</td>' +
+      '<td id="short_name' + newID + '"></td>' +
+      '<td id="faction' + newID + '"></td>' +
+      '<td class="text-right" id="total_score' + newID + '"></td>' +
+      '<td class="text-right" id="total_vps' + newID + '"></td>' +
+      '<td class="text-right" id="total_vp_diff' + newID + '"></td>' +
+      '<td class="text-right" id="total_goals' + newID + '"></td>' +
+      '<td class="text-right" id="total_bodies' + newID + '"></td>';
+  } else if (systemObj.slug == 'other') { // Other
+    tableRowContent += '<tr id="playerRow' + newID + '">' +
+      '<td class="text-center">' + placeStr + '</td>' +
+      '<td id="short_name' + newID + '"></td>' +
+      '<td id="faction' + newID + '"></td>' +
+      '<td class="text-right" id="total_score' + newID + '"></td>';
+  }
+  $( '#tbl-final tbody' ).append(tableRowContent); // Append a new row.
+};
+
+function populateTableRow(id, playerObj) {
+  if (systemObj.slug == 'guildball') { // Guild Ball
+    var maxGoals = maxByKey(playerList, 'totalGoals' );
+    var maxBodies = maxByKey(playerList, 'totalBodies' );
+    $( '#short_name' + id).text(playerObj.short_name);
+    $( '#faction' + id).text(playerObj.faction);
+    $( '#total_score' + id).text(playerObj.totalScore);
+    $( '#total_vps' + id).text(playerObj.totalVP);
+    $( '#total_vp_diff' + id).text(playerObj.totalVPDiff);
+    $( '#total_goals' + id).text(playerObj.totalGoals);
+    if (playerObj.totalGoals == maxGoals) {
       $( '#total_goals' + id).addClass('bg-success');
     }
-    $( '#total_bodies' + id).text(playerList[i].totalBodies);
-    if (playerList[i].totalBodies == maxBodies) {
+    $( '#total_bodies' + id).text(playerObj.totalBodies);
+    if (playerObj.totalBodies == maxBodies) {
       $( '#total_bodies' + id).addClass('bg-success');
     }
-  };
-  $( '#outstream' ).html( '' );
-});
+  } else if (systemObj.slug == 'other') { // Other
+    $( '#short_name' + id).text(playerObj.short_name);
+    $( '#faction' + id).text(playerObj.faction);
+    $( '#total_score' + id).text(playerObj.totalScore);
+  }
+}
+
+function sortDeltaFunction(a, b) {
+  if (systemObj.slug == 'guildball') { // Guild Ball
+    if (a.totalScore != b.totalScore) {
+      return a.totalScore - b.totalScore;
+    } else if (a.totalVP != b.totalVP) {
+      return a.totalVP - b.totalVP;
+    } else if (a.totalVPDiff != b.totalVPDiff){
+      return a.totalVPDiff - b.totalVPDiff;
+    } else {
+      return a.sos - b.sos;
+    }
+  } else if (systemObj.slug == 'other') { // Other
+    if (a.totalScore != b.totalScore) {
+      return a.totalScore - b.totalScore;
+    } else {
+      return a.sos - b.sos;
+    }
+  }
+}
