@@ -370,13 +370,8 @@ dbfun.updateTournamentJSON = function updateTournamentJSON( targetJSON, tSchema,
   if (I >= 0) {
     targetJSON = bfun.sanitize(valid_jsons[I]); // The paranoia is real.
     dbfun.ezQuery( 'SELECT ' + targetJSON + ' FROM ' + tSchema + '.infotable WHERE id = 1;', function(result) {
-      //console.log(result);
       jsonString = result.rows[0][targetJSON];
-      //[targetJSON]
-      //console.log('[(' + jsonString + ')]');
       retrievedObject = JSON.parse(jsonString);
-      //console.log(retrievedObject);
-      //JSON.stringify()
       var cleanObject = {};
       for (var i = 0; i < JSON_KEYS[targetJSON].length; i++) {
         var keyName = JSON_KEYS[targetJSON][i]

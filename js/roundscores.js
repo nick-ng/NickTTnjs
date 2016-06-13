@@ -73,14 +73,6 @@ function addPlayerRow(customID,tableID) {
     tiebreakerEvents(tableID, i, newID); // end of anonymous function.
   };
   
-  $( '#t' + tableID + 'opponent' + newID).bind( 'focusout', function() {
-    var updateObject = {tKey:common.tournamentKey, id:newID, round:tableID};
-    updateObject.field = 'opponent';
-    updateObject.value = $(this).val();
-    //socket.emit( 'playerDetailsChanged', updateObject, 'scores' );
-    return false;
-  });
-  
   return 0; // Return player count in case we need it later.
 };
 
@@ -112,8 +104,10 @@ function sortByTablesThenNames(array, index) {
 
 //socket.on( 'pushAllPlayerDetails', function(playerList, warning) {
 socket.on( 'pushAllTournamentInfo', function(playerList, infoTable, instructions) {
-  if (instructions != 'shortNamesOnly' ) {
+  if (infoTable) {
     systemObj = JSON.parse(infoTable.system_json);
+  }
+  if (playerList && (instructions != 'shortNamesOnly' )) {
     //console.log(playerList);
     var rounds = common.getDrawnRounds(playerList);
     for (var i = 0; i < rounds; i++) { // Remember that rounds start from 1.

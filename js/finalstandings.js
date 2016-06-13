@@ -120,8 +120,10 @@ function maxByKey(arr,keyName) {
 }
 
 socket.on( 'pushAllTournamentInfo', function(playerListIn, infoTable, instructions) {
-  if (instructions != 'shortNamesOnly' ) {
+  if (infoTable) {
     systemObj = JSON.parse(infoTable.system_json);
+  }
+  if (playerListIn && (instructions != 'shortNamesOnly' )) {
     playerList = playerListIn;
     makeTableHead();
     $( '#tbl-final tbody tr' ).remove();

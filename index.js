@@ -71,7 +71,14 @@ io.on( 'connection', function( socket ) {
   
   socket.on( 'sendToDisplay', function(displayData) {
     if (displayData.room) {
-      io.to(displayData.room).emit( 'displayThisPlease', displayData);
+      var safeData = {};
+      safeData.announcement = displayData.announcement;
+      safeData.content = displayData.content;
+      safeData.left_image_url = displayData.left_image_url;
+      safeData.right_image_url = displayData.right_image_url;
+      io.to(displayData.room).emit( 'displayThisPlease', safeData);
+      var tSchema = bfun.tKey2tSchema(displayData.room);
+      dbfun.updateTournamentJSON( 'display_json', tSchema, safeData);
     };
   });
   
@@ -89,21 +96,14 @@ io.on( 'connection', function( socket ) {
       //~ console.log('Player details updated');
       //~ console.log(result);
       // Update short names
-      switch ( mode ) {
-        case 'scores':
-          // example
-          break;
-        case 'finalstandings':
-          // example
-          break;
-        default: // playerdetails
-          if (updateObject.field == 'full_name') {
-            // If they changed the full name, push updated short names.
-            dbfun.getAllPlayerDetails(updateObject.tKey, function(playerList) {
-              playerList = chooseShortNames(playerList, true);
-              io.to(socket.id).emit( 'pushAllPlayerDetails', playerList, 'shortNamesOnly');
-            })
-          };
+      if (mode == 'playerdetails') {
+        if (updateObject.field == 'full_name') {
+          // If they changed the full name, push updated short names.
+          dbfun.getAllPlayerDetails(updateObject.tKey, function(playerList) {
+            playerList = chooseShortNames(playerList, true);
+            io.to(socket.id).emit( 'pushAllTournamentInfo', playerList, false, 'shortNamesOnly');
+          })
+        };
       }
     });
   });
@@ -117,36 +117,6 @@ io.on( 'connection', function( socket ) {
         instructions = 'special';
       };
       io.to(socket.id).emit( 'pushAllTournamentInfo', playerList, infoTable, instructions);
-    });
-  });
-  
-  socket.on( 'pullAllPlayerDetails',  function(tKey, mode) {
-    mode = mode || 'playerdetails';
-    dbfun.getAllPlayerDetails(tKey, function(playerList) {
-      // sort out short names
-      playerList = chooseShortNames(playerList);
-      var extraInfo;
-      switch ( mode ) {
-        case 'scores':
-          //~ rounds = 1;
-          extraInfo = 0; // rounds
-          //~ for (var j = 0; j < playerList.length; j++) {
-            //~ playerList[j].opponentnames = []; // Placeholder
-            //~ for (var i = 0; i < rounds; i++) {
-              //~ playerList[j].opponentnames[i] = '' + j + i;
-            //~ }
-          //~ }
-          break;
-        case 'rounddraw':
-          extraInfo = 0; // example
-          break;
-        case 'finalstandings':
-          extraInfo = 0; // example
-          break;
-        default: // playerdetails
-          extraInfo = 'hello';
-      }
-      io.to(socket.id).emit( 'pushAllPlayerDetails', playerList, extraInfo);
     });
   });
   

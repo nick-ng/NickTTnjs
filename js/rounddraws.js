@@ -4,6 +4,7 @@ var maxTries = [100,1000,5000]; // How many times to try before going to a diffe
 var maxTime = 4.8; // Unresponsive alert time.
 var randseed = [Math.random()]; // Initialise a random seed for the random function we call later.
 var playerList;
+var displayObj;
 var maxMaps;
 var activeTab;
 //var drawList = [];
@@ -15,7 +16,7 @@ $(document).ready(function() {
   common.getTournamentKey(false, true)
   if (common.tournamentKey) {
     $( '#outstream' ).html( 'Loading tournament information.' );
-    socket.emit( 'pullAllPlayerDetails', common.tournamentKey, 'rounddraw' );
+    socket.emit( 'pullAllTournamentInfo', common.tournamentKey, 'rounddraw' );
   };
   
   activateDisplayControls()
@@ -83,8 +84,8 @@ function updateDisplay() {
   displayData.content = $( '#tbl-' + activeTab).html();
   displayData.content = '<table class="table table-striped">' + displayData.content + '</table>';
   displayData.content = '<h2 class="text-center">Round ' + activeTab + ' Draw</h2>' + displayData.content;
-  displayData.leftURL = $( '#displayLeftImageURL' ).val();
-  displayData.rightURL = $( '#displayRightImageURL' ).val();
+  displayData.left_image_url = $( '#displayLeftImageURL' ).val();
+  displayData.right_image_url = $( '#displayRightImageURL' ).val();
   socket.emit('sendToDisplay', displayData);
 }
 
@@ -356,24 +357,38 @@ function removeFromArray(arrOriginal, elementToRemove) {
   });
 };
 
-socket.on( 'pushAllPlayerDetails', function(playerListIn, extraInfo) {
+socket.on( 'pushAllTournamentInfo', function(playerListIn, infoTable, instructions) {
+  if (infoTable) {
+    displayObj = JSON.parse(infoTable.display_json);
+    if (displayObj.announcement) {
+      $( '#displayAnnouncement' ).val(displayObj.announcement);
+    }
+    if (displayObj.left_image_url) {
+      $( '#displayLeftImageURL' ).val(displayObj.left_image_url);
+    }
+    if (displayObj.right_image_url) {
+      $( '#displayRightImageURL' ).val(displayObj.right_image_url);
+    }
+  }
+  if (playerListIn && (instructions != 'shortNamesOnly' )) {
+    playerList = playerListIn;
+    maxMaps = Math.ceil(playerList.length/2);
+    var prevRound = common.getDrawnRounds(playerList);
+    // Put all the existing round information into tabs and tables.
+    for (var i = 1; i <= prevRound; i++) {
+      roundID = i;
+      addTab(roundID);
+      // Add pairings to the tab.
+      drawList = reconstructDrawList(playerList, roundID);
+      displayDraw(drawList, playerList, roundID)
+    };
+    // Make a new tab for the next round.
+    //~ console.log('Adding new tab');
+    addTab(prevRound + 1);
+    //var newDraw = pairRound(playerList);
+    //tabs.tabs("option", "active", -1);
+  }
   $( '#outstream' ).html( '' );
-  playerList = playerListIn;
-  maxMaps = Math.ceil(playerList.length/2);
-  var prevRound = common.getDrawnRounds(playerList);
-  // Put all the existing round information into tabs and tables.
-  for (var i = 1; i <= prevRound; i++) {
-    roundID = i;
-    addTab(roundID);
-    // Add pairings to the tab.
-    drawList = reconstructDrawList(playerList, roundID);
-    displayDraw(drawList, playerList, roundID)
-  };
-  // Make a new tab for the next round.
-  //~ console.log('Adding new tab');
-  addTab(prevRound + 1);
-  //var newDraw = pairRound(playerList);
-  //tabs.tabs("option", "active", -1);
 });
 
 socket.on( 'drawAccepted', function(round) {

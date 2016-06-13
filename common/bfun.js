@@ -238,6 +238,15 @@ bfun.sortByKey = function sortByKey(array, key) {
   });
 }
 
+bfun.urlIsSave = function urlIsSafe(someURL) {
+  if (typeof someURL != 'undefined') {
+    if (someURL.match(/[<>"']/g).length == 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
 bfun.helloWorld = function () {
   console.log( 'Hello World' );
 };
