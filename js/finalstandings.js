@@ -163,11 +163,10 @@ function makeTableHead() {
       '<th class="text-right">Total<br/>Goals</th>' +
       '<th class="text-right">Total<br/>Body<br/>Count</th>';
   } else if (systemObj.slug == 'other') { // Other
-    tableHeadContent += '<tr id="playerRow' + newID + '">' +
-    '<td class="text-center">' + placeStr + '</td>' +
-    '<td id="short_name' + newID + '"></td>' +
-    '<td id="faction' + newID + '"></td>' +
-    '<td class="text-right" id="total_score' + newID + '"></td>';
+    tableHeadContent += '<th class="text-center">Place</th>' +
+      '<th>Player</th>' +
+      '<th>' + systemObj.faction_name + '</th>' +
+      '<th class="text-right">Total Score</th>';
   }
   $( '#tbl-final > thead > tr' ).html(tableHeadContent);
 };
