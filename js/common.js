@@ -80,3 +80,20 @@ common.sumArray = function sumArray(someArray, useFloat) {
     return 0;
   };
 };
+
+common.urlIsSafe = function urlIsSafe(someURL) {
+  if (typeof someURL != 'undefined') {
+    if (!someURL.match(/[<>"']/g)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+common.chooseSystemObject = function chooseSystemObject(selectString) {
+  if (selectString == 'Guild Ball') {
+    return GAME_SYSTEM_OBJECTS.guildball;
+  } else {
+    return GAME_SYSTEM_OBJECTS.other;
+  }
+};

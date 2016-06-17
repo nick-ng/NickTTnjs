@@ -28,21 +28,13 @@ $( '#createNewTournamentForm' ).submit(function() {
   //console.log('Tournament Name ' + newTournamentName);
   tournamentObj.tournamentDate = $( '#newTournamentDate' ).val();
   //console.log('Tournament Date ' + newTournamentDate);
-  tournamentObj.sytemObj = chooseSystemObject($( '#newTournamentSystem' ).val());
+  tournamentObj.sytemObj = common.chooseSystemObject($( '#newTournamentSystem' ).val());
   socket.emit( 'pullTournamentKey', 'new', tournamentObj);
   //<div id="newTournamentDialog" title="Create a new tournament?">
   $( '#newTournamentDialogTitle' ).text( 'Creating new tournament...' );
   $( '#newTournamentDialogBody' ).html( '<p>Please wait.</p>' );
   return false;
 });
-
-function chooseSystemObject(selectString) {
-  if (selectString == 'Guild Ball') {
-    return GAME_SYSTEM_OBJECTS.guildball;
-  } else {
-    return GAME_SYSTEM_OBJECTS.other;
-  }
-};
 
 function handleLoadTournament() {
   homeLoadTournament();

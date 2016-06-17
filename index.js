@@ -51,6 +51,9 @@ app.get( '/rounddraws', function( req, res ) {
 app.get( '/roundscores', function( req, res ) {
   res.sendFile(PAGEDIR + '/roundscores.html');
 });
+app.get( '/misc', function( req, res ) {
+  res.sendFile(PAGEDIR + '/misc.html');
+});
 app.get( '/options', function( req, res ) {
   res.sendFile(PAGEDIR + '/options.html');
 });
@@ -125,6 +128,27 @@ io.on( 'connection', function( socket ) {
       //Put draw information on database
       io.to(socket.id).emit( 'drawAccepted', drawObject.round);
     });
+  });
+  
+  socket.on( 'updateTournamentDetails', function(tKey, detail, value) {
+    var tSchema = bfun.tKey2tSchema(tKey);
+    if (detail == 'infoTable.name') {
+      dbfun.updateTournamentInfo( 'name', tSchema, value);
+    }
+    if (detail == 'infoTable.date') {
+      dbfun.updateTournamentInfo( 'date', tSchema, value);
+    }
+    if (detail == 'systemObj.name') {
+      dbfun.updateTournamentJSON( 'system_json', tSchema, value);
+    }
+    if (detail == 'displayObj.left_image_url') {
+      var tempObject = {left_image_url:value};
+      dbfun.updateTournamentJSON( 'display_json', tSchema, tempObject);
+    }
+    if (detail == 'displayObj.right_image_url') {
+      var tempObject = {right_image_url:value};
+      dbfun.updateTournamentJSON( 'display_json', tSchema, tempObject);
+    }
   });
   
   /* ====================
