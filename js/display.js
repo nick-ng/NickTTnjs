@@ -6,10 +6,17 @@ $(document).ready(function() {
   common.getTournamentKey(false, true)
   if (common.tournamentKey) {
     $( '#outstream' ).html( 'Loaded tournament' );// + common.tournamentKey );
+    $.get( './display', {key:common.tournamentKey}, function(data) {
+      if (data.content) {
+        updateDisplay(data)
+      };
+    });
   };
 }); // $(document).ready(function() {
 
-socket.on( 'displayThisPlease', function(displayData) {
+socket.on( 'displayThisPlease', updateDisplay);
+
+function updateDisplay(displayData) {
   var imgWidth = Math.floor(window.innerWidth * 0.2);
   if (typeof displayData.announcement != 'undefined') {
     $( '#announcement' ).text(displayData.announcement);
@@ -34,5 +41,4 @@ socket.on( 'displayThisPlease', function(displayData) {
     };
   };
   $( '#outstream' ).html( '' );
-});
-
+};

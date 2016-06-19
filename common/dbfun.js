@@ -269,7 +269,7 @@ dbfun.getPlayersKeys = function getPlayersKeys(callback) {
   });
 };
 
-dbfun.checkTournament = function(tKey, callback) {
+dbfun.checkTournament = function checkTournament(tKey, callback) {
   var tSchema = bfun.tKey2tSchema(tKey);
   var queryString = 'SELECT schema_name FROM information_schema.schemata WHERE schema_name = \'' + tSchema + '\';';
   dbfun.ezQuery( queryString, function(result) {
@@ -452,6 +452,14 @@ dbfun.getAllPlayerDetails = function(tournamentKey, callback) {
     } else {
       console.log(tournamentKey + ' is not a valid tournament-key. Someone is messing with your web app.');
     }
+  });
+};
+
+dbfun.getDisplayJSON = function getDisplayJSON(tournamentKey, callback) {
+  var tSchema = bfun.tKey2tSchema(tournamentKey);
+  var queryStr = 'SELECT display_json FROM ' + tSchema + '.infotable;';
+  dbfun.ezQuery(queryStr, function(result) {
+    callback(result.rows[0].display_json);
   });
 };
 

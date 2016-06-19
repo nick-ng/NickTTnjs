@@ -57,12 +57,54 @@ app.get( '/misc', function( req, res ) {
 app.get( '/options', function( req, res ) {
   res.sendFile(PAGEDIR + '/options.html');
 });
-app.get( '/display', function( req, res ) {
-  res.sendFile(PAGEDIR + '/display.html');
+
+app.get( '/display*', function( req, res ) {
+  var keys = Object.keys(req.params);
+  var valid = true;
+  for (var i = 0; i < keys.length; i++) {
+    if (req.params[keys[i]].match(/\//g)) {
+      valid = false;
+    }
+  }
+  if (valid && req.query.key) {
+    dbfun.checkTournament(req.query.key, function(tournamentExists, actualKey) {
+      if (tournamentExists) {
+        dbfun.getDisplayJSON(actualKey, function(display_json) {
+          res.status(200);
+          res.json(JSON.parse(display_json));
+        });
+      } else {
+        var errorMsg = maybeKey + ' is not a valid tournament-key.';
+        console.log('Tournament Does not exist');
+        res.sendStatus(400);
+      };
+    });
+  } else if (valid) {
+    res.sendFile(PAGEDIR + '/display.html');
+  } else {
+    res.sendStatus(400);
+  };
 });
-app.get( '/test', function( req, res ) {
-  var url = process.env.TEST || '/home.html';
-  res.sendFile(PAGEDIR + url);
+
+app.get( '/test*', function( req, res ) {
+  var keys = Object.keys(req.params);
+  var valid = true;
+  for (var i = 0; i < keys.length; i++) {
+    if (req.params[keys[i]].match(/\//g)) {
+      valid = false;
+    }
+  }
+  if (valid) {
+    console.log('req.query');
+    console.log(req.query);
+    console.log('req.params');
+    console.log(req.params);
+    console.log('End');
+    var url = process.env.TEST || '/home.html';
+    res.sendFile(PAGEDIR + url);
+  } else {
+    res.sendStatus(400);
+  };
 });
 
 // Socket.IO stuff
