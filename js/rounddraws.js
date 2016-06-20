@@ -1,6 +1,7 @@
 var tabIDList = [0];
 var rowIDList = [[0]];
-var maxTries = [100,1000,5000]; // How many times to try before going to a different routine.
+var maxTries = [100,1000,5000]; // honourScore + avoidClubs, honourScore, avoidClubs;
+var clubTries = 20; // How many times to avoid pairing against the same club before giving up.
 var maxTime = 4.8; // Unresponsive alert time.
 var randseed = [Math.random()]; // Initialise a random seed for the random function we call later.
 var playerList;
@@ -152,7 +153,7 @@ function pairRound(playerList, round, randomSeed) {
   var pairList = [];
   breakCounter = 0;
   /* These control what pairings are allowed.
-   * avoidOpponents is always true.
+   * "avoidOpponents" is always true.
    * Order:
    * honourScore = avoidClubs = true
    * honourScore = true
@@ -160,7 +161,14 @@ function pairRound(playerList, round, randomSeed) {
    */
   var honourScore = true; // Pair according to score.
   var avoidClubs = true; // Avoid pairing players from the same club.
-  while ((tempPlayers.length > 0) && (breakCounter < maxTries[0])) {
+  while ((tempPlayers.length > 0) && (breakCounter < maxTries[maxTries.length-1])) {
+    if (breakCounter > maxTries[1]) {
+      honourScore = false;
+      avoidClubs = true;
+    } else if (breakCounter > maxTries[0]) {
+      honourScore = true;
+      avoidClubs = false;
+    }; // honourScore and avoidClubs already set before loop so no need final else.
     for (var i = 0; i < tempPlayers.length; i++) {
       //Math.floor(tempPlayers[i].totalScore) +
       tempPlayers[i].totalScore = seededRand() / 10;
@@ -181,7 +189,10 @@ function pairRound(playerList, round, randomSeed) {
     while (tempPlayers[0] && tempPlayers[0].totalScore >= scoreBracket) {
       player1 = tempPlayers.shift();
       player2 = tempPlayers.shift();
-      if (player1.opponentids.indexOf(player2.id) == -1 ) {
+      var haventPlayed = player1.opponentids.indexOf(player2.id) == -1; // Only need to check for one player.
+      var sameClub = player1.club.toUpperCase() == player2.club.toUpperCase();
+      var differentClub = !(sameClub && avoidClubs);
+      if (haventPlayed && differentClub) {
         pairList.push([player1.id, player2.id]);
       } else {
         tempPlayers.push(player1);
@@ -258,8 +269,9 @@ function makeTempPlayerList(playerList) {
   var tempPlayers = [];
   for (var i = 0; i < playerList.length; i++) {
     // Check still_playing property before pushing.
-    // playerList[i].stillplaying;
-    tempPlayers.push({id:playerList[i].id, opponentids:playerList[i].opponentids, score:playerList[i].score});
+    if (playerList[i].stillplaying) {
+      tempPlayers.push({id:playerList[i].id, opponentids:playerList[i].opponentids, score:playerList[i].score, club:playerList[i].club});
+    };
   };
   if (tempPlayers.length % 2) {
     tempPlayers.push({id:-1, opponentids:[], score:[-1]}); // Add ghost player so there are always an even number of players.
