@@ -8,6 +8,8 @@ var inputFieldList = [
   '#tournamentSystem',
   '#leftImageURL',
   '#rightImageURL'];
+//var allSelectList = [ '#dickbuttURL', '#dogeURL', '#pepeURL' ];
+var allSelectList = [ 'input' ];
 
 // Figure out a better way to do this
 var GAME_SYSTEM_OBJECTS = {};
@@ -33,7 +35,7 @@ $(document).ready(function() {
     $( '#outstream' ).html( 'Loading tournament information.' );
     socket.emit( 'pullAllTournamentInfo', common.tournamentKey, 'misc' );
   };
-  
+  common.setSelectOnClick(allSelectList);
 }); // $(document).ready(function() {
 
 $( '#tournamentDetailsForm' ).submit(function() {

@@ -97,3 +97,28 @@ common.chooseSystemObject = function chooseSystemObject(selectString) {
     return GAME_SYSTEM_OBJECTS.other;
   }
 };
+
+// Adapted from http://stackoverflow.com/a/32501584
+common.setSelectOnClick = function setSelectOnClick(selectorList) {
+  for (var i = 0; i < selectorList.length; i++) {
+    $(selectorList[i]).blur(function() {
+      if ($(this).attr("data-selected-all")) {
+        $(this).removeAttr("data-selected-all");
+      }
+    });
+    $(selectorList[i]).click(function() {
+      if (!$(this).attr("data-selected-all")) {
+        try {
+          $(this).selectionStart = 0;
+          $(this).selectionEnd = $(this).value.length + 1;
+          //add atribute allowing normal selecting post focus
+          $(this).attr("data-selected-all", true);
+        } catch (err) {
+          $(this).select();
+          //add atribute allowing normal selecting post focus
+          $(this).attr("data-selected-all", true);
+        }
+      }
+    });
+  }
+};

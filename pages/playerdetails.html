@@ -32,11 +32,24 @@
       <div class="row">
         <div class="col-md-12">
           <h1 class="text-center" id="outstream"></h1>
-          <p class="text-center">
-            <input id="addPlayerButton" class="btn btn-default" type="button" value="Add Player" />
-            <input id="hideEmptyButton" class="btn btn-default" type="button" value="Hide Empty Rows" />
-            <input id="showEmptyButton" class="btn btn-default" type="button" value="Show Empty Rows" />
+          <p>
+            <input type="text" id="emailList" class="form-control hidden"/>
           </p>
+          <div class="row">
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-left">
+              <input id="addPlayerButton" class="btn btn-default" type="button" value="Add Player" />
+              <input id="hideEmptyButton" class="btn btn-default" type="button" value="Hide Empty Rows" />
+              <input id="showEmptyButton" class="btn btn-default" type="button" value="Show Empty Rows" />
+            </div>
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-right">
+              <label for="emailGroups">Email Players:</label>
+              <div class="btn-group" id="emailGroups" role="group" aria-label="email groups">
+                <button id="emailAllUnpaid" type="button" class="btn btn-default">All Unpaid</button>
+                <button id="emailPlayingUnpaid" type="button" class="btn btn-default">Still Playing and Unpaid</button>
+                <button id="emailPlayingPaid" type="button" class="btn btn-default">Still Playing and Paid</button>
+              </div>
+            </div>
+          </div>
           <table id="tbl" class="table table-hover table-striped">
             <thead>
               <tr>

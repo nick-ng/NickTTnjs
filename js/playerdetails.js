@@ -1,5 +1,7 @@
 var rowIDList = [0];
 var systemObj = {};
+var emailGroup = '';
+var allSelectList = ['#emailList'];
 
 // ==============
 // Document.Ready
@@ -11,6 +13,7 @@ $( document ).ready(function() {
     $( '#outstream' ).html( 'Loading players. Please wait.');
     socket.emit( 'pullAllTournamentInfo', common.tournamentKey );
   };
+  common.setSelectOnClick(allSelectList);
 }); // $( document ).ready(function() {
 
 $('#addPlayerButton').click(function() {
@@ -84,6 +87,7 @@ function addPlayerRow(customID, source) {
     updateObject.field = 'stillplaying';
     updateObject.value = $(this).prop( 'checked' );
     socket.emit( 'playerDetailsChanged', updateObject, 'playerdetails' );
+    populateEmailList()
     return false;
   });
   
@@ -92,6 +96,7 @@ function addPlayerRow(customID, source) {
     updateObject.field = 'paid';
     updateObject.value = $(this).prop( 'checked' );
     socket.emit( 'playerDetailsChanged', updateObject, 'playerdetails' );
+    populateEmailList()
     return false;
   });
   
@@ -125,7 +130,7 @@ function addPlayerRow(customID, source) {
   });
   */
   
-  showAllRows() // also fixRowColours()
+  showAllRows();
   if (source == 'autoTab') {
     //set focus
     $( '#fullName' + newID ).focus();
@@ -136,6 +141,59 @@ function addPlayerRow(customID, source) {
 $('#hideEmptyButton').click(function() {
   hideEmptyRows();
 });
+
+$( '#emailAllUnpaid' ).click(function() {
+  emailGroup = 'allUnpaid';
+  populateEmailList()
+  $( '#emailList' ).removeClass( 'hidden' );
+  $( '#emailAllUnpaid' ).addClass( 'active' );
+  $( '#emailPlayingUnpaid' ).removeClass( 'active' );
+  $( '#emailPlayingPaid' ).removeClass( 'active' );
+});
+
+$( '#emailPlayingUnpaid' ).click(function() {
+  emailGroup = 'playingUnpaid';
+  populateEmailList()
+  $( '#emailList' ).removeClass( 'hidden' );
+  $( '#emailAllUnpaid' ).removeClass( 'active' );
+  $( '#emailPlayingUnpaid' ).addClass( 'active' );
+  $( '#emailPlayingPaid' ).removeClass( 'active' );
+});
+
+$( '#emailPlayingPaid' ).click(function() {
+  emailGroup = 'playingPaid';
+  populateEmailList()
+  $( '#emailList' ).removeClass( 'hidden' );
+  $( '#emailAllUnpaid' ).removeClass( 'active' );
+  $( '#emailPlayingUnpaid' ).removeClass( 'active' );
+  $( '#emailPlayingPaid' ).addClass( 'active' );
+});
+
+function populateEmailList() {
+  if (emailGroup) {
+    var emailListString = '';
+    for (var i = 1; i < rowIDList.length; i++) {
+      var rowID = rowIDList[i];
+      var stillPlaying = $( '#stillPlaying' + rowID ).prop( 'checked' );
+      var paid = $( '#paid' + rowID ).prop( 'checked' );
+      var emailAddress = $( '#playerEmail' + rowID ).val();
+      if (emailGroup == 'allUnpaid') {
+        if (!paid) {
+          emailListString += emailAddress + ';';
+        }
+      } else if (emailGroup == 'playingUnpaid') {
+        if (!paid && stillPlaying) {
+          emailListString += emailAddress + ';';
+        }
+      } else if (emailGroup == 'playingPaid') {
+        if (paid && stillPlaying) {
+          emailListString += emailAddress + ';';
+        }
+      }
+    };
+    $( '#emailList' ).val(emailListString);
+  }
+}
 
 function autoStillPlaying(value, id) {
   if (common.removeWhiteSpace(value)) {
@@ -163,7 +221,6 @@ function hideEmptyRows() {
       $('#playerRow' + rowIDList[i]).hide(); // remove empty row.
     }
   }
-  //~ fixRowColours()
   $('#showEmptyButton').show()
   $('#hideEmptyButton').hide()
   $('#addPlayerButton').hide()
@@ -178,27 +235,9 @@ function showAllRows() {
   for (var i = 0; i < rowIDList.length; i++) {
     $('#playerRow' + rowIDList[i]).show(); // show row.
   }
-  //~ fixRowColours()
   $('#showEmptyButton').hide()
   $('#addPlayerButton').show()
   $('#hideEmptyButton').show()
-}
-
-function fixRowColours() {
-  // Adjust background colour of rows.
-  var bgColourToggler = 1; // 1 = light, 0 = dark.
-  //var rowCount = $('#tbl').prop('rows').length;
-  for (var i = 0; i < rowIDList.length; i++) {
-    if ($( '#playerRow' + rowIDList[i] ).is(":visible")) {
-      if (bgColourToggler == 1) {
-        $( '#playerRow' + rowIDList[i] ).css( "background-color", common.bgLight );
-        bgColourToggler = 0;
-      } else {
-        $( '#playerRow' + rowIDList[i] ).css( "background-color", common.bgDark );
-        bgColourToggler = 1;
-      }
-    }
-  }
 }
 
 /*
@@ -213,7 +252,6 @@ socket.on( 'shortName change', function(playerList) {
 */
 
 function processPlayerList(playerList, instructions) {
-  //console.log(playerList);
   for (var i = 0; i < playerList.length; i++) {
     var id = playerList[i].id;
     if (rowIDList.indexOf(id) == -1) {
@@ -227,7 +265,7 @@ function processPlayerList(playerList, instructions) {
       $( '#paid' + id).prop( 'checked', playerList[i].paid);
       $( '#club' + id).val(playerList[i].club);
       $( '#faction' + id).val(playerList[i].faction);
-    }
+    };
     $( '#shortName' + id).val(playerList[i].short_name);
     $( '#shortNameHide' + id).text(playerList[i].short_name);
   };
