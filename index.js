@@ -43,8 +43,13 @@ initDatabase();
 
 // The pages
 app.post( '/', function(req, res) {
-  if ((req.body.source == 'scores') && !isNaN(req.body.updateObject.index)) {
-    req.body.updateObject.index = parseInt(req.body.updateObject.index);
+  if (req.body.source) {
+    if (!isNaN(req.body.updateObject.index)) {
+      req.body.updateObject.index = parseInt(req.body.updateObject.index);
+    }
+    if (!isNaN(req.body.updateObject.round)) {
+      req.body.updateObject.round = parseInt(req.body.updateObject.round);
+    }
     dbfun.updatePlayerDetails(req.body.updateObject, function() {
       res.sendStatus(201);
     });

@@ -16,3 +16,7 @@
 .manual-bg-accent {
   background-color: #f9f9f9; /* This should match @table-bg-accent or .table-striped > tbody > tr:nth-of-type(odd) */
 }
+
+#player-votes {
+  justify-content: center;
+}

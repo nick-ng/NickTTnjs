@@ -6,8 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Final Standings &mdash; Nick's Tournament Tool</title>
     <link rel="shortcut icon" href="images/narwhal-32.png" />
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="extra.css" rel="stylesheet">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/extra.css" rel="stylesheet">
+    <script src="/underscore-min.js" defer></script>
+    <script src="/socket.io-1.4.5.js" defer></script>
+    <script src="/jquery-2.2.3.min.js" defer></script>
+    <script src="/js/bootstrap.min.js" defer></script>
+    <script src="/jquery.cookie.js" defer></script>
+    <script src="/common.js" defer></script>
+    <script src="/finalstandings.js" defer></script>
   </head>
   <body>
     <!-- Nav bar start -->
@@ -41,18 +48,15 @@
             <thead>
               <tr>
                 <!-- You may need to generate this row. -->
-                <th class="text-center">Place</th>
-                <th>Player</th>
-                <th id="FactionHeader">Guild</th>
-                <th class="text-right">Total Score</th>
-                <th class="text-right">Total VPs</th>
-                <th class="text-right">Total VP<br/>Difference</th>
-                <th class="text-right">Total<br/>Goals</th>
-                <th class="text-right">Total<br/>Body<br/>Count</th>
               </tr>
             </thead>
             <tbody></tbody>
           </table>
+          <div class="row">
+            <div id="player-votes" class="hidden">
+              <h4>Player vote results won't be shown to players.</h4>
+            </div>
+          </div>
         </div>
         <div class="hidden-xs hidden-sm col-md-1 col-lg-2"></div>
       </div>
@@ -64,12 +68,5 @@
       </div>
     </div>
     <!-- End of main content -->
-        
-    <script type="text/javascript" src="socket.io-1.4.5.js"></script>
-    <script type="text/javascript" src="jquery-2.2.3.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="jquery.cookie.js"></script>
-    <script type="text/javascript" src="common.js"></script>
-    <script type="text/javascript" src="finalstandings.js"></script>
   </body>
 </html>

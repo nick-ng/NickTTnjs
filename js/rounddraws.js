@@ -1,3 +1,4 @@
+var socket = io();
 var tabIDList = [0];
 var rowIDList = [[0]];
 var maxTries = [100,1000,5000]; // honourScore + avoidClubs, honourScore, avoidClubs;

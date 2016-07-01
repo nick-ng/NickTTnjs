@@ -1,13 +1,15 @@
 var roundScoresObj = {
   tabIDList: [0],
   rowIDList: [[0]],
-  systemObj: {}
+  systemObj: {},
+  pendingPOSTs: 0
 };
 
 // ==============
 // Document.Ready
 // ==============
 $(document).ready(function() {
+  $('.collapse').collapse( 'hide' );
   common.getTournamentKey(false, false)
   if (common.tournamentKey) {
     $( '#outstream' ).html( 'Loading tournament information.' );
@@ -72,10 +74,21 @@ function addPlayerRow(customID,tableID) {
 
   // Set up events for cells.
   $( '#t' + tableID + 'score' + newID).bind( 'focusout change', function() {
-    var updateObject = {tKey:common.tournamentKey, id:newID, round:tableID};
-    updateObject.field = 'score';
-    updateObject.value = $(this).val();
-    socket.emit( 'playerDetailsChanged', updateObject, 'scores' );
+    var updateObject = {
+      tKey: common.tournamentKey,
+      id: newID,
+      round: tableID,
+      field: 'score',
+      value: $(this).val()
+    }
+    //socket.emit( 'playerDetailsChanged', updateObject, 'scores' );
+    roundScoresObj.pendingPOSTs++;
+    $( '#finished-alert' ).collapse( 'hide' );
+    $( '#sending-alert' ).collapse( 'show' );
+    $.post( '/', {
+      source: 'scores',
+      updateObject: updateObject
+    }, checkPendingPOSTs);
     return false;
   });
 
@@ -92,7 +105,14 @@ function tiebreakerEvents(tableID, tieID, newID) {
     var updateObject = {tKey:common.tournamentKey, id:newID, round:tableID};
     updateObject.field = 'tiebreak' + tieID;
     updateObject.value = $(this).val();;
-    socket.emit( 'playerDetailsChanged', updateObject, 'scores' );
+    //socket.emit( 'playerDetailsChanged', updateObject, 'scores' );
+    roundScoresObj.pendingPOSTs++;
+    $( '#finished-alert' ).collapse( 'hide' );
+    $( '#sending-alert' ).collapse( 'show' );
+    $.post( '/', {
+      source: 'scores',
+      updateObject: updateObject
+    }, checkPendingPOSTs);
     return false;
   });
 };
@@ -107,10 +127,13 @@ function playervoteEvents(playerID, voteID, selectID) {
       index: voteID,
       value: votedFor
     };
+    roundScoresObj.pendingPOSTs++;
+    $( '#finished-alert' ).collapse( 'hide' );
+    $( '#sending-alert' ).collapse( 'show' );
     $.post( '/', {
       source: 'scores',
       updateObject: updateObj
-    });
+    }, checkPendingPOSTs);
   });
 }
 
@@ -222,6 +245,17 @@ function makePlayerVotesSelect(playerID, selectID, playerList) {
   }
   selectHTML += '</select>';
   return selectHTML;
+}
+
+function checkPendingPOSTs() {
+  roundScoresObj.pendingPOSTs--;
+  if (roundScoresObj.pendingPOSTs == 0) {
+    $( '#sending-alert' ).collapse( 'hide' );
+    $( '#finished-alert' ).collapse( 'show' );
+    setTimeout(function() {
+      $( '#finished-alert' ).collapse( 'hide' );
+    }, 3000);
+  }
 }
 
 // From http://stackoverflow.com/a/2998822

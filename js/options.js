@@ -1,3 +1,4 @@
+var socket = io();
 var shortenedNameButtonFunction = 'append';
 var nicknameButtonFunction = 'append';
 

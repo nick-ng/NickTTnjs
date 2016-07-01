@@ -1,4 +1,4 @@
-
+var socket = io();
 // ==============
 // Document.Ready
 // ==============

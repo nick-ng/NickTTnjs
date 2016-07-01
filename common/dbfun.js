@@ -419,6 +419,7 @@ dbfun.updatePlayerDetails = function updatePlayerDetails(updateObject, callback)
         }
       }
       var queryString = 'UPDATE ' + tSchema + '.playertable SET ' + field + ' = $2 WHERE id = $1;';
+      console.log(queryString);
       //~ console.log('updateObject.value =');
       //~ console.log(updateObject.value);
       //~ console.log('Sending ' + queryString + ' with:');

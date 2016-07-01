@@ -1,3 +1,4 @@
+var socket = io();
 var displayObj;
 var systemObj;
 var infoTable;

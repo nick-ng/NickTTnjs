@@ -9,7 +9,16 @@ $( document ).ready(function() {
   common.getTournamentKey(false, true);
   if (common.tournamentKey) {
     $( '#outstream' ).html( 'Loading players. Please wait.');
-    socket.emit( 'pullAllTournamentInfo', common.tournamentKey, 'finalstandings' );
+    $.get( '/', {
+      tKey: common.tournamentKey,
+      mode: 'finalstandings'
+      }, function(res) {
+      if (res.playerList && res.infoTable) {
+        handleAllTournamentInfo(res.playerList, res.infoTable);
+      } else {
+        $( '#outstream' ).html( 'Couldn\'t get tournament info.' );
+      }
+    });
   };
   activateDisplayControls()
 }); // $( document ).ready(function() {
@@ -39,8 +48,6 @@ function calculateStandings(playerList) {
       var totalVPDiff = 0;
       for (var j = 0; j < playerList[i].opponentids.length; j++) { // For each round,
         var roundVPScored = playerList[i].tiebreak2[j];
-        
-        console.log(roundVPScored);
         var roundOpponent = playerList.find(function(player) {
           return player.id == playerList[i].opponentids[j];
         });
@@ -98,6 +105,63 @@ function sortStandings(playerList) {
   return playerList.reverse();
 };
 
+function displayPlayervotes(playerList, systemObj) {
+  for (var i = 0; i < systemObj.playervotes.length; i++) {
+    var winners = countVotes(playerList, i);
+    var html = '<div class="col-md-4"><div class="panel panel-default">';
+    html += '<div class="panel-heading"><h3 class="panel-title">';
+    html += systemObj.playervotes[i];
+    html += '</h3></div><ul class="list-group">';
+    for (var j = 0; j <  winners.length; j++) {
+      foundObj = _.find(playerList, function(searchObj) {
+        return searchObj.id == winners[j]
+      });
+      if (foundObj) {
+        html += '<li class="list-group-item">' + foundObj.short_name + '</li>';
+      }
+    }
+    html += '</div></div></div>';
+    $( '#player-votes' ).append(html);
+    $( '#player-votes' ).removeClass( 'hidden' );
+  }
+}
+    
+
+function countVotes(playerList, voteCategory) {
+  /* For each category, put all votes from that category into an array.
+   * Create an object with keys for each playerID and values representing
+   *  their votes, initialised to 0.
+   * Loop through the initial array incrementing each key in the object.
+   * Determine which id has the most votes.
+   * Return all playerIDs with the most votes.
+   */
+  var votesForCategory = [];
+  var voteCount = {};
+  for (var i = 0; i < playerList.length; i++) {
+    if (!isNaN(playerList[i].playervotes[voteCategory])) {
+      votesForCategory.push(playerList[i].playervotes[voteCategory]);
+    }
+    voteCount[playerList[i].id] = 0;
+  }
+  for (var i = 0; i < votesForCategory.length; i++) {
+    var id = votesForCategory[i];
+    voteCount[id]++;
+  }
+  var mostVotes = 0;
+  for (var i = 0; i < _.keys(voteCount).length; i++) {
+    var id = _.keys(voteCount)[i];
+    mostVotes = Math.max(voteCount[id], mostVotes);
+  }
+  var winners = [];
+  for (var i = 0; i < _.keys(voteCount).length; i++) {
+    var id = _.keys(voteCount)[i];
+    if (mostVotes == voteCount[id]) {
+      winners.push(parseInt(id));
+    }
+  }
+  return winners;
+}
+
 // From http://stackoverflow.com/a/13627586
 function ordinal_suffix_of(i) {
     var j = i % 10,
@@ -119,11 +183,11 @@ function maxByKey(arr,keyName) {
   return Math.max.apply(Math,arr.map(function(o){return o[keyName];}));
 }
 
-socket.on( 'pushAllTournamentInfo', function(playerListIn, infoTable, instructions) {
+function handleAllTournamentInfo(playerListIn, infoTable) {
   if (infoTable) {
     systemObj = JSON.parse(infoTable.system_json);
   }
-  if (playerListIn && (instructions != 'shortNamesOnly' )) {
+  if (playerListIn) {
     playerList = playerListIn;
     makeTableHead();
     $( '#tbl-final tbody tr' ).remove();
@@ -140,9 +204,12 @@ socket.on( 'pushAllTournamentInfo', function(playerListIn, infoTable, instructio
       var id = addPlayerRow();
       populateTableRow(id, playerList[i]);
     };
+    if (systemObj.playervotes) {
+      displayPlayervotes(playerList, systemObj);
+    }
     $( '#outstream' ).html( '' );
   };
-});
+};
 
 /* ==============================
  * Game system specific functions

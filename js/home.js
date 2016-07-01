@@ -1,3 +1,4 @@
+var socket = io();
 var GAME_SYSTEM_OBJECTS = {};
 // Guild Ball
 var guildBallObj = {

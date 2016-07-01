@@ -1,3 +1,4 @@
+var socket = io();
 var rowIDList = [0];
 var systemObj = {};
 var emailGroup = '';
