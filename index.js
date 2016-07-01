@@ -37,7 +37,22 @@ initDatabase();
 
 // The pages
 app.get( '/', function( req, res ) {
-  res.sendFile(PAGEDIR + '/home.html');
+  if (req.query.tKey !== undefined) {
+    dbfun.getAllTournamentInfo(req.query.tKey, function(playerList, infoTable) {
+      playerList = chooseShortNames(playerList);
+      var instructions = '';
+      if (req.query.mode == 'extra special') {
+        instructions = 'special';
+      }
+      res.status(200).json({
+        playerList: playerList,
+        infoTable: infoTable,
+        instructions: instructions
+      });
+    })
+  } else {
+    res.sendFile(PAGEDIR + '/home.html');
+  }
 });
 app.get( '/playerdetails', function(req, res) {
   res.sendFile(PAGEDIR + '/playerdetails.html');
@@ -113,7 +128,7 @@ io.on( 'connection', function( socket ) {
     //console.log('Joined room');
     socket.join(room);
   });
-  
+
   socket.on( 'sendToDisplay', function(displayData) {
     if (displayData.room) {
       var safeData = {};
@@ -126,7 +141,7 @@ io.on( 'connection', function( socket ) {
       dbfun.updateTournamentJSON( 'display_json', tSchema, safeData);
     };
   });
-  
+
   socket.on( 'fullName focusout', function(player) {
     // This is one of the places where you access the database.
     player.short_names = nickifyNames( player.fullName, player.ID );
@@ -134,7 +149,7 @@ io.on( 'connection', function( socket ) {
     playerList = [player]
     io.emit( 'short_name change', playerList );
   });
-  
+
   socket.on( 'playerDetailsChanged', function(updateObject, mode) {
     mode = mode || 'playerdetails';
     dbfun.updatePlayerDetails(updateObject, function(result) {
@@ -152,7 +167,7 @@ io.on( 'connection', function( socket ) {
       }
     });
   });
-  
+
   socket.on( 'pullAllTournamentInfo', function(tKey, mode) {
     mode = mode || 'nothing';
     dbfun.getAllTournamentInfo(tKey, function(playerList, infoTable) {
@@ -164,14 +179,14 @@ io.on( 'connection', function( socket ) {
       io.to(socket.id).emit( 'pushAllTournamentInfo', playerList, infoTable, instructions);
     });
   });
-  
+
   socket.on( 'pushRoundDraw', function(drawObject) {
     dbfun.roundDrawUpdate(drawObject, function(result) {
       //Put draw information on database
       io.to(socket.id).emit( 'drawAccepted', drawObject.round);
     });
   });
-  
+
   socket.on( 'updateTournamentDetails', function(tKey, detail, value) {
     var tSchema = bfun.tKey2tSchema(tKey);
     if (detail == 'infoTable.name') {
@@ -192,7 +207,7 @@ io.on( 'connection', function( socket ) {
       dbfun.updateTournamentJSON( 'display_json', tSchema, tempObject);
     }
   });
-  
+
   /* ====================
    * = Name List events =
    * ==================== */
@@ -202,7 +217,7 @@ io.on( 'connection', function( socket ) {
   socket.on( 'pullNicknames', function ( parent ) {
     getNicknamesFromDB( parent )
   });
-  
+
   // Comment these if people start messing with you?
   // Nicknames
   socket.on( 'addOneNickname', function (newNickname) {
@@ -210,7 +225,7 @@ io.on( 'connection', function( socket ) {
       getNicknamesFromDB( 'single' );
     });
   });
-  
+
   socket.on( 'appendNicknames', function (tempText) {
     //~ console.log('Trying to parse:\n' + tempText);
     var errorString = '';
@@ -242,7 +257,7 @@ io.on( 'connection', function( socket ) {
       io.emit( 'nicknamesTableUnlocked' );
     };
   });
-  
+
   socket.on( 'replaceNicknames', function (tempText) {
     var newNicknames = [];
     //~ console.log('Trying to parse:\n' + tempText);
@@ -284,7 +299,7 @@ io.on( 'connection', function( socket ) {
       };
     };
   });
-  
+
   socket.on( 'resetNicknames', function () {
     if (!NICKNAMES_TABLE_LOCKED) {
       NICKNAMES_TABLE_LOCKED = true;
@@ -295,7 +310,7 @@ io.on( 'connection', function( socket ) {
       io.emit( 'nicknamesTableLocked' );
     }
   });
-  
+
   // Shortened names
   socket.on( 'resetShortenedNames', function () {
     if (!SHORTENEDNAMES_TABLE_LOCKED) {
@@ -307,13 +322,13 @@ io.on( 'connection', function( socket ) {
       io.emit( 'shortenedNamesTableLocked' );
     };
   });
-  
+
   socket.on( 'addOneShortenedName', function (newShortenedName) {
     dbfun.upsertShortenedName( newShortenedName.long_name, newShortenedName.shortened_name, function() {
       getShortenedNamesFromDB( 'single' );
     });
   });
-  
+
   socket.on( 'appendShortenedNames', function (tempText) {
     //~ console.log('Trying to parse:\n' + tempText);
     var errorString = '';
@@ -345,7 +360,7 @@ io.on( 'connection', function( socket ) {
       io.emit( 'shortenedNamesTableUnlocked' );
     };
   });
-  
+
   socket.on( 'replaceShortenedNames', function (tempText) {
     var newShortenedNames = [];
     //~ console.log('Trying to parse:\n' + tempText);
@@ -387,7 +402,7 @@ io.on( 'connection', function( socket ) {
       };
     };
   });
-  
+
   /* =========================
    * = Tournament-Key events =
    * ========================= */
@@ -421,7 +436,7 @@ io.on( 'connection', function( socket ) {
       });
     };
   });
-  
+
   socket.on( 'checkTournamentKey', function (maybeKey) {
     dbfun.checkTournament(maybeKey, function(tournamentExists, actualKey) {
       if (tournamentExists) {
@@ -433,20 +448,20 @@ io.on( 'connection', function( socket ) {
       };
     });
   });
-  
+
   socket.on( 'demoTournamentReset', function (demoKey) {
     //reset the appropriate tournament
     // then push demo key via callback (place holder pushes directly)
     io.to(socket.id).emit( 'pushTournamentKey', demoKey);
   });
-  
+
   // Test functions
   socket.on( 'testA', function (testObj) {
     console.log('testA socket received');
     dbfun.createQuickTable();
     io.to(socket.id).emit( 'testB', 'hello' );
   });
-  
+
   // end of io.on( 'connection', callback() );
 });
 
@@ -458,7 +473,7 @@ function shortenNames( namePart ) {
   var tempName = namePart;
   //console.log(SHORTENEDNAMES);
   for ( var i = 0; i < SHORTENEDNAMES.length; i++ ) {
-    var tempName2 = tempName.replace( SHORTENEDNAMES[i]['long_name'], SHORTENEDNAMES[i]['shortened_name'] ); 
+    var tempName2 = tempName.replace( SHORTENEDNAMES[i]['long_name'], SHORTENEDNAMES[i]['shortened_name'] );
     //console.log( tempName + ' > ' + tempName2 );
     tempName = tempName2;
   };

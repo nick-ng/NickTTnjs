@@ -47,9 +47,9 @@ BEGIN
 END;
 $$
 LANGUAGE plpgsql;
-* 
+*
 * SELECT merge_db(1, 'david');
-* 
+*
 * var query = client.query("SELECT name FROM users WHERE email = $1", ['brianc@example.com']);
 
     again.on('row', function(row) {
@@ -65,7 +65,7 @@ funcObj.funcName = 'add()';
 funcObj.funcQuery = 'CREATE OR REPLACE FUNCTION ' +
   'add(integer, integer) RETURNS integer AS ' +
   '$$ ' +
-  'SELECT $1 + $2;' + 
+  'SELECT $1 + $2;' +
   '$$ ' +
   'LANGUAGE SQL ' +
   'IMMUTABLE ' + // VOLATILE, STABLE, IMMUTABLE
@@ -179,7 +179,7 @@ dbfun.ezQuery = function( queryString, input1, input2 ) {
   // input 1 and input 2 can be any combination of undefined, array and function
   // ezQuery( queryString, parameters, callback )
   // ezQuery( queryString, callback )
-  // If input 
+  // If input
   var params = undefined;
   var callback = function(){}; // Initialise callback with an empty function.
   if (typeof input1 !== "undefined") {
@@ -306,12 +306,9 @@ dbfun.initialiseTournamentTables = function initialiseTournamentTables(tObject, 
     // A 2D array would be better but I can't figure out an easy way to change its size.
     playerQuery += 'tiebreak' + i + ' int[] DEFAULT \'{}\',';
   };
-  for (var i = 0; i <= 5; i++) {
-    // A 2D array would be better but I can't figure out an easy way to change its size.
-    playerQuery += 'softscore' + i + ' int[] DEFAULT \'{}\',';
-  };
+  playerQuery += 'playervotes' + i + ' int[] DEFAULT \'{}\',';
   playerQuery += 'tablenumbers smallint[] DEFAULT \'{}\');';
-  
+
   dbfun.ezQuery(infoQuery, function(result) {
     dbfun.ezQuery( 'INSERT INTO ' + tSchema + '.infotable (id) VALUES (1);', function(result) {
       dbfun.ezQuery( 'SELECT insert_key_to_quicktournaments($1)', [bfun.tSchema2tKey(tSchema)], function() {

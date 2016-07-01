@@ -1,10 +1,12 @@
 var GAME_SYSTEM_OBJECTS = {};
 // Guild Ball
-var guildBallObj = {};
-guildBallObj.name = 'Guild Ball';
-guildBallObj.tiebreaks = ['Goals','Body<br>Count','Total VPs'];
-guildBallObj.faction_name = 'Guild';
-guildBallObj.slug = 'guildball';
+var guildBallObj = {
+  name: 'Guild Ball',
+  tiebreaks: ['Goals','Body<br>Count','Total VPs'],
+  playervotes: ['Painting','Sports'],
+  faction_name: 'Guild',
+  slug: 'guildball'
+};
 GAME_SYSTEM_OBJECTS[guildBallObj.slug] = guildBallObj;
 var otherSystemObj = {};
 otherSystemObj.name = 'Other';
@@ -51,7 +53,7 @@ $('#loadTournamentDialog').on('shown.bs.modal', function () {
 
 $( '#loadTournamentButton' ).click(function() {
   homeLoadTournament();
-  
+
 });
 
 $( '#demoTournamentButton' ).click(function() {
