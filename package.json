@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/nick-ng/NickTTnjs#readme",
   "dependencies": {
+    "body-parser": "1.15.2",
     "express": "4.13.4",
     "jquery": "2.2.3",
     "jquery-csv": "0.8.1",

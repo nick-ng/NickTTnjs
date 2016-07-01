@@ -75,11 +75,11 @@
                 <p>Your previous tournaments can be accessed by clicking on the "Load Tournament" button and entering their tournament-key.</p>
                 <div class="form-group">
                   <label for="newTournamentName">Tournament Name</label>
-                  <input type="text" class="form-control" id="newTournamentName" placeholder="Tournament Name">
+                  <input type="text" class="form-control" id="newTournamentName" placeholder="Tournament Name" autocomplete="off">
                 </div>
                 <div class="form-group">
                   <label for="newTournamentDate">Tournament Date</label>
-                  <input type="text" class="form-control" id="newTournamentDate" placeholder="DD-MM-YYYY">
+                  <input type="text" class="form-control" id="newTournamentDate" placeholder="DD-MM-YYYY" autocomplete="off">
                 </div>
                 <div class="form-group">
                   <label for="newTournamentSystem">Game</label>
@@ -113,7 +113,7 @@
                 <form id="loadTournamentForm" class="form-inline">
                   <div class="form-group">
                     <label class="sr-only" for="loadTournamentKey">Tournament-key</label>
-                    <input id="loadTournamentKey" class="form-control" type="text" placeholder="Tournament-key">
+                    <input id="loadTournamentKey" class="form-control" type="text" placeholder="Tournament-key" autocomplete="off">
                   </div>
                   <button type="submit" class="btn btn-default">Load</button>
                 </form>
@@ -173,7 +173,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="row">
         <div class="col-md-12">
           <hr />
@@ -182,7 +182,7 @@
       </div>
     </div>
     <!-- End of main content -->
-    
+
     <script type="text/javascript" src="socket.io-1.4.5.js"></script>
     <script type="text/javascript" src="jquery-2.2.3.min.js"></script>
     <script src="js/bootstrap.min.js"></script>

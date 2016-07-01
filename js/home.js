@@ -3,7 +3,7 @@ var GAME_SYSTEM_OBJECTS = {};
 var guildBallObj = {
   name: 'Guild Ball',
   tiebreaks: ['Goals','Body<br>Count','Total VPs'],
-  playervotes: ['Painting','Sports'],
+  playervotes: ['Best Goal Design','Best Painted Team'],
   faction_name: 'Guild',
   slug: 'guildball'
 };

@@ -1,6 +1,12 @@
 // Requires
 // People's requires
-var express = require( 'express' ); var app = express();
+var express = require( 'express' );
+var app = express();
+var bodyParser = require( 'body-parser' );
+app.use( bodyParser.json() );       // to support JSON-encoded bodies
+app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+  extended: true
+}));
 var fs = require( 'fs' );
 var http = require( 'http' ).Server( app );
 var io = require( 'socket.io' )( http );
@@ -36,6 +42,17 @@ app.use( express.static( __dirname + '/bootstrap' ) );
 initDatabase();
 
 // The pages
+app.post( '/', function(req, res) {
+  if ((req.body.source == 'scores') && !isNaN(req.body.updateObject.index)) {
+    req.body.updateObject.index = parseInt(req.body.updateObject.index);
+    dbfun.updatePlayerDetails(req.body.updateObject, function() {
+      res.sendStatus(201);
+    });
+  } else {
+    console.log(req.body);
+  }
+});
+
 app.get( '/', function( req, res ) {
   if (req.query.tKey !== undefined) {
     dbfun.getAllTournamentInfo(req.query.tKey, function(playerList, infoTable) {
